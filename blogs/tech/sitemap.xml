@@ -5,34 +5,41 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>http://jguegant.github.io/blogs/tech/</loc>
-<lastmod>2015-10-15T19:37:34-00:00</lastmod>
+<lastmod>2015-10-16T23:04:06-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
 <loc>http://jguegant.github.io/blogs/tech/archives.html</loc>
-<lastmod>2015-10-15T19:37:34-00:00</lastmod>
+<lastmod>2015-10-16T23:04:06-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
 <loc>http://jguegant.github.io/blogs/tech/tags.html</loc>
-<lastmod>2015-10-15T19:37:34-00:00</lastmod>
+<lastmod>2015-10-16T23:04:06-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
 <loc>http://jguegant.github.io/blogs/tech/categories.html</loc>
-<lastmod>2015-10-15T19:37:34-00:00</lastmod>
+<lastmod>2015-10-16T23:04:06-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
 <loc>http://jguegant.github.io/blogs/tech/pages/about.html</loc>
+<lastmod>2015-10-13T22:20:00+02:00</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.5</priority>
+</url>
+
+<url>
+<loc>http://jguegant.github.io/blogs/tech/pages/contact.html</loc>
 <lastmod>2015-10-13T22:20:00+02:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.5</priority>
