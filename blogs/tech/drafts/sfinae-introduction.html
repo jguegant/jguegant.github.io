@@ -70,6 +70,7 @@
 <p>As a C++ enthusiast, I usually follow the annual C++ conference <a href="http://cppcon.org/">cppconf</a> or at least try to keep myself up-to-date with the major events that happen there. One way to catch up, if you can't afford a plane ticket or the ticket, is to follow the <a href="https://www.youtube.com/channel/UCMlGfpWw-RUdWX_JbLCukXg">youtube channel</a> dedicated to this conference. This year, I was impressed by <strong>Louis Dionne</strong> talk entitled "C++ Metaprogramming: A Paradigm Shift". One feature called <strong>is_valid</strong> that can be found in Louis's <a href="http://ldionne.com/hana/">Boost.Hana</a> library particulary caught my attention. This genious <strong>is_valid</strong> function heavily rely on an even more "magic" C++ programming technique coined with the term <strong>SFINAE</strong> discovered at the end of the previous century. If this acronym doesn't speak to you, don't be scared, we are going to dive straight in the subject.</p>
 <h3>Introspection in C++?</h3>
 <p>Before explaining what is <strong>SFINAE</strong>, let's explore one of its main usage: <strong>introspection</strong>. As you might be aware, C++ doesn't excel when it comes to examine the type or properties of an object at runtime. The best ability provided by default would be <a href="https://en.wikipedia.org/wiki/Run-time_type_information">RTTI</a>. Not only <strong>RTTI</strong> isn't always available, but it also gives you barely more than the current type of the manipulated object. Dynamic languages or those having <strong>reflection</strong> on the other hand are really convenient in some situations like <strong>serialization</strong>.</p>
+<p>For instance, in Python, using reflection, one can do the following:</p>
 <div class="highlight"><pre><span class="k">class</span> <span class="nc">A</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
     <span class="c"># Simply overrides the &#39;object.__str__&#39; method.</span>
     <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
@@ -108,7 +109,204 @@
 </pre></div>
 
 
-<p>At compile time? Your compiler has all the type information, reflection ==&gt;.</p>
+<p>As you can see, during serialization, it comes pretty handy to be able to check if an object has an attribute and if to query the type of this attribute. In this case, it permits us to use the <strong>serialize</strong> method if available and fall back to the more generic method <strong>str</strong> otherwise. Powerful, isn't it? Well, we can do it <strong>in plain C++</strong>!</p>
+<p>Here is the <strong>C++14</strong> solution mentionned in <strong>Boost.Hana</strong> documentation, using <strong>is_valid</strong>:</p>
+<div class="highlight"><pre><span class="cp">#include &lt;boost/hana.hpp&gt;</span>
+<span class="cp">#include &lt;iostream&gt;</span>
+<span class="cp">#include &lt;string&gt;</span>
+
+<span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+<span class="k">namespace</span> <span class="n">hana</span> <span class="o">=</span> <span class="n">boost</span><span class="o">::</span><span class="n">hana</span><span class="p">;</span>
+
+<span class="c1">// Check if a type has a serialize method.</span>
+<span class="k">auto</span> <span class="n">hasSerialize</span> <span class="o">=</span> <span class="n">hana</span><span class="o">::</span><span class="n">is_valid</span><span class="p">([](</span><span class="k">auto</span><span class="o">&amp;&amp;</span> <span class="n">x</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="k">decltype</span><span class="p">(</span><span class="n">x</span><span class="p">.</span><span class="n">serialize</span><span class="p">())</span> <span class="p">{</span> <span class="p">});</span>
+
+<span class="c1">// Serialize any kind of objects.</span>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">serialize</span><span class="p">(</span><span class="n">T</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">obj</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="n">hana</span><span class="o">::</span><span class="n">if_</span><span class="p">(</span><span class="n">hasSerialize</span><span class="p">(</span><span class="n">obj</span><span class="p">),</span> <span class="c1">// Serialize is selected if available!</span>
+                     <span class="p">[](</span><span class="k">auto</span><span class="o">&amp;</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">x</span><span class="p">.</span><span class="n">serialize</span><span class="p">();</span> <span class="p">},</span>
+                     <span class="p">[](</span><span class="k">auto</span><span class="o">&amp;</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">to_string</span><span class="p">(</span><span class="n">x</span><span class="p">);</span> <span class="p">}</span>
+    <span class="p">)(</span><span class="n">obj</span><span class="p">);</span>
+<span class="p">}</span>
+
+<span class="c1">// Type A with only a to_string overload.</span>
+<span class="k">struct</span> <span class="n">A</span> <span class="p">{};</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">to_string</span><span class="p">(</span><span class="k">const</span> <span class="n">A</span><span class="o">&amp;</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="s">&quot;I am a A!&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// Type B with a serialize method.</span>
+<span class="k">struct</span> <span class="n">B</span>
+<span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">serialize</span><span class="p">()</span> <span class="k">const</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="s">&quot;I am a B!&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="c1">// Type C with a &quot;wrong&quot; serialize member (not a method) and a to_string overload.</span>
+<span class="k">struct</span> <span class="n">C</span>
+<span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">serialize</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">to_string</span><span class="p">(</span><span class="k">const</span> <span class="n">C</span><span class="o">&amp;</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="s">&quot;I am a C!&quot;</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="n">main</span><span class="p">()</span> <span class="p">{</span>
+    <span class="n">A</span> <span class="n">a</span><span class="p">;</span>
+    <span class="n">B</span> <span class="n">b</span><span class="p">;</span>
+    <span class="n">C</span> <span class="n">c</span><span class="p">;</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">serialize</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">serialize</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">serialize</span><span class="p">(</span><span class="n">c</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>As you can see, it only requires a bit more of boilerplate than Python, but not as much as you would expect from a language as complexe as C++. How does it work? Well if you are too lazy to read the rest, here is the simplest answer I can give you: unlike dynamically typed languages, your compiler has access a lot of static type information once fired. It makes sense that we can constraint your compiler to do a bit of work on these types! The next question that comes to your mind is "How to?". Well, right below we are going to explore the various options we have to enslave our favorite compiler for fun and profit! And we will eventually recreate our own <strong>is_valid</strong> and static <strong>if_</strong>.</p>
+<h3>The old-fashioned C++98-way:</h3>
+<p>Whether your compiler is a dinosaur, your boss refuses to pay for the latest Visual Studio license or you simply love archeology, this chapter will interest you. It's also interesting for the people stuck between C++11 and C++14. The solution in C++98 relies on 3 key concepts: <strong>overload resolution</strong>, <strong>SFINAE</strong> and the static behavior of <strong>sizeof</strong>. </p>
+<h4>Overload resolution:</h4>
+<p>A simple function call like <strong>f(obj);</strong> in C++ activates a mechanism to figure out which <strong>f</strong> function shoud be called according to the argument <strong>obj</strong>. If a <strong>set</strong> of <strong>f</strong> functions could accept <strong>obj</strong> as an argument, the compiler must choose the most appropriate function, or in other words <strong>resolve</strong> the best <strong>overload</strong>! Here is a good cppreference page explaining the full process: <a href="http://en.cppreference.com/w/cpp/language/overload_resolution">Overload resolution</a>. The rule of thumb in this case is that the compiler picks <em>the candidate function whose parameters match the arguments most closely is the one that is called</em>. Nothing is better than a good example:</p>
+<div class="highlight"><pre><span class="kt">void</span> <span class="nf">f</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">s</span><span class="p">);</span> <span class="c1">// int can&#39;t be convert into a string.</span>
+<span class="kt">void</span> <span class="nf">f</span><span class="p">(</span><span class="kt">double</span> <span class="n">d</span><span class="p">);</span> <span class="c1">// int can be implicitly convert into a double, so this version could be selected, but...</span>
+<span class="kt">void</span> <span class="nf">f</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="p">);</span> <span class="c1">// ... this version using the type int directly is even more close!</span>
+
+<span class="n">f</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span> <span class="c1">// Call f(int i);</span>
+</pre></div>
+
+
+<p>In C++ you also have some sink-hole functions that accept everything: the function templates that accept any kind of parameter (let's say T). But the true black-hole your compiler, the variable vacuum, the oblivion of the forgotten types are the <a href="http://en.cppreference.com/w/cpp/utility/variadic">variadic functions</a>. Yes, exactly like the horrible C <strong>printf</strong>.</p>
+<div class="highlight"><pre><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">f</span><span class="p">(...);</span> <span class="c1">// Variadic functions are so &quot;untyped&quot; that...</span>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">f</span><span class="p">(</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">t</span><span class="p">);</span> <span class="c1">// ...even a templated function got the precedence!</span>
+
+<span class="n">f</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span> <span class="c1">// Call the templated function version of f.</span>
+</pre></div>
+
+
+<p>The fact that function templates are less generic than variadic functions is the first point you must remember!</p>
+<h4>SFINAE:</h4>
+<p>I am already teasing you with the power for already few paragraphs and here finally comes the explanation of this not so complex acronym. <strong>SFINAE</strong> stands for <strong>S</strong>ubstitution <strong>F</strong>ailure <strong>I</strong>s <strong>N</strong>ot <strong>A</strong>n <strong>E</strong>rror. In rough terms, a <strong>substitution</strong> is the mechanism that tries to replace the template parameters with the provided types or values. In some cases, if the <strong>substitution</strong> leads to an invalid code, the processor shouldn't throw a massive amount of errors but simply continue to try the other available <strong>overloads</strong>. The <strong>SFINAE</strong> concept simply guaranties such a "sane" behavior in a "sane" compiler. For instance:</p>
+<div class="highlight"><pre><span class="cm">/*</span>
+<span class="cm"> The compiler will try this overload since it&#39;s less generic than the variadic.</span>
+<span class="cm"> T will be replace by int which gives us void f(int::B* b);</span>
+<span class="cm"> int doesn&#39;t have a B sub-type, but the compiler doesn&#39;t throw a bunch of errors.</span>
+<span class="cm"> It simply tries the next overload.</span>
+<span class="cm">*/</span>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span> <span class="kt">void</span> <span class="n">f</span><span class="p">(</span><span class="k">typename</span> <span class="n">T</span><span class="o">::</span><span class="n">B</span><span class="o">*</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
+
+<span class="c1">// The sink-hole.</span>
+<span class="kt">void</span> <span class="n">f</span><span class="p">(...)</span> <span class="p">{</span> <span class="p">}</span>
+
+<span class="n">f</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span> <span class="c1">// Calls void f(...) { }</span>
+</pre></div>
+
+
+<p>All the expressions won't lead to a <strong>SFINAE</strong>. A broad rule would be to say that all the <strong>substitution</strong> out of the function/methods <strong>body</strong> are "safes". For a better list, please take a look at this <a href="http://en.cppreference.com/w/cpp/language/sfinae">wiki page</a>. For instance, a wrong substitution within a function <strong>body</strong> will lead to a horrible C++ template error:</p>
+<div class="highlight"><pre><span class="c1">// The compiler will be really unhappy when it will later discover the call to hahahaICrash. </span>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span> <span class="kt">void</span> <span class="n">f</span><span class="p">(</span><span class="n">T</span> <span class="n">t</span><span class="p">)</span> <span class="p">{</span> <span class="n">t</span><span class="p">.</span><span class="n">hahahaICrash</span><span class="p">();</span> <span class="p">}</span>
+<span class="kt">void</span> <span class="n">f</span><span class="p">(...)</span> <span class="p">{</span> <span class="p">}</span> <span class="c1">// The sink-hole wasn&#39;t even considered.</span>
+
+<span class="n">f</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span>
+</pre></div>
+
+
+<h4>The operator sizeof:</h4>
+<p>The <strong>sizeof operator</strong> is really a nice tool! It permits us to returns the size in bytes of a type or an expression at compilation time. <strong>sizeof</strong> is really interesting as it accurately evaluates an expression as precisely as if it were compiled.
+One can for instance do:</p>
+<div class="highlight"><pre><span class="k">typedef</span> <span class="kt">char</span> <span class="n">type_test</span><span class="p">[</span><span class="mi">42</span><span class="p">];</span>
+<span class="n">type_test</span><span class="o">&amp;</span> <span class="n">f</span><span class="p">();</span>
+
+<span class="c1">// In the following lines f won&#39;t even be truly called but we can still access to the size of its return type.</span>
+<span class="c1">// Thanks to the &quot;fake evaluation&quot; of the sizeof operator.</span>
+<span class="kt">char</span> <span class="n">arrayTest</span><span class="p">[</span><span class="k">sizeof</span><span class="p">(</span><span class="n">f</span><span class="p">())];</span>
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">f</span><span class="p">())</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="c1">// Output 42.</span>
+</pre></div>
+
+
+<p>But wait! If we can manipulate some compile-time integers, couldn't we do some compile-time comparison? The answer is: absolutely yes my dear! Here we are:</p>
+<div class="highlight"><pre><span class="k">typedef</span> <span class="kt">char</span> <span class="n">yes</span><span class="p">;</span>
+<span class="k">typedef</span> <span class="n">yes</span> <span class="n">no</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+
+<span class="n">yes</span><span class="o">&amp;</span> <span class="n">f1</span><span class="p">();</span>
+<span class="n">no</span><span class="o">&amp;</span> <span class="n">f2</span><span class="p">();</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">f1</span><span class="p">())</span> <span class="o">==</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">f2</span><span class="p">()))</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="c1">// Output 0</span>
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">f1</span><span class="p">())</span> <span class="o">==</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">f1</span><span class="p">()))</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="c1">// Output 1</span>
+</pre></div>
+
+
+<h4>Combining everything:</h4>
+<p>Now we have all the tools to create a solution to check the existence of a method within a type at compile time. You might even have already figured it out most of it by yourself. So let's create it:</p>
+<div class="highlight"><pre><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span> <span class="k">struct</span> <span class="n">hasSerialize</span>
+<span class="p">{</span>
+    <span class="c1">// For the compile time comparison.</span>
+    <span class="k">typedef</span> <span class="kt">char</span> <span class="n">yes</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
+    <span class="k">typedef</span> <span class="n">yes</span> <span class="n">no</span><span class="p">[</span><span class="mi">2</span><span class="p">];</span>
+
+    <span class="c1">// This helper struct permits us to check two properties of a template argument.</span>
+    <span class="c1">// The first argument must match the second one.</span>
+    <span class="c1">// &amp;C::serialize is actually the same as its signature!</span>
+    <span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">U</span><span class="p">,</span> <span class="n">U</span><span class="o">&gt;</span> <span class="k">struct</span> <span class="n">reallyHas</span><span class="p">;</span>
+
+    <span class="c1">// Two overloads for yes: one for the signature of a normal method, one is for the signature of a const method.</span>
+    <span class="c1">// Note that we accept a pointer to our helper struct, </span>
+    <span class="c1">// in order to avoid to instantiate a real instance of this type.</span>
+    <span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">C</span><span class="o">&gt;</span> <span class="k">static</span> <span class="n">yes</span><span class="o">&amp;</span> <span class="n">test</span><span class="p">(</span><span class="n">reallyHas</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="p">(</span><span class="n">C</span><span class="o">::*</span><span class="p">)(),</span> <span class="o">&amp;</span><span class="n">C</span><span class="o">::</span><span class="n">serialize</span><span class="o">&gt;*</span> <span class="cm">/*unused*/</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
+    <span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">C</span><span class="o">&gt;</span> <span class="k">static</span> <span class="n">yes</span><span class="o">&amp;</span> <span class="n">test</span><span class="p">(</span><span class="n">reallyHas</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="p">(</span><span class="n">C</span><span class="o">::*</span><span class="p">)()</span> <span class="k">const</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">C</span><span class="o">::</span><span class="n">serialize</span><span class="o">&gt;*</span> <span class="cm">/*unused*/</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
+
+    <span class="c1">// The famous C++ sink-hole.</span>
+    <span class="c1">// Note that sink-hole must be templated too as we are testing test&lt;T&gt;(0).</span>
+    <span class="c1">// If the method serialize isn&#39;t available, we will end up in this method.</span>
+    <span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span><span class="o">&gt;</span> <span class="k">static</span> <span class="n">no</span><span class="o">&amp;</span> <span class="n">test</span><span class="p">(...)</span> <span class="p">{</span> <span class="cm">/* dark matter */</span> <span class="p">}</span>
+
+    <span class="c1">// The constant used as a return value for the test.</span>
+    <span class="c1">// The test is actually done here, thanks to the sizeof compile-time evaluation.</span>
+    <span class="k">static</span> <span class="k">const</span> <span class="kt">bool</span> <span class="n">value</span> <span class="o">=</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">test</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span> <span class="o">==</span> <span class="k">sizeof</span><span class="p">(</span><span class="n">yes</span><span class="p">);</span>
+<span class="p">};</span>
+
+<span class="c1">// Using the struct A, B, C defined in the previous hasSerialize example.</span>
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">hasSerialize</span><span class="o">&lt;</span><span class="n">A</span><span class="o">&gt;::</span><span class="n">value</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">hasSerialize</span><span class="o">&lt;</span><span class="n">B</span><span class="o">&gt;::</span><span class="n">value</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">hasSerialize</span><span class="o">&lt;</span><span class="n">C</span><span class="o">&gt;::</span><span class="n">value</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</pre></div>
+
+
+<p>The <strong>reallyHas</strong> struct is kinda tricky but necessary to ensure that serialize is a method and not a simple member of the type. You can way more tests on a type using variants of this solution (test a member, a sub-type...) and I suggest you to google a bit more about <strong>SFINAE</strong>. Note: if you truly want a pure compile-time constant and avoid some errors on old compilers, you can replace the last value evaluation by: "<strong>enum { value = sizeof(test<T>(0)) == sizeof(yes) };</strong>". </p>
+<p>You might also wonder why it doesn't work with <strong>inheritence</strong>. <strong>Inheritence</strong> in C++ and <strong>dynamic polymorphism</strong> is a concept available at runtime, or in other words, a data that the compiler won't have and can't guess! However, compile time type inspection is much more efficient (0 impact at runtime) and almost as powerful as if it were at runtime.
+For instance:</p>
+<div class="highlight"><pre><span class="c1">// Using the previous A struct and hasSerialize helper.</span>
+
+<span class="k">struct</span> <span class="nl">D</span> <span class="p">:</span> <span class="n">A</span>
+<span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">serialize</span><span class="p">()</span> <span class="k">const</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="s">&quot;I am a D!&quot;</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span> <span class="kt">bool</span> <span class="n">testHasSerialize</span><span class="p">(</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span> <span class="cm">/*t*/</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">hasSerialize</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">value</span><span class="p">;</span> <span class="p">}</span>
+
+<span class="n">D</span> <span class="n">d</span><span class="p">;</span>
+<span class="n">A</span><span class="o">&amp;</span> <span class="n">a</span> <span class="o">=</span> <span class="n">d</span><span class="p">;</span> <span class="c1">// Here we lost the type of d at compile time.</span>
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">testHasSerialize</span><span class="p">(</span><span class="n">d</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="c1">// Output 1</span>
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">testHasSerialize</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="c1">// Output 0</span>
+</pre></div>
+
+
+<h4>Time to use it:</h4>
+<p>std::enable_if </p>
+<h3>When C++11 came to our help:</h3>
+<p>decltype, declval, more failure, std::true_type, etc</p>
+<h3>The supremacy of C++14:</h3>
+<p>constrexpr and auto lambda/functions</p>
   </div>
   <div class="tag-cloud">
     <p>
