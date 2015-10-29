@@ -183,7 +183,7 @@
 </pre></div>
 
 
-<p>In C++ you also have some sink-hole functions that accept everything: the function templates that accept any kind of parameter (let's say T). But the true black-hole your compiler, the variable vacuum, the oblivion of the forgotten types are the <a href="http://en.cppreference.com/w/cpp/utility/variadic">variadic functions</a>. Yes, exactly like the horrible C <strong>printf</strong>.</p>
+<p>In C++ you also have some sink-hole functions that accept everything: the function templates that accept any kind of parameter (let's say T). But the true black-hole of your compiler, the devil variable vacuum, the oblivion of the forgotten types are the <a href="http://en.cppreference.com/w/cpp/utility/variadic">variadic functions</a>. Yes, exactly like the horrible C <strong>printf</strong>.</p>
 <div class="highlight"><pre><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">f</span><span class="p">(...);</span> <span class="c1">// Variadic functions are so &quot;untyped&quot; that...</span>
 <span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">f</span><span class="p">(</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">t</span><span class="p">);</span> <span class="c1">// ...even a templated function got the precedence!</span>
 
@@ -193,7 +193,7 @@
 
 <p>The fact that function templates are less generic than variadic functions is the first point you must remember!</p>
 <h4>SFINAE:</h4>
-<p>I am already teasing you with the power for already few paragraphs and here finally comes the explanation of this not so complex acronym. <strong>SFINAE</strong> stands for <strong>S</strong>ubstitution <strong>F</strong>ailure <strong>I</strong>s <strong>N</strong>ot <strong>A</strong>n <strong>E</strong>rror. In rough terms, a <strong>substitution</strong> is the mechanism that tries to replace the template parameters with the provided types or values. In some cases, if the <strong>substitution</strong> leads to an invalid code, the processor shouldn't throw a massive amount of errors but simply continue to try the other available <strong>overloads</strong>. The <strong>SFINAE</strong> concept simply guaranties such a "sane" behavior in a "sane" compiler. For instance:</p>
+<p>I am already teasing you with the power for already few paragraphs and here finally comes the explanation of this not so complex acronym. <strong>SFINAE</strong> stands for <strong>S</strong>ubstitution <strong>F</strong>ailure <strong>I</strong>s <strong>N</strong>ot <strong>A</strong>n <strong>E</strong>rror. In rough terms, a <strong>substitution</strong> is the mechanism that tries to replace the template parameters with the provided types or values. In some cases, if the <strong>substitution</strong> leads to an invalid code, the compiler shouldn't throw a massive amount of errors but simply continue to try the other available <strong>overloads</strong>. The <strong>SFINAE</strong> concept simply guaranties such a "sane" behavior in a "sane" compiler. For instance:</p>
 <div class="highlight"><pre><span class="cm">/*</span>
 <span class="cm"> The compiler will try this overload since it&#39;s less generic than the variadic.</span>
 <span class="cm"> T will be replace by int which gives us void f(int::B* b);</span>
@@ -372,7 +372,7 @@ For instance:</p>
 </pre></div>
 
 
-<p>As you can see, we can trigger a substitution failure according to a compile time expression with <strong>enable_if</strong>. Now we can use this failure on the "<strong>template &lt;class T> std::string serialize(const T&amp; obj)</strong>" signature to dispatch to the write version. Finally, we have the true solution of our problem:</p>
+<p>As you can see, we can trigger a substitution failure according to a compile time expression with <strong>enable_if</strong>. Now we can use this failure on the "<strong>template &lt;class T> std::string serialize(const T&amp; obj)</strong>" signature to dispatch to the right version. Finally, we have the true solution of our problem:</p>
 <div class="highlight"><pre><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span> <span class="k">typename</span> <span class="n">enable_if</span><span class="o">&lt;</span><span class="n">hasSerialize</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;::</span><span class="n">value</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;::</span><span class="n">type</span> <span class="n">serialize</span><span class="p">(</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">obj</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="k">return</span> <span class="n">obj</span><span class="p">.</span><span class="n">serialize</span><span class="p">();</span>
@@ -394,9 +394,35 @@ For instance:</p>
 </pre></div>
 
 
-<p>Two details worth being noted! Firstly we use <strong>enable_if</strong> on the return type, in order to keep the paramater deduction, otherwise we would have to specify the type explicitely "<strong>serialize&lt;A>(a)</strong>". Second, even the version using <strong>to_string</strong> must use the <strong>enable_if</strong>, otherwise <strong>serialize(b)</strong> would have two potential overloads available and raise an ambiguity. If you want to check the full code of this C++98 version, here is a <a href="https://gist.github.com/Jiwan/2573fc47e4fa5025306b">Gist</a>.</p>
+<p>Two details worth being noted! Firstly we use <strong>enable_if</strong> on the return type, in order to keep the paramater deduction, otherwise we would have to specify the type explicitely "<strong>serialize&lt;A>(a)</strong>". Second, even the version using <strong>to_string</strong> must use the <strong>enable_if</strong>, otherwise <strong>serialize(b)</strong> would have two potential overloads available and raise an ambiguity. If you want to check the full code of this C++98 version, here is a <a href="https://gist.github.com/Jiwan/2573fc47e4fa5025306b">Gist</a>.
+Life is much easier in C++11, so let's see the beauty of this new standard!</p>
 <h3>When C++11 came to our help:</h3>
-<p>decltype, declval, more failure, std::true_type, etc</p>
+<p>SFINAE enforced
+decltype
+auto
+constrexpr
+std::true_type</p>
+<dl>
+<dt>template <typename T, typename = void></dt>
+<dt>struct has_toString</dt>
+<dd>
+<dl>
+<dt>std::false_type</dt>
+<dt>{ };</dt>
+<dt>template <typename T></dt>
+<dt>struct has_toString<T, decltype((void)std::declval<T>().toString())&gt;</dt>
+<dd>std::true_type
+{ };</dd>
+</dl>
+</dd>
+</dl>
+<h4>Other interesting features:</h4>
+<div class="highlight"><pre>declval
+nullptr
+lambda
+</pre></div>
+
+
 <h3>The supremacy of C++14:</h3>
 <p>constrexpr and auto lambda/functions, enable_if_t</p>
   </div>
