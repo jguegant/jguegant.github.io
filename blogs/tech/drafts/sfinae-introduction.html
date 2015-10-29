@@ -397,11 +397,76 @@ For instance:</p>
 <p>Two details worth being noted! Firstly we use <strong>enable_if</strong> on the return type, in order to keep the paramater deduction, otherwise we would have to specify the type explicitely "<strong>serialize&lt;A>(a)</strong>". Second, even the version using <strong>to_string</strong> must use the <strong>enable_if</strong>, otherwise <strong>serialize(b)</strong> would have two potential overloads available and raise an ambiguity. If you want to check the full code of this C++98 version, here is a <a href="https://gist.github.com/Jiwan/2573fc47e4fa5025306b">Gist</a>.
 Life is much easier in C++11, so let's see the beauty of this new standard!</p>
 <h3>When C++11 came to our help:</h3>
-<p>SFINAE enforced
-decltype
-auto
-constrexpr
-std::true_type</p>
+<p>After the great century leap year in 2000, people were fairly optimistic about the coming years. Some even decided to do design a new standard for the next generation of C++ coders like me! Not only this standard would ease <strong>TMP</strong> headaches (<strong>T</strong>emplate <strong>M</strong>eta <strong>P</strong>rogramming side-effects), but it would be available in the first decade, hence its code-name <strong>C++0x</strong>. Well, the standard sadly came the next decade (2011 ==&gt; <strong>C++11</strong>), but it brought a lot of features interesting for the purpose of this article. Let's review them!</p>
+<h4>decltype, declvar, auto &amp; co:</h4>
+<p>Do you remember that the <strong>sizeof operator</strong> does a "fake evaluation" of the expression that you pass to it, and return gives you the size of the type of the expression? Well <strong>C++11</strong> adds a new operator called <strong>decltype</strong>. <a href="http://en.cppreference.com/w/cpp/language/decltype">decltype</a> gives you the type of the of the expression it will evaluate. As I am kind, I won't let you google an example and give it to you directly:</p>
+<div class="highlight"><pre><span class="n">B</span> <span class="n">b</span><span class="p">;</span>
+<span class="k">decltype</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">serialize</span><span class="p">())</span> <span class="n">test</span> <span class="o">=</span> <span class="s">&quot;test&quot;</span><span class="p">;</span> <span class="c1">// Evaluate b.serialize(), which is typed as std::string.</span>
+<span class="c1">// Equivalent to std::string test = &quot;test&quot;;</span>
+</pre></div>
+
+
+<p><a href="http://en.cppreference.com/w/cpp/utility/declval">declvar</a> is an utility that gives you a "fake reference" to an object of a type that couldn't be easily construct. <strong>declvar</strong> is really handy for our <strong>SFINAE</strong> constructions. <strong>cppreference</strong> example is really straightforward, so here is a copy:</p>
+<div class="highlight"><pre><span class="k">struct</span> <span class="n">Default</span> <span class="p">{</span>
+    <span class="kt">int</span> <span class="n">foo</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="mi">1</span><span class="p">;}</span>
+<span class="p">};</span>
+
+<span class="k">struct</span> <span class="n">NonDefault</span> <span class="p">{</span>
+    <span class="n">NonDefault</span><span class="p">(</span><span class="k">const</span> <span class="n">NonDefault</span><span class="o">&amp;</span><span class="p">)</span> <span class="p">{}</span>
+    <span class="kt">int</span> <span class="n">foo</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="mi">1</span><span class="p">;}</span>
+<span class="p">};</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="k">decltype</span><span class="p">(</span><span class="n">Default</span><span class="p">().</span><span class="n">foo</span><span class="p">())</span> <span class="n">n1</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="c1">// int n1</span>
+<span class="c1">//  decltype(NonDefault().foo()) n2 = n1; // error: no default constructor</span>
+    <span class="k">decltype</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">declval</span><span class="o">&lt;</span><span class="n">NonDefault</span><span class="o">&gt;</span><span class="p">().</span><span class="n">foo</span><span class="p">())</span> <span class="n">n2</span> <span class="o">=</span> <span class="n">n1</span><span class="p">;</span> <span class="c1">// int n2</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;n2 = &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">n2</span> <span class="o">&lt;&lt;</span> <span class="sc">&#39;\n&#39;</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>The <strong>auto specifier</strong> <em>specifies that the type of the variable that is being declared will be automatically deduced</em>. <a href="http://en.cppreference.com/w/cpp/language/auto">auto</a> is equivalent of <strong>var</strong> in C#. <strong>auto</strong> in <strong>C++11</strong> has also a less famous but nonetheless usage for function declaration. Here is a good example:</p>
+<div class="highlight"><pre><span class="kt">bool</span> <span class="nf">f</span><span class="p">();</span>
+<span class="k">auto</span> <span class="n">test</span> <span class="o">=</span> <span class="n">f</span><span class="p">();</span> <span class="c1">// Famous usage, auto deduced that test is a boolean, hurray!</span>
+
+
+
+<span class="c1">//                             vvv t wasn&#39;t declare at that point, it will be after as a parameter!</span>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span> <span class="k">decltype</span><span class="p">(</span><span class="n">t</span><span class="p">.</span><span class="n">serialize</span><span class="p">())</span> <span class="n">g</span><span class="p">(</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">t</span><span class="p">)</span> <span class="p">{</span>   <span class="p">}</span> <span class="c1">// Compilation error</span>
+
+<span class="c1">// Less famous usage:</span>
+<span class="c1">//                    vvv auto delayed the return type specification!</span>
+<span class="c1">//                    vvv                vvv the return type is specified here and use t!</span>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span> <span class="k">auto</span> <span class="n">g</span><span class="p">(</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">t</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="k">decltype</span><span class="p">(</span><span class="n">t</span><span class="p">.</span><span class="n">serialize</span><span class="p">())</span> <span class="p">{</span>   <span class="p">}</span> <span class="c1">// No compilation error.</span>
+</pre></div>
+
+
+<p>As you can see, <strong>auto</strong> permits to use the trailing return type syntax and use <strong>decltype</strong> coupled with an expression involving one of the function argument. Does it means that we can use it to test the existence of <strong>serialize</strong> with a SFINAE? Yes Dr. Watson! <strong>decltype</strong> will shine really soon, you will have to wait for the <strong>C++14</strong> for this tricky <strong>auto</strong> usage (but since it's a C++11 feature, it ends up here).</p>
+<h4>constexpr:</h4>
+<p>C++11 also came with a new way to do compile-time computations! The new keyword <strong>constexpr</strong> is a hint for your compiler, meaning that this expression is constant and could be evaluate directly at compile time. In C++11, <a href="http://en.cppreference.com/w/cpp/language/constexpr">constexpr</a> has a lot of rules and only a small subset of VIEs (Very Important Expression) expressions can be used (no loops...)! We still have enough for creating a compile-time factorial function:</p>
+<div class="highlight"><pre><span class="k">constexpr</span> <span class="kt">int</span> <span class="nf">factorial</span><span class="p">(</span><span class="kt">int</span> <span class="n">n</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="n">n</span> <span class="o">&lt;=</span> <span class="mi">1</span><span class="o">?</span> <span class="mi">1</span> <span class="o">:</span> <span class="p">(</span><span class="n">n</span> <span class="o">*</span> <span class="n">factorial</span><span class="p">(</span><span class="n">n</span> <span class="o">-</span> <span class="mi">1</span><span class="p">));</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="n">i</span> <span class="o">=</span> <span class="n">factorial</span><span class="p">(</span><span class="mi">5</span><span class="p">);</span> <span class="c1">// Call to a constexpr function.</span>
+<span class="c1">// Will be replace by a good compiler by:</span>
+<span class="c1">// int i = 120;</span>
+</pre></div>
+
+
+<p><strong>constexpr</strong> gave birth to two pre-defined types in the STL: <strong>std::true_type</strong> &amp; <strong>std::false_type</strong>. As their name suggest, these types encapsulate a constexpr boolean "true" and a constrexpr boolean "false". Their most important property is that a class or a struct can inherit from them. For instance:</p>
+<div class="highlight"><pre><span class="k">struct</span> <span class="nl">testStruct</span> <span class="p">:</span> <span class="n">std</span><span class="o">::</span><span class="n">true_type</span> <span class="p">{</span> <span class="p">};</span> <span class="c1">// Inherit from the true type.</span>
+
+<span class="k">constexpr</span> <span class="kt">bool</span> <span class="n">testVar</span> <span class="o">=</span> <span class="n">testStruct</span><span class="p">();</span> <span class="c1">// Generate a compile-time testStruct.</span>
+<span class="kt">bool</span> <span class="n">test</span> <span class="o">=</span> <span class="n">testStruct</span><span class="o">::</span><span class="n">value</span><span class="p">;</span> <span class="c1">// Equivalent to: test = true;</span>
+<span class="n">test</span> <span class="o">=</span> <span class="n">testVar</span><span class="p">;</span> <span class="c1">// true_type has a constexpr converter operator, equivalent to: test = true;</span>
+</pre></div>
+
+
+<h4>Blending time:</h4>
+<p>In cooking, a good recipe requires to mix all the best ingredients in the right proportions. If you don't want to have a spaghetti code dating from 1998 for dinner, let's revisit our C++98 <strong>hasSerialize</strong> and <strong>serialize</strong> functions with "fresh" ingredients from 2011. Let's start by removing the rotting <strong>reallyHas</strong> trick with a tasty <strong>decltype</strong> and bake a bit of <strong>std::true_type</strong> instead of <strong>sizeof</strong>. After 15min in the oven (or fighting with a new headache), you will obtain:</p>
 <dl>
 <dt>template <typename T, typename = void></dt>
 <dt>struct has_toString</dt>
@@ -417,9 +482,9 @@ std::true_type</p>
 </dd>
 </dl>
 <h4>Other interesting features:</h4>
-<div class="highlight"><pre>declval
-nullptr
+<div class="highlight"><pre>nullptr
 lambda
+r-values
 </pre></div>
 
 
