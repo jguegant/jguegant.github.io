@@ -170,7 +170,7 @@
 </pre></div>
 
 
-<p>As you can see, it only requires a bit more of boilerplate than Python, but not as much as you would expect from a language as complexe as C++. How does it work? Well if you are too lazy to read the rest, here is the simplest answer I can give you: unlike dynamically typed languages, your compiler has access a lot of static type information once fired. It makes sense that we can constraint your compiler to do a bit of work on these types! The next question that comes to your mind is "How to?". Well, right below we are going to explore the various options we have to enslave our favorite compiler for fun and profit! And we will eventually recreate our own <strong>is_valid</strong> and static <strong>if_</strong>.</p>
+<p>As you can see, it only requires a bit more of boilerplate than Python, but not as much as you would expect from a language as complexe as C++. How does it work? Well if you are too lazy to read the rest, here is the simplest answer I can give you: unlike dynamically typed languages, your compiler has access a lot of static type information once fired. It makes sense that we can constraint your compiler to do a bit of work on these types! The next question that comes to your mind is "How to?". Well, right below we are going to explore the various options we have to enslave our favorite compiler for fun and profit! And we will eventually recreate our own <strong>is_valid</strong>.</p>
 <h3>The old-fashioned C++98-way:</h3>
 <p>Whether your compiler is a dinosaur, your boss refuses to pay for the latest Visual Studio license or you simply love archeology, this chapter will interest you. It's also interesting for the people stuck between C++11 and C++14. The solution in C++98 relies on 3 key concepts: <strong>overload resolution</strong>, <strong>SFINAE</strong> and the static behavior of <strong>sizeof</strong>. </p>
 <h4>Overload resolution:</h4>
@@ -253,11 +253,11 @@ One can for instance do:</p>
 
     <span class="c1">// This helper struct permits us to check that serialize is truly a method.</span>
     <span class="c1">// The second argument must be of the type of the first.</span>
-    <span class="c1">// For instance reallyHas&lt;int, 10&gt; would be substituated by reallyHas&lt;int, int 10&gt; and works!</span>
-    <span class="c1">// reallyHas&lt;int, &amp;C::serialize&gt; would be substituated by reallyHas&lt;int, int &amp;C::serialize&gt; and fail!</span>
+    <span class="c1">// For instance reallyHas&lt;int, 10&gt; would be substituted by reallyHas&lt;int, int 10&gt; and works!</span>
+    <span class="c1">// reallyHas&lt;int, &amp;C::serialize&gt; would be substituted by reallyHas&lt;int, int &amp;C::serialize&gt; and fail!</span>
     <span class="c1">// Note: It only works with integral constants and pointers (so function pointers work).</span>
     <span class="c1">// In our case we check that &amp;C::serialize has the same signature as the first argument!</span>
-    <span class="c1">// reallyHas&lt;std::string (C::*)(), &amp;C::serialize&gt; should be substituated by </span>
+    <span class="c1">// reallyHas&lt;std::string (C::*)(), &amp;C::serialize&gt; should be substituted by </span>
     <span class="c1">// reallyHas&lt;std::string (C::*)(), std::string (C::*)() &amp;C::serialize&gt; and work!</span>
     <span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">U</span><span class="p">,</span> <span class="n">U</span> <span class="n">u</span><span class="o">&gt;</span> <span class="k">struct</span> <span class="n">reallyHas</span><span class="p">;</span>
 
@@ -394,10 +394,10 @@ For instance:</p>
 </pre></div>
 
 
-<p>Two details worth being noted! Firstly we use <strong>enable_if</strong> on the return type, in order to keep the paramater deduction, otherwise we would have to specify the type explicitely "<strong>serialize&lt;A>(a)</strong>". Second, even the version using <strong>to_string</strong> must use the <strong>enable_if</strong>, otherwise <strong>serialize(b)</strong> would have two potential overloads available and raise an ambiguity. If you want to check the full code of this C++98 version, here is a <a href="https://gist.github.com/Jiwan/2573fc47e4fa5025306b">Gist</a>.
+<p>Two details worth being noted! Firstly we use <strong>enable_if</strong> on the return type, in order to keep the paramater deduction, otherwise we would have to specify the type explicitely "<strong>serialize&lt;A>(a)</strong>". Second, even the version using <strong>to_string</strong> must use the <strong>enable_if</strong>, otherwise <strong>serialize(b)</strong> would have two potential overloads available and raise an ambiguity. If you want to check the full code of this C++98 version, here is a <a href="https://gist.github.com/Jiwan/2573fc47e4fa5025306b">gist</a>.
 Life is much easier in C++11, so let's see the beauty of this new standard!</p>
 <h3>When C++11 came to our help:</h3>
-<p>After the great century leap year in 2000, people were fairly optimistic about the coming years. Some even decided to do design a new standard for the next generation of C++ coders like me! Not only this standard would ease <strong>TMP</strong> headaches (<strong>T</strong>emplate <strong>M</strong>eta <strong>P</strong>rogramming side-effects), but it would be available in the first decade, hence its code-name <strong>C++0x</strong>. Well, the standard sadly came the next decade (2011 ==&gt; <strong>C++11</strong>), but it brought a lot of features interesting for the purpose of this article. Let's review them!</p>
+<p>After the great century leap year in 2000, people were fairly optimistic about the coming years. Some even decided to design a new standard for the next generation of C++ coders like me! Not only this standard would ease <strong>TMP</strong> headaches (<strong>T</strong>emplate <strong>M</strong>eta <strong>P</strong>rogramming side-effects), but it would be available in the first decade, hence its code-name <strong>C++0x</strong>. Well, the standard sadly came the next decade (2011 ==&gt; <strong>C++11</strong>), but it brought a lot of features interesting for the purpose of this article. Let's review them!</p>
 <h4>decltype, declvar, auto &amp; co:</h4>
 <p>Do you remember that the <strong>sizeof operator</strong> does a "fake evaluation" of the expression that you pass to it, and return gives you the size of the type of the expression? Well <strong>C++11</strong> adds a new operator called <strong>decltype</strong>. <a href="http://en.cppreference.com/w/cpp/language/decltype">decltype</a> gives you the type of the of the expression it will evaluate. As I am kind, I won't let you google an example and give it to you directly:</p>
 <div class="highlight"><pre><span class="n">B</span> <span class="n">b</span><span class="p">;</span>
@@ -466,30 +466,100 @@ Life is much easier in C++11, so let's see the beauty of this new standard!</p>
 
 
 <h4>Blending time:</h4>
-<p>In cooking, a good recipe requires to mix all the best ingredients in the right proportions. If you don't want to have a spaghetti code dating from 1998 for dinner, let's revisit our C++98 <strong>hasSerialize</strong> and <strong>serialize</strong> functions with "fresh" ingredients from 2011. Let's start by removing the rotting <strong>reallyHas</strong> trick with a tasty <strong>decltype</strong> and bake a bit of <strong>std::true_type</strong> instead of <strong>sizeof</strong>. After 15min in the oven (or fighting with a new headache), you will obtain:</p>
-<dl>
-<dt>template <typename T, typename = void></dt>
-<dt>struct has_toString</dt>
-<dd>
-<dl>
-<dt>std::false_type</dt>
-<dt>{ };</dt>
-<dt>template <typename T></dt>
-<dt>struct has_toString<T, decltype((void)std::declval<T>().toString())&gt;</dt>
-<dd>std::true_type
-{ };</dd>
-</dl>
-</dd>
-</dl>
-<h4>Other interesting features:</h4>
-<div class="highlight"><pre>nullptr
-lambda
-r-values
+<h5>First solution:</h5>
+<p>In cooking, a good recipe requires to mix all the best ingredients in the right proportions. If you don't want to have a spaghetti code dating from 1998 for dinner, let's revisit our C++98 <strong>hasSerialize</strong> and <strong>serialize</strong> functions with "fresh" ingredients from 2011. Let's start by removing the rotting <strong>reallyHas</strong> trick with a tasty <strong>decltype</strong> and bake a bit of <strong>constexpr</strong> instead of <strong>sizeof</strong>. After 15min in the oven (or fighting with a new headache), you will obtain:</p>
+<div class="highlight"><pre><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span> <span class="k">struct</span> <span class="n">hasSerialize</span>
+<span class="p">{</span>
+    <span class="c1">// We test if the type has serialize using decltype and declval.</span>
+    <span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">C</span><span class="o">&gt;</span> <span class="k">static</span> <span class="k">constexpr</span> <span class="k">decltype</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">declval</span><span class="o">&lt;</span><span class="n">C</span><span class="o">&gt;</span><span class="p">().</span><span class="n">serialize</span><span class="p">(),</span> <span class="kt">bool</span><span class="p">())</span> <span class="n">test</span><span class="p">(</span><span class="kt">int</span> <span class="cm">/* unused */</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="c1">// We can return values, thanks to constexpr instead of playing with sizeof.</span>
+        <span class="k">return</span> <span class="nb">true</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">C</span><span class="o">&gt;</span> <span class="k">static</span> <span class="k">constexpr</span> <span class="kt">bool</span> <span class="n">test</span><span class="p">(...)</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="nb">false</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="c1">// int is used to give the precedence!</span>
+    <span class="k">static</span> <span class="k">constexpr</span> <span class="kt">bool</span> <span class="n">value</span> <span class="o">=</span> <span class="n">test</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">(</span><span class="kt">int</span><span class="p">());</span>
+<span class="p">};</span>
 </pre></div>
 
 
+<p>You might be a bit puzzled by my usage of <strong>decltype</strong>. The C++ comma operator "<strong>,</strong>" can create a chain of multiple expressions. In <strong>decltype</strong>, all the expressions will be evaluated, but only the last expression will be considered for the type. The <strong>serialize</strong> doesn't need any changes, minus the fact that the <strong>enable_if</strong> function is now provided in the <strong>STL</strong>. For your tests, here is a <a href="https://gist.github.com/Jiwan/21f65ddbd91e7ce93384">gist</a>.</p>
+<h5>Second solution:</h5>
+<p>Another C++11 solution described in <strong>Boost.Hanna</strong> documentation and using <strong>std::true_type</strong> and <strong>std::false_type</strong>, would be this one:</p>
+<div class="highlight"><pre><span class="c1">// Primary template, inherit from std::false_type.</span>
+<span class="c1">// ::value will return false. </span>
+<span class="c1">// Note: the second unused template parameter is set to default as std::string!!!</span>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="p">,</span> <span class="k">typename</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span>
+<span class="k">struct</span> <span class="nl">hasSerialize</span>
+        <span class="p">:</span> <span class="n">std</span><span class="o">::</span><span class="n">false_type</span>
+<span class="p">{</span>
+
+<span class="p">};</span>
+
+<span class="c1">// Partial template specialisation, inherit from std::true_type.</span>
+<span class="c1">// ::value will return true. </span>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span>
+<span class="k">struct</span> <span class="n">hasSerialize</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="k">decltype</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">declval</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;</span><span class="p">().</span><span class="n">serialize</span><span class="p">())</span><span class="o">&gt;</span>
+        <span class="o">:</span> <span class="n">std</span><span class="o">::</span><span class="n">true_type</span>
+<span class="p">{</span>
+
+<span class="p">};</span>
+</pre></div>
+
+
+<p>This solution is, in my own opinion, more sneaky! It relies on a not-so-famous-property of default template parameters. But if your soul is already (stack-)corrupted, you may be aware that the <strong>default parameters</strong> are propagated in the <strong>specialisations</strong>. So when we use <strong>hasSerialize&lt;OurType>::value</strong>, the default parameter comes into play and we are actually looking for <strong>hasSerialize&lt;OurType, std::string>::value</strong> both on the <strong>primary template</strong> and the <strong>specialisation</strong>. In the meantime, the <strong>substitution</strong> and the evaluation of <strong>decltype</strong> are processed and our <strong>specialisation</strong> has the signature <strong>hasSerialize&lt;OurType, std::string></strong> if <strong>OurType</strong> has a <strong>serialize</strong> method that returns a <strong>std::string</strong>, otherwise the substitution fails. The <strong>specialisation</strong> has therefore the precedence in the good cases. Here is a <a href="https://gist.github.com/Jiwan/160a64a5d1d25e4bdf6b">gist</a> you can play with!</p>
+<p>I told you that this second solution hides a lot of complexity, and we still have a lot of C++11 features unexploited like <strong>nullptr</strong>, <strong>lambda</strong>, <strong>r-values</strong>. No worries, we are going to use some of them in <strong>C++14</strong>!</p>
 <h3>The supremacy of C++14:</h3>
-<p>constrexpr and auto lambda/functions, enable_if_t</p>
+<p>According to my Gregorian calendar in the upper-right corner of my XFCE environment, we are in 2015! I can turn on the <strong>C++14</strong> compilation flag on my favorite compiler safely, isn't it? Well, I can with <strong>clang</strong> (is <strong>MSVC</strong> using a maya calendar?).
+Once again, let's explore the new features, and use them to build something wonderful! We will even recreate an <strong>is_valid</strong>, like I promised at the beggining of this article.</p>
+<h4>auto &amp; lambdas:</h4>
+<p>C++11 introduced <a href="http://en.cppreference.com/w/cpp/language/lambda">lambdas</a>. A lambda has the following syntax: </p>
+<div class="highlight"><pre>[capture-list](params) -&gt; non-mandatory-return-type { ...body... }
+</pre></div>
+
+
+<p>A useful example in our case would be:</p>
+<div class="highlight"><pre><span class="k">auto</span> <span class="n">l1</span> <span class="o">=</span> <span class="p">[](</span><span class="n">B</span><span class="o">&amp;</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">b</span><span class="p">.</span><span class="n">serialize</span><span class="p">();</span> <span class="p">};</span> <span class="c1">// No clear return type.</span>
+<span class="k">auto</span> <span class="n">l3</span> <span class="o">=</span> <span class="p">[](</span><span class="n">B</span><span class="o">&amp;</span> <span class="n">b</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="p">{</span> <span class="k">return</span> <span class="n">b</span><span class="p">.</span><span class="n">serialize</span><span class="p">();</span> <span class="p">};</span> <span class="c1">// Fixed return type.</span>
+<span class="k">auto</span> <span class="n">l2</span> <span class="o">=</span> <span class="p">[](</span><span class="n">B</span><span class="o">&amp;</span> <span class="n">b</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="k">decltype</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">serialize</span><span class="p">())</span> <span class="p">{</span> <span class="k">return</span> <span class="n">b</span><span class="p">.</span><span class="n">serialize</span><span class="p">();</span> <span class="p">};</span> <span class="c1">// Return type dependant to B.</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">l1</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="c1">// Output: I am a B!</span>
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">l2</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="c1">// Output: I am a B!</span>
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">l3</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="c1">// Output: I am a B!</span>
+</pre></div>
+
+
+<p><strong>C++14</strong> brings a small change to the <strong>lambdas</strong> but with a big impact! <strong>Lambdas</strong> accept <strong>auto parameters</strong>: the parameter type is deduced according the argument. <strong>Lambdas</strong> are just anonymous functions (paranoids? maybe), and <strong>lambdas</strong> with <strong>auto parameters</strong> are anonymous functions with anonymous templated types (even more incognito). Let's take a look:</p>
+<div class="highlight"><pre><span class="c1">// b&#39;s type is automagically deduced!</span>
+<span class="k">auto</span> <span class="n">l4</span> <span class="o">=</span> <span class="p">[](</span><span class="k">auto</span><span class="o">&amp;</span> <span class="n">t</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="k">decltype</span><span class="p">(</span><span class="n">t</span><span class="p">.</span><span class="n">serialize</span><span class="p">())</span> <span class="p">{</span> <span class="k">return</span> <span class="n">b</span><span class="p">.</span><span class="n">serialize</span><span class="p">();</span> <span class="p">};</span>
+
+<span class="c1">// l4 is equivalent to a function like:</span>
+<span class="c1">// template &lt;typename T&gt; auto l4(T&amp; t) -&gt; decltype(t.serialize()) { return b.serialize(); };</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">l4</span><span class="p">(</span><span class="n">b</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="c1">// Output: I am a B!</span>
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">l4</span><span class="p">(</span><span class="n">a</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="c1">// Error: no member named &#39;serialize&#39; in &#39;A&#39;.</span>
+</pre></div>
+
+
+<p>It should remind you the beggining of my initial solution:</p>
+<div class="highlight"><pre><span class="c1">// Check if a type has a serialize method.</span>
+<span class="k">auto</span> <span class="n">hasSerialize</span> <span class="o">=</span> <span class="n">hana</span><span class="o">::</span><span class="n">is_valid</span><span class="p">([](</span><span class="k">auto</span><span class="o">&amp;&amp;</span> <span class="n">x</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="k">decltype</span><span class="p">(</span><span class="n">x</span><span class="p">.</span><span class="n">serialize</span><span class="p">())</span> <span class="p">{</span> <span class="p">});</span>
+</pre></div>
+
+
+<p>And the good new is that we have everything to recreate <strong>is_valid</strong>, right now!</p>
+<h4>The making-of a valid <strong>is_valid</strong>:</h4>
+<p>A first struct to remember the signature of the lambda!
+This struct operator() accept some arguments that will be matched with the lambda.</p>
+<h4>Opening:</h4>
+<p>Only works with one type. Parameters packs!!!
+TODO: if_.</p>
+<p>Thanks to <a href="https://github.com/Naav">Naav</a> and <a href="https://github.com/superboum">Superboum</a> for their careful rereading and theirs suggestions.</p>
   </div>
   <div class="tag-cloud">
     <p>
