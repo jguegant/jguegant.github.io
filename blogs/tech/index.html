@@ -63,7 +63,8 @@
       <!-- http://stackoverflow.com/questions/18570285/using-sfinae-to-detect-a-member-function -->
 
 <h3>Trivia:</h3>
-<p>As a C++ enthusiast, I usually follow the annual C++ conference <a href="http://cppcon.org/">cppconf</a> or at least try to keep myself up-to-date with the major events that happen there. One way to catch up, if you can't afford a plane ticket or the ticket, is to follow the <a href="https://www.youtube.com/channel/UCMlGfpWw-RUdWX_JbLCukXg">youtube channel</a> dedicated to this conference. This year, I was impressed by <strong>Louis Dionne</strong> talk entitled "C++ Metaprogramming: A Paradigm Shift". One feature called <strong>is_valid</strong> that can be found in Louis's <a href="http://ldionne.com/hana/">Boost.Hana</a> library particulary caught my attention. This genious <strong>is_valid</strong> function heavily rely on an even more "magic" C++ programming technique coined with the term <strong>SFINAE</strong> discovered at the end of the previous century. If this acronym doesn't speak to you, don't be scared, we are going to dive straight in the subject.</p>
+<p>As a C++ enthusiast, I usually follow the annual C++ conference <a href="http://cppcon.org/">cppconf</a> or at least try to keep myself up-to-date with the major events that happen there. One way to catch up, if you can't afford a plane ticket or the ticket, is to follow the <a href="https://www.youtube.com/channel/UCMlGfpWw-RUdWX_JbLCukXg">youtube channel</a> dedicated to this conference. This year, I was impressed by <strong>Louis Dionne</strong> talk entitled "C++ Metaprogramming: A Paradigm Shift". One feature called <strong>is_valid</strong> that can be found in Louis's <a href="http://github.com/boostorg/hana">Boost.Hana</a> library particulary caught my attention. This genious <strong>is_valid</strong> function heavily rely on an even more "magic" C++ programming technique coined with the term <strong>SFINAE</strong> discovered at the end of the previous century. If this acronym doesn't speak to you, don't be scared, we are going to dive straight in the subject.</p>
+<p>Note: for the sake of your sanity and <em>errare humanum est</em>, this article might not be 100% accurate!</p>
 <h3>Introspection in C++?</h3>
 <p>Before explaining what is <strong>SFINAE</strong>, let's explore one of its main usage: <strong>introspection</strong>. As you might be aware, C++ doesn't excel when it comes to examine the type or properties of an object at runtime. The best ability provided by default would be <a href="https://en.wikipedia.org/wiki/Run-time_type_information">RTTI</a>. Not only <strong>RTTI</strong> isn't always available, but it also gives you barely more than the current type of the manipulated object. Dynamic languages or those having <strong>reflection</strong> on the other hand are really convenient in some situations like <strong>serialization</strong>.</p>
 <p>For instance, in Python, using reflection, one can do the following:</p>
@@ -181,22 +182,23 @@
 
 <p>In C++ you also have some sink-hole functions that accept everything. First, function templates accept any kind of parameter (let's say T). But the true black-hole of your compiler, the devil variable vacuum, the oblivion of the forgotten types are the <a href="http://en.cppreference.com/w/cpp/utility/variadic">variadic functions</a>. Yes, exactly like the horrible C <strong>printf</strong>.</p>
 <div class="highlight"><pre><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">f</span><span class="p">(...);</span> <span class="c1">// Variadic functions are so &quot;untyped&quot; that...</span>
-<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">f</span><span class="p">(</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">t</span><span class="p">);</span> <span class="c1">// ...even a templated function got the precedence!</span>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">f</span><span class="p">(</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">t</span><span class="p">);</span> <span class="c1">// ...this templated function got the precedence!</span>
 
 <span class="n">f</span><span class="p">(</span><span class="mi">1</span><span class="p">);</span> <span class="c1">// Call the templated function version of f.</span>
 </pre></div>
 
 
 <p>The fact that function templates are less generic than variadic functions is the first point you must remember!</p>
+<p>Note: A <strong>templated function</strong> can actually be more precise than a <strong>normal function</strong>. However, in case of a draw, the <strong>normal function</strong> will have the precedence. </p>
 <h4>SFINAE:</h4>
 <p>I am already teasing you with the power for already few paragraphs and here finally comes the explanation of this not so complex acronym. <strong>SFINAE</strong> stands for <strong>S</strong>ubstitution <strong>F</strong>ailure <strong>I</strong>s <strong>N</strong>ot <strong>A</strong>n <strong>E</strong>rror. In rough terms, a <strong>substitution</strong> is the mechanism that tries to replace the template parameters with the provided types or values. In some cases, if the <strong>substitution</strong> leads to an invalid code, the compiler shouldn't throw a massive amount of errors but simply continue to try the other available <strong>overloads</strong>. The <strong>SFINAE</strong> concept simply guaranties such a "sane" behavior for a "sane" compiler. For instance:</p>
 <div class="highlight"><pre><span class="cm">/*</span>
 <span class="cm"> The compiler will try this overload since it&#39;s less generic than the variadic.</span>
-<span class="cm"> T will be replace by int which gives us void f(int::B* b);</span>
-<span class="cm"> int doesn&#39;t have a B sub-type, but the compiler doesn&#39;t throw a bunch of errors.</span>
-<span class="cm"> It simply tries the next overload.</span>
+<span class="cm"> T will be replace by int which gives us void f(const int&amp; t, int::iterator* b = nullptr);</span>
+<span class="cm"> int doesn&#39;t have an iterator sub-type, but the compiler doesn&#39;t throw a bunch of errors.</span>
+<span class="cm"> It simply tries the next overload. </span>
 <span class="cm">*/</span>
-<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span> <span class="kt">void</span> <span class="n">f</span><span class="p">(</span><span class="k">typename</span> <span class="n">T</span><span class="o">::</span><span class="n">B</span><span class="o">*</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span> <span class="kt">void</span> <span class="n">f</span><span class="p">(</span><span class="k">const</span> <span class="n">T</span><span class="o">&amp;</span> <span class="n">t</span><span class="p">,</span> <span class="k">typename</span> <span class="n">T</span><span class="o">::</span><span class="n">iterator</span><span class="o">*</span> <span class="n">it</span> <span class="o">=</span> <span class="k">nullptr</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
 
 <span class="c1">// The sink-hole.</span>
 <span class="kt">void</span> <span class="n">f</span><span class="p">(...)</span> <span class="p">{</span> <span class="p">}</span>
@@ -393,9 +395,10 @@ For instance:</p>
 
 <p>Two details worth being noted! Firstly we use <strong>enable_if</strong> on the return type, in order to keep the paramater deduction, otherwise we would have to specify the type explicitely "<strong>serialize&lt;A>(a)</strong>". Second, even the version using <strong>to_string</strong> must use the <strong>enable_if</strong>, otherwise <strong>serialize(b)</strong> would have two potential overloads available and raise an ambiguity. If you want to check the full code of this C++98 version, here is a <a href="https://gist.github.com/Jiwan/2573fc47e4fa5025306b">gist</a>.
 Life is much easier in C++11, so let's see the beauty of this new standard!</p>
+<p>Note: it's also important to know that this code creates a <strong>SFINAE</strong> on an expression ("<strong>&amp;C::serialize</strong>"). Whilst this feature wasn't required by the <strong>C++98</strong> standard, it was already in use depending on your compiler. It trully became a safe choice in <strong>C++11</strong>.</p>
 <h3>When C++11 came to our help:</h3>
 <p>After the great century leap year in 2000, people were fairly optimistic about the coming years. Some even decided to design a new standard for the next generation of <strong>C++</strong> coders like me! Not only this standard would ease <strong>TMP</strong> headaches (<strong>T</strong>emplate <strong>M</strong>eta <strong>P</strong>rogramming side-effects), but it would be available in the first decade, hence its code-name <strong>C++0x</strong>. Well, the standard sadly came the next decade (2011 ==&gt; <strong>C++11</strong>), but it brought a lot of features interesting for the purpose of this article. Let's review them!</p>
-<h4>decltype, declvar, auto &amp; co:</h4>
+<h4>decltype, declval, auto &amp; co:</h4>
 <p>Do you remember that the <strong>sizeof operator</strong> does a "fake evaluation" of the expression that you pass to it, and return gives you the size of the type of the expression? Well <strong>C++11</strong> adds a new operator called <strong>decltype</strong>. <a href="http://en.cppreference.com/w/cpp/language/decltype">decltype</a> gives you the type of the of the expression it will evaluate. As I am kind, I won't let you google an example and give it to you directly:</p>
 <div class="highlight"><pre><span class="n">B</span> <span class="n">b</span><span class="p">;</span>
 <span class="k">decltype</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">serialize</span><span class="p">())</span> <span class="n">test</span> <span class="o">=</span> <span class="s">&quot;test&quot;</span><span class="p">;</span> <span class="c1">// Evaluate b.serialize(), which is typed as std::string.</span>
@@ -403,7 +406,7 @@ Life is much easier in C++11, so let's see the beauty of this new standard!</p>
 </pre></div>
 
 
-<p><a href="http://en.cppreference.com/w/cpp/utility/declval">declvar</a> is an utility that gives you a "fake reference" to an object of a type that couldn't be easily construct. <strong>declvar</strong> is really handy for our <strong>SFINAE</strong> constructions. <strong>cppreference</strong> example is really straightforward, so here is a copy:</p>
+<p><a href="http://en.cppreference.com/w/cpp/utility/declval">declval</a> is an utility that gives you a "fake reference" to an object of a type that couldn't be easily construct. <strong>declval</strong> is really handy for our <strong>SFINAE</strong> constructions. <strong>cppreference</strong> example is really straightforward, so here is a copy:</p>
 <div class="highlight"><pre><span class="k">struct</span> <span class="n">Default</span> <span class="p">{</span>
     <span class="kt">int</span> <span class="n">foo</span><span class="p">()</span> <span class="k">const</span> <span class="p">{</span><span class="k">return</span> <span class="mi">1</span><span class="p">;}</span>
 <span class="p">};</span>
@@ -453,7 +456,7 @@ Life is much easier in C++11, so let's see the beauty of this new standard!</p>
 </pre></div>
 
 
-<p><strong>constexpr</strong> gave birth to two pre-defined types in the STL: <strong>std::true_type</strong> &amp; <strong>std::false_type</strong>. As their name suggest, these types encapsulate a constexpr boolean "true" and a constrexpr boolean "false". Their most important property is that a class or a struct can inherit from them. For instance:</p>
+<p><strong>constexpr</strong> increased the usage of <strong>std::true_type</strong> &amp; <strong>std::false_type</strong> from the STL. As their name suggest, these types encapsulate a constexpr boolean "true" and a constrexpr boolean "false". Their most important property is that a class or a struct can inherit from them. For instance:</p>
 <div class="highlight"><pre><span class="k">struct</span> <span class="nl">testStruct</span> <span class="p">:</span> <span class="n">std</span><span class="o">::</span><span class="n">true_type</span> <span class="p">{</span> <span class="p">};</span> <span class="c1">// Inherit from the true type.</span>
 
 <span class="k">constexpr</span> <span class="kt">bool</span> <span class="n">testVar</span> <span class="o">=</span> <span class="n">testStruct</span><span class="p">();</span> <span class="c1">// Generate a compile-time testStruct.</span>
@@ -509,7 +512,7 @@ Life is much easier in C++11, so let's see the beauty of this new standard!</p>
 </pre></div>
 
 
-<p>This solution is, in my own opinion, more sneaky! It relies on a not-so-famous-property of default template parameters. But if your soul is already (stack-)corrupted, you may be aware that the <strong>default parameters</strong> are propagated in the <strong>specialisations</strong>. So when we use <strong>hasSerialize&lt;OurType>::value</strong>, the default parameter comes into play and we are actually looking for <strong>hasSerialize&lt;OurType, std::string>::value</strong> both on the <strong>primary template</strong> and the <strong>specialisation</strong>. In the meantime, the <strong>substitution</strong> and the evaluation of <strong>decltype</strong> are processed and our <strong>specialisation</strong> has the signature <strong>hasSerialize&lt;OurType, std::string></strong> if <strong>OurType</strong> has a <strong>serialize</strong> method that returns a <strong>std::string</strong>, otherwise the substitution fails. The <strong>specialisation</strong> has therefore the precedence in the good cases. Here is a <a href="https://gist.github.com/Jiwan/160a64a5d1d25e4bdf6b">gist</a> you can play with!</p>
+<p>This solution is, in my own opinion, more sneaky! It relies on a not-so-famous-property of default template parameters. But if your soul is already (stack-)corrupted, you may be aware that the <strong>default parameters</strong> are propagated in the <strong>specialisations</strong>. So when we use <strong>hasSerialize&lt;OurType>::value</strong>, the default parameter comes into play and we are actually looking for <strong>hasSerialize&lt;OurType, std::string>::value</strong> both on the <strong>primary template</strong> and the <strong>specialisation</strong>. In the meantime, the <strong>substitution</strong> and the evaluation of <strong>decltype</strong> are processed and our <strong>specialisation</strong> has the signature <strong>hasSerialize&lt;OurType, std::string></strong> if <strong>OurType</strong> has a <strong>serialize</strong> method that returns a <strong>std::string</strong>, otherwise the substitution fails. The <strong>specialisation</strong> has therefore the precedence in the good cases. One will be able to use the <a href="http://en.cppreference.com/w/cpp/types/void_t">std::void_t</a> C++17 helper in these cases. Anyway, here is a <a href="https://gist.github.com/Jiwan/160a64a5d1d25e4bdf6b">gist</a> you can play with!</p>
 <p>I told you that this second solution hides a lot of complexity, and we still have a lot of C++11 features unexploited like <strong>nullptr</strong>, <strong>lambda</strong>, <strong>r-values</strong>. No worries, we are going to use some of them in <strong>C++14</strong>!</p>
 <h3>The supremacy of C++14:</h3>
 <p>According to the Gregorian calendar in the upper-right corner of my XFCE environment, we are in 2015! I can turn on the <strong>C++14</strong> compilation flag on my favorite compiler safely, isn't it? Well, I can with <strong>clang</strong> (is <strong>MSVC</strong> using a maya calendar?).
@@ -533,7 +536,7 @@ Once again, let's explore the new features, and use them to build something wond
 
 
 <p>A useful example in our case would be:</p>
-<div class="highlight"><pre><span class="k">auto</span> <span class="n">l1</span> <span class="o">=</span> <span class="p">[](</span><span class="n">B</span><span class="o">&amp;</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">b</span><span class="p">.</span><span class="n">serialize</span><span class="p">();</span> <span class="p">};</span> <span class="c1">// No clear return type.</span>
+<div class="highlight"><pre><span class="k">auto</span> <span class="n">l1</span> <span class="o">=</span> <span class="p">[](</span><span class="n">B</span><span class="o">&amp;</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">b</span><span class="p">.</span><span class="n">serialize</span><span class="p">();</span> <span class="p">};</span> <span class="c1">// Return type figured-out by the return statement.</span>
 <span class="k">auto</span> <span class="n">l3</span> <span class="o">=</span> <span class="p">[](</span><span class="n">B</span><span class="o">&amp;</span> <span class="n">b</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="p">{</span> <span class="k">return</span> <span class="n">b</span><span class="p">.</span><span class="n">serialize</span><span class="p">();</span> <span class="p">};</span> <span class="c1">// Fixed return type.</span>
 <span class="k">auto</span> <span class="n">l2</span> <span class="o">=</span> <span class="p">[](</span><span class="n">B</span><span class="o">&amp;</span> <span class="n">b</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="k">decltype</span><span class="p">(</span><span class="n">b</span><span class="p">.</span><span class="n">serialize</span><span class="p">())</span> <span class="p">{</span> <span class="k">return</span> <span class="n">b</span><span class="p">.</span><span class="n">serialize</span><span class="p">();</span> <span class="p">};</span> <span class="c1">// Return type dependant to the B type.</span>
 
@@ -551,7 +554,7 @@ Once again, let's explore the new features, and use them to build something wond
 <span class="c1">// Equivalent to:</span>
 <span class="k">struct</span> <span class="n">l4UnamedType</span>
 <span class="p">{</span>
-    <span class="kt">int</span> <span class="k">operator</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">)</span>
+    <span class="kt">int</span> <span class="k">operator</span><span class="p">()(</span><span class="kt">int</span> <span class="n">a</span><span class="p">,</span> <span class="kt">int</span> <span class="n">b</span><span class="p">)</span> <span class="k">const</span>
     <span class="p">{</span>
         <span class="k">return</span> <span class="n">a</span> <span class="o">+</span> <span class="n">b</span><span class="p">;</span>
     <span class="p">}</span>
@@ -573,7 +576,7 @@ Once again, let's explore the new features, and use them to build something wond
 <span class="c1">// Equivalent to:</span>
 <span class="k">struct</span> <span class="n">l5UnamedType</span>
 <span class="p">{</span>
-    <span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span> <span class="k">auto</span> <span class="k">operator</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;</span> <span class="n">t</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="k">decltype</span><span class="p">(</span><span class="n">t</span><span class="p">.</span><span class="n">serialize</span><span class="p">())</span> <span class="c1">// /!\ This signature is nice for a SFINAE!</span>
+    <span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">T</span><span class="o">&gt;</span> <span class="k">auto</span> <span class="k">operator</span><span class="p">()(</span><span class="n">T</span><span class="o">&amp;</span> <span class="n">t</span><span class="p">)</span> <span class="k">const</span> <span class="o">-&gt;</span> <span class="k">decltype</span><span class="p">(</span><span class="n">t</span><span class="p">.</span><span class="n">serialize</span><span class="p">())</span> <span class="c1">// /!\ This signature is nice for a SFINAE!</span>
     <span class="p">{</span>
         <span class="k">return</span> <span class="n">t</span><span class="p">.</span><span class="n">serialize</span><span class="p">();</span>
     <span class="p">}</span>
@@ -675,6 +678,8 @@ Once again, let's explore the new features, and use them to build something wond
 <p><strong>FINALLY!!!</strong> We do have a working <strong>is_valid</strong> and we could use it for serialization! If I were as vicious as my SFINAE tricks, I would let you copy each code pieces to recreate a fully working solution. But today, Halloween's spirit is with me and here is <a href="https://gist.github.com/Jiwan/7a586c739a30dd90d259">gist</a>. Hey, hey! Don't close this article so fast! If you are true a warrior, you can read the last part!</p>
 <h4>For the fun:</h4>
 <p>There are few things I didn't tell you, on purpose. This article would otherwise be twice longer, I fear. I highly suggest you to google a bit more about what I am going to speak about.</p>
+<ul>
+<li>
 <p>Firstly, if you wish to have a solution that works with the <strong>Boost.Hana</strong> static <strong>if_</strong>, you need to change the return type of our <strong>testValidity</strong> methods by Hana's equivalents, like the following:</p>
 <div class="highlight"><pre><span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">Param</span><span class="o">&gt;</span> <span class="k">constexpr</span> <span class="k">auto</span> <span class="n">test_validity</span><span class="p">(</span><span class="kt">int</span> <span class="cm">/* unused */</span><span class="p">)</span>
 <span class="o">-&gt;</span> <span class="k">decltype</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">declval</span><span class="o">&lt;</span><span class="n">UnnamedType</span><span class="o">&gt;</span><span class="p">()(</span><span class="n">std</span><span class="o">::</span><span class="n">declval</span><span class="o">&lt;</span><span class="n">Param</span><span class="o">&gt;</span><span class="p">()),</span> <span class="n">boost</span><span class="o">::</span><span class="n">hana</span><span class="o">::</span><span class="n">true_c</span><span class="p">)</span>
@@ -692,6 +697,8 @@ Once again, let's explore the new features, and use them to build something wond
 
 
 <p>The static <strong>if_</strong> implementation is really interesting, but at least as hard as our <strong>is_valid</strong> problem solved in this article. I might dedicate another article about it, one day!</p>
+</li>
+<li>
 <p>Did you noticed that we only check one argument at a time? Couldn't we do something like:</p>
 <div class="highlight"><pre><span class="k">auto</span> <span class="n">test</span> <span class="o">=</span> <span class="n">is_valid</span><span class="p">([](</span><span class="k">auto</span><span class="o">&amp;&amp;</span> <span class="n">a</span><span class="p">,</span> <span class="k">auto</span><span class="o">&amp;&amp;</span> <span class="n">b</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="k">decltype</span><span class="p">(</span><span class="n">a</span><span class="p">.</span><span class="n">serialize</span><span class="p">(),</span> <span class="n">b</span><span class="p">.</span><span class="n">serialize</span><span class="p">())</span> <span class="p">{</span> <span class="p">});</span>
 <span class="n">A</span> <span class="n">a</span><span class="p">;</span>
@@ -735,10 +742,17 @@ Once again, let's explore the new features, and use them to build something wond
 </pre></div>
 
 
-<p>Finally, why are using the notation "<strong>&amp;&amp;</strong>" for the <strong>lambdas</strong> parameters? Well, these are called <strong>r-value references</strong>. It's a really complex topic, and if you are interested, here is good <a href="http://thbecker.net/articles/rvalue_references/section_01.html">article</a> about it. You need to use "<strong>auto&amp;&amp;</strong>" due to the way <strong>declval</strong> is working in our <strong>is_valid</strong> implementation!</p>
+</li>
+<li>
+<p>This code is working even if my types are incomplete, for instance a forward declaration, or a normal declaration but with a missing definition. What can I do? Well, you can insert a check on the size of your type either in the <strong>SFINAE</strong> construction or before calling it: "<strong>static_assert( sizeof( T ), "type is incomplete." );</strong>".</p>
+</li>
+<li>
+<p>Finally, why are using the notation "<strong>&amp;&amp;</strong>" for the <strong>lambdas</strong> parameters? Well, these are called <strong>forwarding references</strong>. It's a really complex topic, and if you are interested, here is good <a href="http://thbecker.net/articles/rvalue_references/section_01.html">article</a> about it. You need to use "<strong>auto&amp;&amp;</strong>" due to the way <strong>declval</strong> is working in our <strong>is_valid</strong> implementation!</p>
+</li>
+</ul>
 <h4>Notes:</h4>
 <p>This is my first serious article about <strong>C++</strong> on the web and I hope you enjoyed it! I would be glad if you have any suggestions or questions and that you wish to share with me in the commentaries.</p>
-<p>Anyway, thanks to <a href="https://github.com/Naav">Naav</a> and <a href="https://github.com/superboum">Superboum</a> for rereading this article and theirs suggestions.</p>
+<p>Anyway, thanks to <a href="https://github.com/Naav">Naav</a> and <a href="https://github.com/superboum">Superboum</a> for rereading this article and theirs suggestions. Few suggestions were also provided by the reddit community or in the commentaries of this post, thanks a lot guys!</p>
   </div>
   <hr />
 </article>
