@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="http://jguegant.github.io/blogs/tech/theme/css/style.min.css">
+  <link rel="stylesheet" type="text/css" href="http://jguegant.github.io/blogs/tech/theme/css/monokai.css">
+  <link rel="stylesheet" type="text/css" href="http://jguegant.github.io/blogs/tech/theme/css/font-awesome.min.css">
+  <link href="http://jguegant.github.io/blogs/tech/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Jean Guegant's Blog Atom">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="index, follow" />
+<meta name="author" content="Jean Guegant" />
+<meta name="description" content="About this post: Computer programming is a science, or even an art, and as such its community follows trends for better or worse. Today, I am highly positive in our future so let's speak about the new holy grail of any back-end developer, the panacea for web servers: an ..." />
+<meta name="keywords" content="C++14, Python, event-driven, asynchronous architecture">
+<meta property="og:site_name" content="Jean Guegant's Blog"/>
+<meta property="og:title" content="My favorite pizzeria is asynchronous and event-driven... my C++ server too"/>
+<meta property="og:description" content="About this post: Computer programming is a science, or even an art, and as such its community follows trends for better or worse. Today, I am highly positive in our future so let's speak about the new holy grail of any back-end developer, the panacea for web servers: an ..."/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="http://jguegant.github.io/blogs/tech/drafts/asynchronous-pizzeria.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2016-01-10 14:00:00+01:00"/>
+<meta property="article:modified_time" content="2016-01-10 14:00:00+01:00"/>
+<meta property="article:author" content="http://jguegant.github.io/blogs/tech/author/jean-guegant.html">
+<meta property="article:section" content="C++"/>
+<meta property="article:tag" content="C++14"/>
+<meta property="article:tag" content="Python"/>
+<meta property="article:tag" content="event-driven"/>
+<meta property="article:tag" content="asynchronous architecture"/>
+<meta property="og:image" content="http://jguegant.github.io/blogs/tech/images/myself.png">  <title>Jean Guegant's Blog &ndash; My favorite pizzeria is asynchronous and event-driven... my C++ server too</title>
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="http://jguegant.github.io/blogs/tech">
+        <img src="http://jguegant.github.io/blogs/tech/images/myself.png" alt="Jean Guegant" title="Jean Guegant">
+      </a>
+      <h1><a href="http://jguegant.github.io/blogs/tech">Jean Guegant</a></h1>
+      <p>Software Engineer - C++, security, game development and random thoughts.</p>
+      <nav>
+        <ul class="list">
+          <li><a href="http://jguegant.github.io/blogs/tech/pages/about.html#about">About</a></li>
+          <li><a href="http://jguegant.github.io/blogs/tech/pages/contact.html#contact">Contact</a></li>
+        </ul>
+      </nav>
+      <ul class="social">
+        <li><a class="sc-linkedin" href="https://se.linkedin.com/in/jguegant" target="_blank"><i class="fa fa-linkedin"></i></a></li>
+        <li><a class="sc-github" href="https://github.com/Jiwan" target="_blank"><i class="fa fa-github"></i></a></li>
+      </ul>
+    </div>
+  </aside>
+  <main>
+    <nav>
+      <a href="http://jguegant.github.io/blogs/tech">Home</a>
+      <a href="http://jguegant.github.io/blogs/tech/archives.html">Archives</a>
+      <a href="http://jguegant.github.io/blogs/tech/categories.html">Categories</a>
+      <a href="http://jguegant.github.io/blogs/tech/tags.html">Tags</a>
+      <a href="http://jguegant.github.io/blogs/tech/feeds/all.atom.xml">Atom</a>
+    </nav>
+
+<article>
+  <header>
+    <h1 id="asynchronous-pizzeria">My favorite pizzeria is asynchronous and event-driven... my C++ server too</h1>
+    <p>Posted on Sun 10 January 2016 in <a href="http://jguegant.github.io/blogs/tech/category/c.html">C++</a></p>
+  </header>
+  <div>
+    <h2>About this post:</h2>
+<p>Computer programming is a science, or even an art, and as such its community follows trends for better or worse. Today, I am highly positive in our future so let's speak about the new holy grail of any back-end developer, the panacea for web servers: an <strong>asynchronous</strong> <strong>event-driven</strong> architecture. Forget about your old synchronous habits, now we enter in the era of <strong>non-blocking I/O</strong> models, <strong>coroutines</strong>, <strong>callbacks</strong>, hacky <strong>generators</strong>, and all-mighty <strong>asynchronous calls</strong>. <a href="https://nodejs.org/en/">Node.js</a> is conquering the market partly due to its full embrace of such an architecture. Google's latest child, the <a href="https://golang.org/">Go</a> Programming Language, was designed around this concept. Why would we not do the same?</p>
+<p>I could directly dive into some funky tricks to implement <strong>stackless coroutines</strong> in <strong>C++14</strong>, or explain <strong>epoll</strong> in details. Yet the very basic internals of such technologies are pretty mysterious for some of us, when it actually has a very straightforward explanation. Why is it more efficient than old-fashioned technologies? There must be a thread somewhere? Where is the loop then?</p>
+<p>As a developer, it is also sometimes handy to explain why spending 4 developers to rework a software architecture is actually cheaper than scaling with hardware. Especially, if your interlocutor is a greedy stakeholder or any kind of non-technical-boss on top of you. </p>
+<p>This post will focus on these fundamentals questions, and it will a base for some coming topics. I would not dare to simply throw you <strong>spaghetti code</strong>, so let's first explain these concepts using <strong>pizzas</strong>.</p>
+<h3><strong>Apach' Hut</strong> vs <strong>Ngin O' Pepperonix</strong>:</h3>
+<p>In the 21th century, there are two domains where <strong>servers</strong> are forestanding: restaurants and computer science. If the former domain was the inspiration for the second-one, it must be quite straightforward to do an analogy of the two worlds. In any case, we want to deliver FAST our clients' requests.</p>
+<p>We will soon discover the Secret Recipe that <strong>Ngin O' Pepperonix</strong> used to conquer a great part of <strong>Apach' Hut's</strong> market shares. Or is it the recipe?</p>
+<h4><strong>Apach' Hut's</strong> traditional management:</h4>
+<p><strong>Apach' Hut</strong> was the favorite pizza food delivery brand in the Silicon Valley for the past decade. Everyone love the quality of their pizzas, the staff and its clean online menu. Everyone recognise that the on-call delivery of <strong>Apach' Hut</strong> is usually pleasing, but it simply can't cope the amount of clients during rush hours. From an external point of view, it looks like the pizza delivering process is satured very quickly at lunch time. Their website becomes equally unreachable. On contrary, some pretend that <strong>Ngin O' Pepperonix</strong> is flawless on that point: hell, it even handles gaming events.</p>
+<h5>In the kitchen:</h5>
+<p>Let's take a look on how is a phone request served in <strong>Apach' Hut</strong>:</p>
+<ol>
+<li>A client grabs his phone, dials <strong>Apach' Hut's</strong> phone number and wait for an answer whilst glancing at the menu.  </li>
+<li>Once available, a call center agent available picks up the call and takes note of the client's request. Most of the calls last in average <strong>5min</strong>. The agent then dispatches the request to a cook, <strong>IF</strong> available.</li>
+<li>Cooks, themselves, are waiting <strong>passively</strong> in room for a request. Sometimes, they may have time to read a book for <strong>20min</strong> ; but in rush hours, they barely enter the waiting-room that the call center center yells at them a new request.</li>
+<li>Once a cook acquires a pizza request, he will head to the warehouse to get ingredients. If lucky, the warehouse contains enough tomatoes, shrooms, bacon... But it is not unusual that the warehouse is out of stock in one of the precious substance for an amazing pizza. The agent must therefore <strong>wait passively</strong> for the next delivery from the main warehouse between <strong>0 to 30min</strong>.</li>
+<li>After the warehouse detour, finally starts the cook's mission. The cook shines for <strong>15min</strong>, during which he magically executes his own recipe (his grand-parent, Mario, would be proud of his Italian skills on margherita pizzas).</li>
+<li>Time to put the pizza in the oven and... light a cigarette. Anyway the cook must wait <strong>30min</strong>, <strong>taskless</strong>.</li>
+<li>Finally, the cook wraps the pizza in its box and gives it to one of these crazy delivery boys we are used to in Europe. Sadly, the cook cannot process to another pizza before he ensures that the client is satisfied, <strong>20min</strong> lost in average...</li>
+</ol>
+<p><img alt="Apach' Hut Strategy Scheme" src="http://jguegant.github.io/blogs/tech/images/apachehut.svg" /></p>
+<p>Did you catch any problem in this strategy? Anything else than the fact that a traditional pizza would be burn after 20min at 210°C? </p>
+<p>Effectively this management is inefficient as Apach' cooks spend a good part of their days doing nothing more than waiting, they are truly <strong>idle</strong>. On a good day, they might work <strong>15 minutes</strong> per hour, it gives them enough time to <strong>sleep</strong> half of the day. Dare not to say that they are sloth, they are actually very skillful employees limited by the company's strategy, a strategy issued by the administration.</p>
+<p>If this workload management seems counterintuitive, it actually reflects the architecture behind a synchronous web-server. Let's see how we could compare Apach' Hut with their online infrastructure.</p>
+<h5>In the datacenter:</h5>
+<h4><strong>Ngin O' Pepperonix</strong> solution:</h4>
+<p><img alt="Ngin O' Pepperonix Strategy Scheme" src="http://jguegant.github.io/blogs/tech/images/nginxopepperoni.svg" /></p>
+<p>If I am not waiting, then who will do it for me?</p>
+<p>Bring some curves!</p>
+<h4>Real code:</h4>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="http://jguegant.github.io/blogs/tech/tag/c14.html">C++14</a>
+      <a href="http://jguegant.github.io/blogs/tech/tag/python.html">Python</a>
+      <a href="http://jguegant.github.io/blogs/tech/tag/event-driven.html">event-driven</a>
+      <a href="http://jguegant.github.io/blogs/tech/tag/asynchronous-architecture.html">asynchronous architecture</a>
+    </p>
+  </div>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = 'jeanguegantswebsite';
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+</article>
+
+    <footer>
+<p>
+  &copy; Jean Guegant 2015 - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>
+</p>
+<p>Built using <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a></p><p>
+  <a rel="license"
+     href="http://creativecommons.org/licenses/by-sa/4.0/"
+     target="_blank">
+    <img alt="Creative Commons License"
+         title="Creative Commons License"
+         style="border-width:0"
+         src="https://i.creativecommons.org/l/by-sa/4.0/80x15.png"
+         width="80"
+         height="15"/>
+  </a>
+</p>    </footer>
+  </main>
+<script type="text/javascript">
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-68827527-1', 'auto');
+  ga('send', 'pageview');
+</script>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "name": "My favorite pizzeria is asynchronous and event-driven... my C++ server too",
+  "headline": "My favorite pizzeria is asynchronous and event-driven... my C++ server too",
+  "datePublished": "2016-01-10 14:00:00+01:00",
+  "dateModified": "2016-01-10 14:00:00+01:00",
+  "author": {
+    "@type": "Person",
+    "name": "Jean Guegant",
+    "url": "http://jguegant.github.io/blogs/tech/author/jean-guegant.html"
+  },
+  "image": "http://jguegant.github.io/blogs/tech/images/myself.png",
+  "url": "http://jguegant.github.io/blogs/tech/drafts/asynchronous-pizzeria.html",
+  "description": "About this post: Computer programming is a science, or even an art, and as such its community follows trends for better or worse. Today, I am highly positive in our future so let's speak about the new holy grail of any back-end developer, the panacea for web servers: an ..."
+}
+</script></body>
+</html>
