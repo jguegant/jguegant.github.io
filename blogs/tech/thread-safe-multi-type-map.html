@@ -5,9 +5,6 @@
   <link rel="stylesheet" type="text/css" href="http://jguegant.github.io/blogs/tech/theme/css/style.min.css">
   <link rel="stylesheet" type="text/css" href="http://jguegant.github.io/blogs/tech/theme/css/monokai.css">
   <link rel="stylesheet" type="text/css" href="http://jguegant.github.io/blogs/tech/theme/css/font-awesome.min.css">
-  <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/css/style.min.css">
-  <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/css/monokai.css">
-  <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/css/font-awesome.min.css">
   <link href="http://jguegant.github.io/blogs/tech/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Jean Guegant's Blog Atom">
 
   <meta charset="utf-8" />
@@ -22,7 +19,7 @@
 <meta property="og:locale" content="en_US"/>
 <meta property="og:url" content="http://jguegant.github.io/blogs/tech/thread-safe-multi-type-map.html"/>
 <meta property="og:type" content="article"/>
-<meta property="article:published_time" content="2016-02-01 14:00:00+01:00"/>fe
+<meta property="article:published_time" content="2016-02-01 14:00:00+01:00"/>
 <meta property="article:modified_time" content="2016-02-01 14:00:00+01:00"/>
 <meta property="article:author" content="http://jguegant.github.io/blogs/tech/author/jean-guegant.html">
 <meta property="article:section" content="C++"/>
@@ -528,7 +525,7 @@ If using types as keys seems odd for you, fear not! Here is the most rational ex
 <p>We are done for this part (finally...), time to think about multi-threading! If you want to know more about the magic behind <strong>std::is_base_of</strong>, I would suggest you to read my previous post on <a href="http://jguegant.github.io/blogs/tech/sfinae-introduction.html">SFINAE</a>, it might give you few hints. Here is a <a href="https://gist.github.com/Jiwan/c1daf7a80ebeb166dc61">gist</a> of what we achieved so far. Did you notice the change on <strong>emplace</strong>? If you do not understand it, have a look at <a href="http://thbecker.net/articles/rvalue_references/section_07.html">this explanation on perfect forwarding</a>. Sadly, it would be a way too long topic for this post (trust me on that point!) and has a minor impact on our repository right now.</p>
 <h4>Let's play safe:</h4>
 <p>The repository we just succeeded to craft can now be used in a single-thread environment without further investigation. But the initial decision was to make this class manipulable from multiple-threads without any worries considering the safety of our operations. As explained in the beginning of this post, we will not use direct values as we currently do, but instead allocate our objects on the heap and use some <strong>shared pointers</strong> to strictly control their <strong>lifetime</strong>. No matter which version (recent or deprecated) of the object a thread is manipulating, it's lifetime will be extended until the last thread using it definitely release it. It also implies that the objects themselves are thread-safe. In the case of read-only objects like configs or assets, it shouldn't be too much a burden. In this <a href="https://gist.github.com/Jiwan/cb66d01c38128a351f42">gist</a>, you will find a repository version using <strong>std::shared_ptrs</strong>.</p>
-<p><strong>std::shared_ptr</strong> is an amazing feature of <strong>C++11</strong> when dealing with multi-threading, but has its weakness. Within my code (in the previous gist link) a race condition condition can occur:</p>
+<p><strong>std::shared_ptr</strong> is an amazing feature of <strong>C++11</strong> when dealing with multi-threading, but has its weakness. Within my code (in the previous gist link) a race condition can occur:</p>
 <div class="highlight"><pre><span class="c1">// What if I try to copy value_ at the return point...</span>
 <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Type</span><span class="o">&gt;</span> <span class="n">doGet</span><span class="p">()</span> <span class="k">const</span>
 <span class="p">{</span>
