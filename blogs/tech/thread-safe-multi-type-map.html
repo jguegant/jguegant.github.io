@@ -22,7 +22,7 @@
 <meta property="og:locale" content="en_US"/>
 <meta property="og:url" content="http://jguegant.github.io/blogs/tech/thread-safe-multi-type-map.html"/>
 <meta property="og:type" content="article"/>
-<meta property="article:published_time" content="2016-02-01 14:00:00+01:00"/>
+<meta property="article:published_time" content="2016-02-01 14:00:00+01:00"/>fe
 <meta property="article:modified_time" content="2016-02-01 14:00:00+01:00"/>
 <meta property="article:author" content="http://jguegant.github.io/blogs/tech/author/jean-guegant.html">
 <meta property="article:section" content="C++"/>
@@ -89,7 +89,7 @@
 </pre></div>
 
 
-<p><strong>Tuples</strong> are that kind of <strong>C++11</strong> jewelry that should decide your old-fashioned boss to upgrade your team's compiler (and his ugly tie). Not only I could store a <strong>const char* </strong> and two <strong>ints</strong> without any compiling error, but I could also access them using compile-time mechanisms. In some way, you can see tuples as a compile-time map using indexes or types as keys to reach its elements. You cannot use an index out of bands, it will be catched at compile-time anyway! Sadly, using a type as a key to retrieve an element is only possible if the type is unique in the <strong>tuple</strong>. At my work, we do have few config objects sharing the same class. Anyway, tuples weren't feeting our needs regarding thread safety and update events. Let's see what we could create using tasty <strong>tuples</strong> as an inspiration.</p>
+<p><strong>Tuples</strong> are that kind of <strong>C++11</strong> jewelry that should decide your old-fashioned boss to upgrade your team's compiler (and his ugly tie). Not only I could store a <strong>const char* </strong> and two <strong>ints</strong> without any compiling error, but I could also access them using compile-time mechanisms. In some way, you can see tuples as a compile-time map using indexes or types as keys to reach its elements. You cannot use an index out of bands, it will be catched at compile-time anyway! Sadly, using a type as a key to retrieve an element is only possible if the type is unique in the <strong>tuple</strong>. At my work, we do have few config objects sharing the same class. Anyway, tuples weren't fitting our needs regarding thread safety and update events. Let's see what we could create using tasty <strong>tuples</strong> as an inspiration.</p>
 <p>Note that some <strong>tuples</strong> implementations were already available before <strong>C++11</strong>, notably in <a href="http://www.boost.org/doc/libs/1_60_0/libs/tuple/doc/tuple_users_guide.html">boost</a>. <strong>C++11</strong> variadic templates are just very handy, as you will see, to construct such a class.</p>
 <h3>A teaser for my repository class:</h3>
 <p>To keep your attention for the rest of this post, here is my <strong>thread-safe multi-type map</strong> in action:</p>
