@@ -1394,13 +1394,19 @@ Once again, let's explore the new features, and use them to build something wond
 <span class="k">public</span><span class="o">:</span>
     <span class="c1">// A public operator() that accept the argument we wish to test onto the UnnamedType.</span>
     <span class="c1">// Notice that the return type is automatic!</span>
-    <span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span><span class="p">...</span> <span class="n">Params</span><span class="o">&gt;</span> <span class="k">constexpr</span> <span class="k">auto</span> <span class="k">operator</span><span class="p">()(</span><span class="k">const</span> <span class="n">Params</span><span class="o">&amp;</span> <span class="p">...)</span>
+    <span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span><span class="p">...</span> <span class="n">Params</span><span class="o">&gt;</span> <span class="k">constexpr</span> <span class="k">auto</span> <span class="k">operator</span><span class="p">()(</span><span class="n">Params</span><span class="o">&amp;&amp;</span> <span class="p">...)</span>
     <span class="p">{</span>
         <span class="c1">// The argument is forwarded to one of the two overloads.</span>
         <span class="c1">// The SFINAE on the &#39;true_type&#39; will come into play to dispatch.</span>
         <span class="k">return</span> <span class="n">test_validity</span><span class="o">&lt;</span><span class="n">Params</span><span class="p">...</span><span class="o">&gt;</span><span class="p">(</span><span class="kt">int</span><span class="p">());</span>
     <span class="p">}</span>
 <span class="p">};</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">typename</span> <span class="n">UnnamedType</span><span class="o">&gt;</span> <span class="k">constexpr</span> <span class="k">auto</span> <span class="n">is_valid</span><span class="p">(</span><span class="n">UnnamedType</span><span class="o">&amp;&amp;</span> <span class="n">t</span><span class="p">)</span> 
+<span class="p">{</span>
+    <span class="c1">// We used auto for the return type: it will be deduced here.</span>
+    <span class="k">return</span> <span class="n">container</span><span class="o">&lt;</span><span class="n">UnnamedType</span><span class="o">&gt;</span><span class="p">();</span>
+<span class="p">}</span>
 </pre></div>
 
 
