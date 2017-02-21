@@ -11,11 +11,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="robots" content="index, follow" />
 <meta name="author" content="Jean Guegant" />
-<meta name="description" content="About this post: Computer programming is a science, or even an art, and as such its community follows trends for better or worse. Today, I am highly positive in our future so let's speak about the new holy grail of any back-end developer, the panacea for web servers: an ..." />
+<meta name="description" content="About this post: Computer programming is a science, or even an art, and as such its community follows trends for better or worse. Today, I am highly positive in our future so let's speak about the new holy grail of any back-end developer, the panacea for web servers: an asynchronous …" />
 <meta name="keywords" content="C++14, Python, event-driven, asynchronous architecture">
 <meta property="og:site_name" content="Jean Guegant's Blog"/>
 <meta property="og:title" content="My favorite pizzeria is event-driven... my back-end server too (C++, Python)"/>
-<meta property="og:description" content="About this post: Computer programming is a science, or even an art, and as such its community follows trends for better or worse. Today, I am highly positive in our future so let's speak about the new holy grail of any back-end developer, the panacea for web servers: an ..."/>
+<meta property="og:description" content="About this post: Computer programming is a science, or even an art, and as such its community follows trends for better or worse. Today, I am highly positive in our future so let's speak about the new holy grail of any back-end developer, the panacea for web servers: an asynchronous …"/>
 <meta property="og:locale" content="en_US"/>
 <meta property="og:url" content="//jguegant.github.io/blogs/tech/drafts/asynchronous-pizzeria.html"/>
 <meta property="og:type" content="article"/>
@@ -61,7 +61,7 @@
 <article>
   <header>
     <h1 id="asynchronous-pizzeria">My favorite pizzeria is event-driven... my back-end server too (C++, Python)</h1>
-    <p>Posted on Sun 10 January 2016 in <a href="//jguegant.github.io/blogs/tech/category/c.html">C++</a></p>
+    <p>Posted on sön 10 januari 2016 in <a href="//jguegant.github.io/blogs/tech/category/c.html">C++</a></p>
   </header>
   <div>
     <h2>About this post:</h2>
@@ -85,7 +85,7 @@
 <li>Time to put the pizza in the oven and... light a cigarette. Anyway the cook must wait <strong>30min</strong>, <strong>taskless</strong>.</li>
 <li>Finally, the cook wraps the pizza in its box and gives it to one of these crazy delivery boys we are used to in Europe. Sadly, the cook cannot process to another pizza before he ensures that the client is satisfied, a <strong>20min</strong> lost in average...</li>
 </ol>
-<p><img alt="Apach' Hut Strategy Scheme" src="//jguegant.github.io/blogs/tech/images/apachehut.svg" /></p>
+<p><img alt="Apach' Hut Strategy Scheme" src="//jguegant.github.io/blogs/tech/images/apachehut.svg"></p>
 <p>Did you catch any problem in this strategy? Anything else than the fact that a traditional pizza would be burn after 20min at 210°C? </p>
 <p>Effectively this management is inefficient as Apach' cooks spend a good part of their days doing nothing more than waiting, they are truly <strong>idle</strong>. On a good day, they might work <strong>15 minutes</strong> per hour, it gives them enough time to <strong>sleep</strong> half of the day. Dare not to say that they are sloths, they are actually very skillful employees limited by the company's strategy, a strategy issued by the administration. Apach' is therefore quickly running out of control if it receives more calls than the cooks can handle. </p>
 <p>If this workload management seems counterintuitive, it actually reflects the architecture behind a synchronous web-server. Let's see how we could compare <strong>Apach' Hut</strong> kitchen nightmare with their online infrastructure.</p>
@@ -105,15 +105,15 @@
 <p>Considering the following architecture, could you easily scale according to the number of clients? The answer is, sadly, <strong>no</strong>!</p>
 <p>Why could we not either spawn a thread per client or simply increase the size of the pool? It boils down to the price of such a tactic. Likewise a cook has a salary, a thread from your operating system is not cheap. Too many cooks would explode your yearly budget, too many threads will consume all your resources. For instance, a Linux thread needs its own stack with a default memory footprint of 2 megabytes. A server with 4 Gigabytes of RAM would have a limit of 2000 simultaneous threads... but that's only considering the stack size. A thread creation implies some costly system calls, a tricky manipulation of various descriptors. Finally, if a kitchen had 2000 cooks, there would be a very high number of collisions, smashed toes and bad words, it would the same mess for the <a href="https://en.wikipedia.org/wiki/Scheduling_(computing)">scheduling</a> of a massive amount of threads.</p>
 <p>Scaling by spawning processes is also a no go. Threads and processes in Linux are actually very similar, you will fight the same problems concerning resources usage. Another solution would be to scale by hardware. But, well, if all the restaurant chains were to open a new spot every time they need to handle 10 more clients, they would quickly bankrupt... isn't it?</p>
-<p><img alt="Ngin O' Pepperonix Strategy Scheme" src="//jguegant.github.io/blogs/tech/images/bad-scaling.png" /></p>
+<p><img alt="Ngin O' Pepperonix Strategy Scheme" src="//jguegant.github.io/blogs/tech/images/bad-scaling.png"></p>
 <p>In all these solutions, if you observe the resource consumption regarding the number of clients, in the best case you will see a <strong><span style='color:blue'>linear complexity</span></strong>. It can easily turn out into a much worse complexity like a <strong><span style='color:red'>polynomial one</span></strong>. As a software engineer, such a graph must make you frown, none of us want to see a polynomial memory usage in his system especially when correlated to such a trivial entity that is a user. If you replace the word <strong>resource</strong> with <strong>operating costs</strong>, even your shareholders might have a stroke.</p>
 <p>One must keep in mind that this kind of architecture is really <strong>bad</strong> if you are expecting to scale with the number of <strong>clients</strong>. If you have a <strong>fixed maximum</strong> number of clients or you are working on <strong>one to one</strong> communications, this architecture is actually relevant. For instance, in High Frequency Trading, where <strong>latency</strong> is much more precious than <strong>scalability</strong> it is not uncommon to opt for <a href="https://en.wikipedia.org/wiki/Busy_waiting">busy waiting</a>. In other words, if you are cooking a pizza for yourself, it does not matter if you spend 45min in front of your oven.</p>
 <p>Some languages and platforms offer lite threads, handled by a runtime or a virtual machine instead of the operating system. Even if these <a href="https://en.wikipedia.org/wiki/Green_threads">green threads</a> are considerably less costly, they usually freeze all the other threads during synchronous I/O operations. It is still crucial to understand how we could almost reach a <strong><span style='color:green'>constant complexity</span></strong>, using asynchronous I/O operations, like in the following graph:</p>
-<p><img alt="Ngin O' Pepperonix Strategy Scheme" src="//jguegant.github.io/blogs/tech/images/good-scaling.png" /></p>
+<p><img alt="Ngin O' Pepperonix Strategy Scheme" src="//jguegant.github.io/blogs/tech/images/good-scaling.png"></p>
 <h4><strong>Ngin O' Pepperonix</strong> solution:</h4>
 <h5>An event-driven kitchen:</h5>
 <p>Back to the kitchen! <strong>Ngin O' Pepperonix</strong> solved this problem by providing to each of its employees a tablet with a to-do list application and upgrading its equipments. For instance, ovens can raise an <strong>event</strong> when the pizza has been baked enough, the food delivery can trigger another kind of event and same goes for client calls. All the events are broadcasted on the workers' tablets. When a worker is dealing with a task that requires him to wait, he can <strong>poll</strong> the most urgent <strong>event</strong> and continue to work on something else instead. Even if he cannot finish his new task before the waiting period elapse, someone else might receive the event and handle the rest of the process.</p>
-<p><img alt="Ngin O' Pepperonix Strategy Scheme" src="//jguegant.github.io/blogs/tech/images/nginxopepperoni.svg" /></p>
+<p><img alt="Ngin O' Pepperonix Strategy Scheme" src="//jguegant.github.io/blogs/tech/images/nginxopepperoni.svg"></p>
 <p>Workers are now as efficient as possible. They must spend a bit of their time checking their tablet, but they have absolutely no wait-periods anymore unless no events are available (but it is perfectly sane to relax in that case). Instead of waiting blatantly all the day, <strong>cooks</strong> are now mainly <strong>cooking</strong>. <strong>Ngin O' Pepperonix</strong> can easily handle <strong>50 clients</strong> with only <strong>1 cook</strong>, that sounds much better!</p>
 <p>If we still consider the analogy <strong>cook</strong> =~ <strong>thread</strong>. In order to recreate such a successful architecture, we would need "news technologies" for generating and managing events from a thread and the "long operations". Using <strong>events</strong>, the number of threads must be increased only if it reaches the max CPU usage of some cores. Thanksfully, as we saw previously, the process has never been much CPU-bound, getting the right delivery price was the only computation ever done. This kind of architecture is therefore almost not bound to number of clients, we finally reach the <strong><span style='color:green'>constant complexity</span></strong>. For instance, <strong>Node.js</strong> only uses one and only one thread and yet perform quite with a huge number of clients!</p>
 <p>Any drawback? Well, event-driven architectures might seems more intuitive to us humans used to <a href="https://en.wikipedia.org/wiki/Human_multitasking">multitask</a> everything in our daily-life. But first, the technologies required for the <strong>tablets</strong> and the <strong>connected-ovens</strong> have a <strong>price</strong>, in our programming world this cost is express in the shape of some more complex operating system internals and libraries. Second, it is actually harder than you may think to <strong>decouple</strong> everything in events/handlers without ending with some race-conditions, a callbacks hell or unreliable performances.</p>
@@ -157,7 +157,7 @@
 <p>Now that we have the possibility to construct a <strong>Proactor</strong> pattern for our long operations using low-level APIs, we can wrap its <strong>event-queue</strong> into an <strong>event-loop</strong>.</p>
 <p>An <strong>event-loop</strong> is the base for an event-driven architecture. <strong>Event loops</strong> are actually fairly common in <strong>UI programming</strong> and <strong>video-games</strong> where user inputs are injected asynchronously in the application logic. A game or UI loop is generally constructed in the following way: check for user inputs ==&gt; update logic accordingly ==&gt; render ==&gt; restart. Thinking about a game where the main loop would <strong>wait</strong> for user inputs instead of some <strong>checks</strong> gives me chills. If an <strong>event-loop</strong> makes sense in these use-cases, so does it for anything else dealing with other external inputs (networking, file, timers).</p>
 <p>In a server, an <strong>event-loop</strong> would look closely to this:</p>
-<div class="highlight"><pre><span class="c1">// Pseudo-code for an event-loop:</span>
+<div class="highlight"><pre><span></span><span class="c1">// Pseudo-code for an event-loop:</span>
 
 <span class="n">DoAsynchronousOperationA</span><span class="p">();</span> <span class="c1">// A first operation!</span>
 
@@ -187,7 +187,7 @@
 
 <p>You will notice that you must start a <strong>first asynchronous operation</strong>, before entering the loop, as a <strong>bootstrap</strong>. Otherwise, the queue <strong>eventsQueue</strong> would be forever empty, and your processus would never change its state. Speaking of <strong>state</strong>, you can observe that our logic is now expressed in the shape of a <a href="https://en.wikipedia.org/wiki/Finite-state_machine">state machine</a>, each change of state being the result of an asynchronous operation. Note also that in the state "EVENT_A happened", a big computation could have been done meanwhile an Operation B was processed. One thread and is enough for running this <strong>event-loop</strong> without staling!</p>
 <p>In a more refined version, you would express your states as <a href="https://en.wikipedia.org/wiki/Callback_(computer_programming)"> callback </a> functions:</p>
-<div class="highlight"><pre><span class="c1">// Pseudo-code for a refined event-loop using callbacks:</span>
+<div class="highlight"><pre><span></span><span class="c1">// Pseudo-code for a refined event-loop using callbacks:</span>
 
 <span class="kt">void</span> <span class="nf">aCallBackForA</span><span class="p">()</span> <span class="c1">// A callback in reaction of the EVENT_A...</span>
 <span class="p">{</span>
@@ -289,7 +289,7 @@ Running joke test</p>
   },
   "image": "//jguegant.github.io/blogs/tech/images/myself.png",
   "url": "//jguegant.github.io/blogs/tech/drafts/asynchronous-pizzeria.html",
-  "description": "About this post: Computer programming is a science, or even an art, and as such its community follows trends for better or worse. Today, I am highly positive in our future so let's speak about the new holy grail of any back-end developer, the panacea for web servers: an ..."
+  "description": "About this post: Computer programming is a science, or even an art, and as such its community follows trends for better or worse. Today, I am highly positive in our future so let's speak about the new holy grail of any back-end developer, the panacea for web servers: an asynchronous …"
 }
 </script></body>
 </html>
