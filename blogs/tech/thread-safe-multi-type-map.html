@@ -1,0 +1,781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="//jguegant.github.io/blogs/tech/theme/css/style.min.css">
+  <link rel="stylesheet" type="text/css" href="//jguegant.github.io/blogs/tech/theme/css/monokai.css">
+  <link rel="stylesheet" type="text/css" href="//jguegant.github.io/blogs/tech/theme/css/font-awesome.min.css">
+  <link href="//jguegant.github.io/blogs/tech/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Jean Guegant's Blog Atom">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="index, follow" />
+<meta name="author" content="Jean Guegant" />
+<meta name="description" content="Trivia: One of our favorite motto in our C++ team at work is: you shall use dependency injections instead of singletons! It actually comes with our unit-testing strategy. If the various components of your architecture are too tightly coupled, it becomes a tremendous effort to deeply test small critical chunks …" />
+<meta name="keywords" content="C++11, C++14, variadic templates, meta programming">
+<meta property="og:site_name" content="Jean Guegant's Blog"/>
+<meta property="og:title" content="An introduction to C++'s variadic templates: a thread-safe multi-type map"/>
+<meta property="og:description" content="Trivia: One of our favorite motto in our C++ team at work is: you shall use dependency injections instead of singletons! It actually comes with our unit-testing strategy. If the various components of your architecture are too tightly coupled, it becomes a tremendous effort to deeply test small critical chunks …"/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="//jguegant.github.io/blogs/tech/thread-safe-multi-type-map.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2016-02-01 14:00:00+01:00"/>
+<meta property="article:modified_time" content="2016-02-01 14:00:00+01:00"/>
+<meta property="article:author" content="//jguegant.github.io/blogs/tech/author/jean-guegant.html">
+<meta property="article:section" content="C++"/>
+<meta property="article:tag" content="C++11"/>
+<meta property="article:tag" content="C++14"/>
+<meta property="article:tag" content="variadic templates"/>
+<meta property="article:tag" content="meta programming"/>
+<meta property="og:image" content="//jguegant.github.io/blogs/tech/images/myself.png">  <title>Jean Guegant's Blog &ndash; An introduction to C++'s variadic templates: a thread-safe multi-type map</title>
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="//jguegant.github.io/blogs/tech">
+        <img src="//jguegant.github.io/blogs/tech/images/myself.png" alt="Jean Guegant" title="Jean Guegant">
+      </a>
+      <h1><a href="//jguegant.github.io/blogs/tech">Jean Guegant</a></h1>
+      <p>Software Engineer - C++, security, game development and random thoughts.</p>
+      <nav>
+        <ul class="list">
+          <li><a href="//jguegant.github.io/blogs/tech/pages/about.html#about">About</a></li>
+          <li><a href="//jguegant.github.io/blogs/tech/pages/contact.html#contact">Contact</a></li>
+        </ul>
+      </nav>
+      <ul class="social">
+        <li><a class="sc-linkedin" href="https://se.linkedin.com/in/jguegant" target="_blank"><i class="fa fa-linkedin"></i></a></li>
+        <li><a class="sc-github" href="https://github.com/Jiwan" target="_blank"><i class="fa fa-github"></i></a></li>
+      </ul>
+    </div>
+  </aside>
+  <main>
+    <nav>
+      <a href="//jguegant.github.io/blogs/tech">Home</a>
+      <a href="//jguegant.github.io/blogs/tech/archives.html">Archives</a>
+      <a href="//jguegant.github.io/blogs/tech/categories.html">Categories</a>
+      <a href="//jguegant.github.io/blogs/tech/tags.html">Tags</a>
+      <a href="//jguegant.github.io/blogs/tech/feeds/all.atom.xml">Atom</a>
+    </nav>
+
+<article>
+  <header>
+    <h1 id="thread-safe-multi-type-map">An introduction to C++'s variadic templates: a thread-safe multi-type map</h1>
+    <p>Posted on Mon 01 February 2016 in <a href="//jguegant.github.io/blogs/tech/category/c.html">C++</a></p>
+  </header>
+  <div>
+    <h3>Trivia:</h3>
+<p>One of our favorite motto in our C++ team at work is: you shall use <strong>dependency injections</strong> instead of <strong>singletons</strong>! It actually comes with our unit-testing strategy. If the various components of your architecture are too tightly coupled, it becomes a tremendous effort to deeply test small critical chunks of your code. <strong>Singletons</strong> are that kind of beast that revives itself without your permission and comes from hell to haunt your lovely unit-tests. Our main project being multi-threaded (hence highly bug-prone) and vital for the company, "<strong>singleton</strong>" became a forbidden word. Yet, our team recently started going down the dark path. Thanks to C++11 and its variadic templates, I carefully crafted a <strong>thread-safe multi-type map container</strong> that simplified our configuration reloading system and saved us from the dark side of the coder force. If you always wondered what are <strong>variadic templates</strong>, how <strong>C++11's tuples</strong> can be implemented, I am going to present these concepts in this post using my container as a cobaye.</p>
+<p>Note: for the sake of your sanity and the fact that <em>errare humanum est</em>, this article might not be 100% accurate!</p>
+<h3>Why would I use a thread-safe multi-type map?</h3>
+<p>Let me explain our odyssey: we are working on a highly modular and multi-threaded application. One of its core feature is the ability to reload various configuration files or assets used by some components spread accross many threads and a giant hierarchy of objects. The reloading process is automic using Linux's <a href="http://man7.org/linux/man-pages/man7/inotify.7.html">inotify</a> monitoring filesystem events. One thread is dedicated to the reception of filesystem events and must react accordingly by parsing any changes and pushing them to other threads. At first, we used, to pass-by any newly parsed asset, some thread-safe <strong>queues</strong> or something analog to <a href="https://tour.golang.org/concurrency/2">go channels</a>. Since we did not want to use <strong>singletons</strong>, we had to pass references to our queues all along our object hierarchy. Sadly, our <strong>queue</strong> implementation is <strong>one to one</strong> and supports only <strong>one type</strong>, none of our config/asset types share the same <strong>base-type</strong>. For each asset type and each component using this asset, we had to create a new <strong>queue</strong> and pass-it all along our hierarchy. That is certainely not convenient! What we really wanted was a hybrid class between a <a href="http://en.cppreference.com/w/cpp/container/map">std::map</a> and a <a href="http://en.cppreference.com/w/cpp/utility/tuple">std::tuple</a>.</p>
+<p>We could have used a <strong>std::map</strong> with <a href="http://www.boost.org/doc/libs/1_60_0/doc/html/variant.html">Boost.Variant</a> to store our items, using a type like the following <strong>"std::map&lt; std::string, std::shared_ptr&lt; Boost.Variant &lt; ConfigType1, ConfigType2&gt;&gt;&gt;"</strong>. <strong>Boost.Variant</strong> permits to encapsulate a <strong>heterogeneous set of types</strong> without <strong>common base-type or base-class</strong>, which solves one of our point. Another solution would be to encapsulate manually all our configuration classes in the same familly of classes, that is pretty cumbersome. But anyway, <strong>std::map</strong> does not guaranty any safety if you are writing and reading at the same time on a map slot. Secondly, <strong>std::shared_ptr</strong> does guaranty a thread-safe destruction of the pointee object (i.e: the reference counter is thread-safe) but nothing for the <strong>std::shared_ptr</strong> object itself. It means that copying a <strong>std::shared_ptr</strong> that could potentially be modified from another thread, might lead to an undefined behaviour. Even if we were to encapsulate all these unsafe accesses with mutexes, we are still lacking a nice mechanism to get update notifications for our objects. We do not want to constantly poll the latest version and propagate it through our code. And finally, if that solution were elegant enough, why would I currently write this blog post?</p>
+<p><strong>C++11</strong> brings another collection type called <strong>std::tuple</strong>. It permits to store a set of elements of <strong>heterogeneous types</strong>. Take a look at this short example:</p>
+<div class="highlight"><pre><span></span><span class="k">auto</span> <span class="n">myTuple</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_tuple</span><span class="p">(</span><span class="s">&quot;Foo&quot;</span><span class="p">,</span> <span class="mi">1337</span><span class="p">,</span> <span class="mi">42</span><span class="p">);</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="p">(</span><span class="n">myTuple</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="c1">// Access element by index: &quot;Foo&quot;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">(</span><span class="n">myTuple</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="c1">// Access element by index: 1337</span>
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="mi">2</span><span class="o">&gt;</span><span class="p">(</span><span class="n">myTuple</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="c1">// Access element by index: 42</span>
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="k">const</span> <span class="kt">char</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">myTuple</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="c1">// Access element by type: &quot;Foo&quot;</span>
+
+<span class="c1">// compilation error: static_assert failed &quot;tuple_element index out of range&quot;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="mi">3</span><span class="o">&gt;</span><span class="p">(</span><span class="n">myTuple</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+
+<span class="c1">// compilation error: static_assert failed &quot;type can only occur once in type list&quot;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">myTuple</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+</pre></div>
+
+
+<p><strong>Tuples</strong> are that kind of <strong>C++11</strong> jewelry that should decide your old-fashioned boss to upgrade your team's compiler (and his ugly tie). Not only I could store a <strong>const char* </strong> and two <strong>ints</strong> without any compiling error, but I could also access them using compile-time mechanisms. In some way, you can see tuples as a compile-time map using indexes or types as keys to reach its elements. You cannot use an index out of bands, it will be catched at compile-time anyway! Sadly, using a type as a key to retrieve an element is only possible if the type is unique in the <strong>tuple</strong>. At my work, we do have few config objects sharing the same class. Anyway, tuples weren't fitting our needs regarding thread safety and update events. Let's see what we could create using tasty <strong>tuples</strong> as an inspiration.</p>
+<p>Note that some <strong>tuples</strong> implementations were already available before <strong>C++11</strong>, notably in <a href="http://www.boost.org/doc/libs/1_60_0/libs/tuple/doc/tuple_users_guide.html">boost</a>. <strong>C++11</strong> variadic templates are just very handy, as you will see, to construct such a class.</p>
+<h3>A teaser for my repository class:</h3>
+<p>To keep your attention for the rest of this post, here is my <strong>thread-safe multi-type map</strong> in action:</p>
+<div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;memory&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;string&gt;</span><span class="cp"></span>
+
+<span class="cp">#include</span> <span class="cpf">&quot;repository.hpp&quot;</span><span class="cp"></span>
+
+<span class="c1">// Incomplete types used as compile-time keys.</span>
+<span class="k">struct</span> <span class="n">Key1</span><span class="p">;</span>
+<span class="k">struct</span> <span class="n">Key2</span><span class="p">;</span>
+
+<span class="c1">// Create a type for our repository.</span>
+<span class="k">using</span> <span class="n">MyRepository</span> <span class="o">=</span> <span class="n">Repository</span>
+    <span class="o">&lt;</span>
+        <span class="n">Slot</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">,</span> <span class="c1">// One slot for std::string.</span>
+        <span class="n">Slot</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="n">Key1</span><span class="o">&gt;</span><span class="p">,</span> <span class="c1">// Two slots for int.</span>
+        <span class="n">Slot</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="n">Key2</span><span class="o">&gt;</span> <span class="c1">// Must be differentiate using &quot;type keys&quot; (Key1, Key2).</span>
+    <span class="o">&gt;</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">MyRepository</span> <span class="n">myRepository</span><span class="p">;</span>
+
+    <span class="n">myRepository</span><span class="p">.</span><span class="n">emplace</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;test&quot;</span><span class="p">);</span> <span class="c1">// Construct the shared_ptr within the repository.</span>
+    <span class="n">myRepository</span><span class="p">.</span><span class="n">emplace</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="n">Key1</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">1337</span><span class="p">);</span>
+    <span class="n">myRepository</span><span class="p">.</span><span class="n">set</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="n">Key2</span><span class="o">&gt;</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">42</span><span class="p">));</span> <span class="c1">// Set the shared_ptr manually.</span>
+
+    <span class="c1">// Note: I use &#39;*&#39; as get returns a shared_ptr.</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="o">*</span><span class="n">myRepository</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="c1">// Print &quot;test&quot;.</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="o">*</span><span class="n">myRepository</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="n">Key1</span><span class="o">&gt;</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="c1">// Print 1337.</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="o">*</span><span class="n">myRepository</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="n">Key2</span><span class="o">&gt;</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="c1">// Print 42.</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="o">*</span><span class="n">myRepository</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="c1">//             ^^^ Compilation error: which int shall be selected? Key1 or Key2?</span>
+
+    <span class="k">auto</span> <span class="n">watcher</span> <span class="o">=</span> <span class="n">myRepository</span><span class="p">.</span><span class="n">getWatcher</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">();</span> <span class="c1">// Create a watcher object to observe changes on std::string.</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">watcher</span><span class="o">-&gt;</span><span class="n">hasBeenChanged</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="c1">// 0: no changes since the watcher creation.</span>
+
+    <span class="n">myRepository</span><span class="p">.</span><span class="n">emplace</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;yo&quot;</span><span class="p">);</span> <span class="c1">// Emplace a new value into the std::string slot.</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">watcher</span><span class="o">-&gt;</span><span class="n">hasBeenChanged</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="c1">// 1: the std::string slot has been changed.</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="o">*</span><span class="n">watcher</span><span class="o">-&gt;</span><span class="n">get</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="c1">// Poll the value and print &quot;yo&quot;.</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">watcher</span><span class="o">-&gt;</span><span class="n">hasBeenChanged</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="c1">// 0: no changes since the last polling.</span>
+
+    <span class="k">return</span> <span class="n">EXIT_SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>First and foremost, its name <strong>repository</strong> might not be well-suited for its responsibility. If your native language is the same as shakespeare and come-up with a better term, please feel free to submit it. In our internal usage, <strong>config repository</strong> sounded great!</p>
+<p>I start by describing the slots necessary for my application by creating a new type <strong>MyRepository</strong> using a <a href="http://en.cppreference.com/w/cpp/language/type_alias">type alias</a>. As you can see, I use the type of the slots as a key for accessing elements. But in case of contention, I must use a second key: an "empty type" ; like <strong>Key1</strong> and <strong>Key2</strong> in this example.
+If using types as keys seems odd for you, fear not! Here is the most rational explanation I can share with you: we are trying to benefit from our "know-it-all compiler". Your compiler is mainly manipulating types, one can change its flow using these types during the compilation process. Note that these structs are not even complete (no definition), it has <strong>no impact</strong> for the <strong>runtime memory</strong> or <strong>runtime execution</strong> and that's the amazing part of <strong>meta-programming</strong>. The dispatch of an expression such as <strong>"myRepository.get&lt; int, Key1&gt;()"</strong> is done during your build-time.</p>
+<p>You may also notice that every slot is actually a <a href="http://en.cppreference.com/w/cpp/memory/shared_ptr">std::shared_ptr</a>. It enforces a clean ressource management: in a multithreaded application, one must be really careful of the lifetime of heap objects. <strong>std::shared_ptr</strong> in this case permits me to ensure that even if someone replaces a value in a slot, other components on other threads manipulating the old value won't end up with a <strong>dangling pointer/reference</strong> bomb in their hands. Another solution would be to use plain value objects, but not only it would require copying big objects in every other components but it would also remove polymorphism.</p>
+<p>As for the updates signalisation, you first create a watcher object that establishes a contract between a desired slot to watch and your context. You can thereafter query in thread-safe way weither an update has been made and, if so, poll the latest changes. The watcher object is actually a <a href="http://en.cppreference.com/w/cpp/memory/unique_ptr">std::unique_ptr</a> for a special class, it cannot be moved nor copied without your permission and will automagically disable the signalisation contract between the slot and your context, once destroyed. We will dive deeper in this topic in the comming sections.</p>
+<p>Within our application, the repository object is encapsulated into a RuntimeContext object. This RuntimeContext object is created explicitely within our main entry point and passed as a reference to a great part of our components. We therefore keep the possibility to test our code easily by setting this RuntimeContext with different implementations. Here is a simplified version of our usage:</p>
+<div class="highlight"><pre><span></span><span class="c1">// runtimecontext.hpp</span>
+<span class="cp">#include</span> <span class="cpf">&quot;repository.hpp&quot;</span><span class="cp"></span>
+
+<span class="c1">// Incomplete types used as compile-time keys.</span>
+<span class="k">struct</span> <span class="n">Key1</span><span class="p">;</span>
+<span class="k">struct</span> <span class="n">Key2</span><span class="p">;</span>
+
+<span class="k">class</span> <span class="nc">ConfigType1</span><span class="p">;</span> <span class="c1">// Defined in another file.</span>
+<span class="k">class</span> <span class="nc">ConfigType2</span><span class="p">;</span> <span class="c1">// Defined in another file.</span>
+
+<span class="c1">// Create a type for our repository.</span>
+<span class="k">using</span> <span class="n">ConfigRepository</span> <span class="o">=</span> <span class="n">Repository</span>
+    <span class="o">&lt;</span>
+        <span class="n">Slot</span><span class="o">&lt;</span><span class="n">ConfigType1</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="n">Slot</span><span class="o">&lt;</span><span class="n">ConfigType2</span><span class="p">,</span> <span class="n">Key1</span><span class="o">&gt;</span><span class="p">,</span>
+        <span class="n">Slot</span><span class="o">&lt;</span><span class="n">ConfigType2</span><span class="p">,</span> <span class="n">Key2</span><span class="o">&gt;</span>
+    <span class="o">&gt;</span><span class="p">;</span>
+
+<span class="k">struct</span> <span class="n">RuntimeContext</span>
+<span class="p">{</span>
+    <span class="n">ILogger</span><span class="o">*</span> <span class="n">logger</span><span class="p">;</span>
+    <span class="c1">// ...</span>
+    <span class="n">ConfigRepository</span> <span class="n">configRepository</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="c1">// Main.cpp</span>
+
+<span class="cp">#include</span> <span class="cpf">&quot;runtimecontext.hpp&quot;</span><span class="cp"></span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">RuntimeContext</span> <span class="n">runtimeContext</span><span class="p">;</span>
+    <span class="c1">// Setup:</span>
+    <span class="n">runtimeContext</span><span class="p">.</span><span class="n">logger</span> <span class="o">=</span> <span class="k">new</span> <span class="n">StdOutLogger</span><span class="p">();</span>
+    <span class="c1">// ...</span>
+
+    <span class="c1">// Let&#39;s take a reference to the context and change the configuration repository when necessary. </span>
+    <span class="n">startConfigurationMonitorThread</span><span class="p">(</span><span class="n">runtimeContext</span><span class="p">);</span>
+
+    <span class="c1">// Let&#39;s take a reference and pass it down to all our components in various threads.</span>
+    <span class="n">startOurApplicationLogic</span><span class="p">(</span><span class="n">runtimeContext</span><span class="p">);</span>
+
+    <span class="k">return</span> <span class="n">EXIT_SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<h3>Time for a C++11 implementation:</h3>
+<p>We can decompose the solution in 3 steps: at first we need to implement a map that accepts <strong>multiple types</strong>, we then need to work on the <strong>thread safety</strong> and finish by the <strong>watcher mechanism</strong>. Let's first fulfill the mission of this post: introducing you to <strong>variadic templates</strong> to solve the multiple-type problem.</p>
+<h4>Variadic templates:</h4>
+<p>You may not have heard of <strong>variadic templates</strong> in <strong>C++11</strong> but I bet that you already used <strong>variadic functions</strong> like <strong>printf</strong> in <strong>C</strong> (maybe in a previous unsafe life). As <a href="https://en.wikipedia.org/wiki/Variadic_function">wikipedia</a> kindly explains "a variadic function is a function of indefinite which accepts a variable number of arguments". In other words, a <strong>variadic function</strong> has potentially an infinite number of <strong>parameters</strong>. Likewise, a <strong>variadic template</strong> has potentially an infinite number of <strong>parameters</strong>. Let's see how to use them!</p>
+<h5>Usage for variadic function templates:</h5>
+<p>Let's say that you wish to create a template that accept an infinite number of class as arguments. You will use the following notation:</p>
+<div class="highlight"><pre><span></span><span class="k">template</span> <span class="o">&lt;</span><span class="n">class</span><span class="p">...</span> <span class="n">T</span><span class="o">&gt;</span>
+</pre></div>
+
+
+<p>You specify a group of template parameters using the ellipsis notation named <strong>T</strong>. Note that this <strong>ellipsis</strong> notation is consistent with <strong>C</strong>'s variadic function notation. This group of parameters, called a <strong>parameter-pack</strong>, can then be used in your function template or your class template by <strong>expanding</strong> them. One must use the <strong>ellipsis</strong> notation again (this time after T) to <strong>expand</strong> the parameter pack <strong>T</strong>:</p>
+<div class="highlight"><pre><span></span><span class="k">template</span> <span class="o">&lt;</span><span class="n">class</span><span class="p">...</span> <span class="n">T</span><span class="o">&gt;</span> <span class="kt">void</span> <span class="n">f</span><span class="p">(</span><span class="n">T</span><span class="p">...)</span>
+<span class="c1">//              ^ pack T       ^expansion</span>
+<span class="p">{</span>
+    <span class="c1">// Your function content.</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>Now that we have expanded <strong>T</strong>, what can we do Sir? Well, first you give to your expanded parameter <strong>types</strong>, a fancy <strong>name</strong> like <strong>t</strong>.</p>
+<div class="highlight"><pre><span></span><span class="k">template</span> <span class="o">&lt;</span><span class="n">class</span><span class="p">...</span> <span class="n">T</span><span class="o">&gt;</span> <span class="kt">void</span> <span class="n">f</span><span class="p">(</span><span class="n">T</span><span class="p">...</span> <span class="n">t</span><span class="p">)</span>
+<span class="c1">//                                ^ your fancy t.</span>
+<span class="p">{</span>
+    <span class="c1">// Your function content.</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>If <strong>T = T1, T2</strong>, then <strong>T... t = T1 t1, T2 t2</strong> and <strong>t = t1, t2</strong>. Brilliant, but is that all? Sure no! You can then <strong>expand</strong> again <strong>t</strong> using an "suffix-ellipsis" again:</p>
+<div class="highlight"><pre><span></span><span class="k">template</span> <span class="o">&lt;</span><span class="n">class</span><span class="p">...</span> <span class="n">T</span><span class="o">&gt;</span> <span class="kt">void</span> <span class="n">f</span><span class="p">(</span><span class="n">T</span><span class="p">...</span> <span class="n">t</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">anotherFunction</span><span class="p">(</span><span class="n">t</span><span class="p">...);</span>
+    <span class="c1">//                ^ t is expanded here! </span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>Finally, you can call this function <strong>f</strong> as you would with a normal function template:</p>
+<div class="highlight"><pre><span></span><span class="k">template</span> <span class="o">&lt;</span><span class="n">class</span><span class="p">...</span> <span class="n">T</span><span class="o">&gt;</span> <span class="kt">void</span> <span class="n">f</span><span class="p">(</span><span class="n">T</span><span class="p">...</span> <span class="n">t</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">anotherFunction</span><span class="p">(</span><span class="n">t</span><span class="p">...);</span>
+<span class="p">}</span>
+
+<span class="n">f</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">&quot;foo&quot;</span><span class="p">,</span> <span class="s">&quot;bar&quot;</span><span class="p">);</span> <span class="c1">// Note: the argument deduction avoids us to use f&lt;int, const char*, const char*&gt;</span>
+<span class="c1">// f(1, &quot;foo&quot;, &quot;bar&quot;) calls a generated f(int t1, const char* t2, const char* t3)</span>
+<span class="c1">// with T1 = int, T2 = const char* and T3 = const char*,</span>
+<span class="c1">// that itself calls anotherFunction(t1, t2, t3) equivalent to call anotherFunction(1, &quot;foo&quot;, &quot;bar&quot;);</span>
+</pre></div>
+
+
+<p>Actually, the <strong>expansion mechanism</strong> is creating <strong>comma-separated</strong> replication of the <strong>pattern</strong> you apply the <strong>ellipsis</strong> onto. If you think I am tripping out with template-related wording, here is a much more concret example:</p>
+<div class="highlight"><pre><span></span><span class="k">template</span> <span class="o">&lt;</span><span class="n">class</span><span class="p">...</span> <span class="n">T</span><span class="o">&gt;</span> <span class="kt">void</span> <span class="n">g</span><span class="p">(</span><span class="n">T</span><span class="p">...</span> <span class="n">t</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">anotherFunction</span><span class="p">(</span><span class="n">t</span><span class="p">...);</span>
+<span class="p">}</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="n">class</span><span class="p">...</span> <span class="n">T</span><span class="o">&gt;</span> <span class="kt">void</span> <span class="n">f</span><span class="p">(</span><span class="n">T</span><span class="o">*</span><span class="p">...</span> <span class="n">t</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">g</span><span class="p">(</span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="o">*</span><span class="n">t</span><span class="p">)...);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="n">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">2</span><span class="p">;</span>
+    <span class="kt">int</span> <span class="n">b</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
+
+    <span class="n">f</span><span class="p">(</span><span class="o">&amp;</span><span class="n">a</span><span class="p">,</span> <span class="o">&amp;</span><span class="n">b</span><span class="p">);</span> <span class="c1">// Call f(int* t1, int* t2).</span>
+    <span class="c1">// Do a subcall to g(static_cast&lt;double&gt;(*t1), static_cast&lt;double&gt;(*t2)).</span>
+
+    <span class="k">return</span> <span class="n">EXIT_SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>I could use the pattern <strong>'*'</strong> for <strong>f</strong> parameters and therefore take them as a pointer! In the same manner, I applied the pattern <strong>'static_cast&lt; double&gt;(*)</strong> to get the value of each arguments and cast them as doubles before forwarding them to <strong>g</strong>.</p>
+<p>One last example before moving to <strong>variadic class templates</strong>. One can combine "normal" template parameters with parameter packs and initiate a compile recursion on function templates. Let's take a look at this printing function:</p>
+<div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">HEAD</span><span class="o">&gt;</span> <span class="kt">void</span> <span class="n">print</span><span class="p">(</span><span class="n">HEAD</span> <span class="n">head</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Stop: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">head</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">HEAD</span><span class="p">,</span> <span class="n">class</span><span class="p">...</span> <span class="n">TAIL</span><span class="o">&gt;</span> <span class="kt">void</span> <span class="n">print</span><span class="p">(</span><span class="n">HEAD</span> <span class="n">head</span><span class="p">,</span> <span class="n">TAIL</span><span class="p">...</span> <span class="n">tail</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Recurse: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">head</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
+    <span class="n">print</span><span class="p">(</span><span class="n">tail</span><span class="p">...);</span>
+<span class="p">}</span>
+
+<span class="kt">int</span> <span class="n">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">print</span><span class="p">(</span><span class="mi">42</span><span class="p">,</span> <span class="mi">1337</span><span class="p">,</span> <span class="s">&quot;foo&quot;</span><span class="p">);</span>
+
+    <span class="c1">// Print:</span>
+    <span class="c1">// Recurse: 42</span>
+    <span class="c1">// Recurse: 1337</span>
+    <span class="c1">// Stop: foo</span>
+
+    <span class="c1">// Call print&lt;int, int, const char*&gt; (second version of print).</span>
+    <span class="c1">// The first int (head) is printed and we call print&lt;int, const char*&gt; (second version of print).</span>
+    <span class="c1">// The second int (head again) is printed and we call print&lt;const char*&gt; (first version of print).</span>
+    <span class="c1">// We reach recursion stopping condition, only one element left.</span>
+
+    <span class="k">return</span> <span class="n">EXIT_SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p><strong>Variadic templates</strong> are very interesting and I wouldn't be able to cover all their features within this post. It roughly feels like functional programming using your compiler, and even some <strong>Haskellers</strong> might listen to you if you bring that topic during a dinner. For those interested, I would challenge them to write a type-safe version of <strong>printf</strong> using variadic templates with the help of this <a href="http://en.cppreference.com/w/cpp/language/parameter_pack">reference</a>. After that, you will run and scream of fear at the precense of <strong>C</strong>'s <strong>vargs</strong>.</p>
+<h5>"Variadic" inheritance:</h5>
+<p>Sometimes during my programming sessions, I have a very awkward sensation that my crazy code will never compile and, yet, I finally see "build finished" in my terminal. I am talking about that kind of Frankenstein constructions:</p>
+<div class="highlight"><pre><span></span><span class="k">struct</span> <span class="n">A</span> <span class="p">{</span> <span class="p">};</span>
+
+<span class="k">struct</span> <span class="n">B</span> <span class="p">{</span> <span class="p">};</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="n">class</span><span class="p">...</span> <span class="n">T</span><span class="o">&gt;</span>
+<span class="k">struct</span> <span class="nl">C</span><span class="p">:</span> <span class="k">public</span> <span class="n">T</span><span class="p">...</span> <span class="c1">// Variadic inheritance</span>
+<span class="p">{</span>
+
+<span class="p">};</span>
+
+<span class="n">C</span><span class="o">&lt;</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="o">&gt;</span> <span class="n">c</span><span class="p">;</span>
+</pre></div>
+
+
+<p>Yes, we can now create a class inheriting of an infinite number of bases. If you remember my explanation about pattern replications separated by commas, you can imaginge that <strong>struct C: public T...</strong> will be "transformed" in <strong>struct C: public A, public B</strong>, <strong>public T</strong> being the pattern. We start to be able to combine multiple types, each exposing a small amount of methods, to create a flexible concret type. That's one step closer to our multi-type map, and if you are interested in this concept, take a look at <a href="https://en.wikipedia.org/wiki/Mixin">mixins</a>.</p>
+<p>Instead of inheriting directly from multiple types, couldn't we inherit from some types that encapsulate our types? Absolutely! A traditional map has some <strong>slots</strong> accessible using keys and these slots contain a value. If you give me base-class you are looking for, I can give you access to the value it contains:</p>
+<div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
+
+<span class="k">struct</span> <span class="n">SlotA</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">value</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">struct</span> <span class="n">SlotB</span>
+<span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">value</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="c1">// Note: private inheritance, no one can access directly to the slots other than C itself.</span>
+<span class="k">struct</span> <span class="nl">Repository</span><span class="p">:</span> <span class="k">private</span> <span class="n">SlotA</span><span class="p">,</span> <span class="k">private</span> <span class="n">SlotB</span>
+<span class="p">{</span>
+
+    <span class="kt">void</span> <span class="n">setSlotA</span><span class="p">(</span><span class="k">const</span> <span class="kt">int</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="c1">// I access the base-class&#39;s value</span>
+        <span class="c1">// Since we have multiple base with a value field, we need to &quot;force&quot; the access to SlotA.</span>
+        <span class="n">SlotA</span><span class="o">::</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kt">int</span> <span class="n">getSlotA</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="n">SlotA</span><span class="o">::</span><span class="n">value</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kt">void</span> <span class="n">setSlotB</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">b</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">SlotB</span><span class="o">::</span><span class="n">value</span> <span class="o">=</span> <span class="n">b</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">getSlotB</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="n">SlotB</span><span class="o">::</span><span class="n">value</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">Repository</span> <span class="n">r</span><span class="p">;</span>
+
+    <span class="n">r</span><span class="p">.</span><span class="n">setSlotA</span><span class="p">(</span><span class="mi">42</span><span class="p">);</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">r</span><span class="p">.</span><span class="n">getSlotA</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="c1">// Print: 42.</span>
+
+    <span class="n">r</span><span class="p">.</span><span class="n">setSlotB</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="s">&quot;toto&quot;</span><span class="p">));</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">r</span><span class="p">.</span><span class="n">getSlotB</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="c1">// Print: &quot;toto&quot;.</span>
+
+    <span class="k">return</span> <span class="n">EXIT_SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>This code is not generic at all! We know how to create a generic <strong>Slot</strong> using a simple template, and we acquired the magic "create varidiac inheritance" skill. If my <strong>Repository</strong> class inherit from <strong>Slot&lt; TypeA&gt;</strong> and you call a method template with <strong>TypeA</strong> as a template argument, I can call the <strong>doGet</strong> method of the <strong>Slot&lt; TypeA&gt;</strong> base-class and give you back the <strong>value</strong> of <strong>TypeA</strong> in that repository. Let's fix the previous ugly copy-paste code:</p>
+<div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;string&gt;</span><span class="cp"></span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Type</span><span class="o">&gt;</span>
+<span class="k">class</span> <span class="nc">Slot</span>
+<span class="p">{</span>
+<span class="k">protected</span><span class="o">:</span>
+    <span class="n">Type</span><span class="o">&amp;</span> <span class="n">doGet</span><span class="p">()</span> <span class="c1">// A nice encapsulation, that will be usefull later on.</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="n">value_</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kt">void</span> <span class="n">doSet</span><span class="p">(</span><span class="k">const</span> <span class="n">Type</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span> <span class="c1">// Same encapsulation.</span>
+    <span class="p">{</span>
+        <span class="n">value_</span> <span class="o">=</span> <span class="n">value</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="k">private</span><span class="o">:</span>
+    <span class="n">Type</span> <span class="n">value_</span><span class="p">;</span>
+<span class="p">};</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="n">class</span><span class="p">...</span> <span class="n">Slots</span><span class="o">&gt;</span>
+<span class="k">class</span> <span class="nc">Repository</span> <span class="o">:</span> <span class="k">private</span> <span class="n">Slots</span><span class="p">...</span> <span class="c1">// inherit from our slots...</span>
+<span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+    <span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Type</span><span class="o">&gt;</span> <span class="c1">// Give me a type and,</span>
+    <span class="n">Type</span><span class="o">&amp;</span> <span class="n">get</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="n">Slot</span><span class="o">&lt;</span><span class="n">Type</span><span class="o">&gt;::</span><span class="n">doGet</span><span class="p">();</span> <span class="c1">// I can select the Base class.</span>
+    <span class="p">}</span>
+
+    <span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Type</span><span class="o">&gt;</span>
+    <span class="kt">void</span> <span class="n">set</span><span class="p">(</span><span class="k">const</span> <span class="n">Type</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">Slot</span><span class="o">&lt;</span><span class="n">Type</span><span class="o">&gt;::</span><span class="n">doSet</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="c1">// Incomplete types used as compile-time keys.</span>
+<span class="k">struct</span> <span class="n">Key1</span><span class="p">;</span>
+<span class="k">struct</span> <span class="n">Key2</span><span class="p">;</span>
+
+<span class="c1">// Create a type for our repository.</span>
+<span class="k">using</span> <span class="n">MyRepository</span> <span class="o">=</span> <span class="n">Repository</span>
+        <span class="o">&lt;</span>
+                <span class="n">Slot</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">,</span>       <span class="c1">// Let&#39;s pick the type of our slots.</span>
+                <span class="n">Slot</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span>
+        <span class="o">&gt;</span><span class="p">;</span>
+
+<span class="kt">int</span> <span class="nf">main</span><span class="p">()</span>
+<span class="p">{</span>
+    <span class="n">MyRepository</span> <span class="n">myRepository</span><span class="p">;</span>
+
+    <span class="n">myRepository</span><span class="p">.</span><span class="n">set</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;toto&quot;</span><span class="p">);</span>
+    <span class="n">myRepository</span><span class="p">.</span><span class="n">set</span><span class="p">(</span><span class="mi">42</span><span class="p">);</span> <span class="c1">// Notice the type deduction: we pass an int, so it writes in the int slot.</span>
+
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">myRepository</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="c1">// Print: &quot;toto&quot;.</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">myRepository</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">()</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span> <span class="c1">// Print: 42.</span>
+
+    <span class="k">return</span> <span class="n">EXIT_SUCCESS</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>This repository starts to take shape, but we are not yet done! If you try to have two int slots, you will raise a compilation error: "base class 'Slot<int>' specified more than once as a direct base class". We need to add another key-type to our slot class with a default value and we need to modify our repository methods to handle it:</p>
+<div class="highlight"><pre><span></span><span class="k">struct</span> <span class="n">DefaultSlotKey</span><span class="p">;</span> <span class="c1">// No needs for a definition</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="p">,</span> <span class="k">class</span> <span class="nc">Key</span> <span class="o">=</span> <span class="n">DefaultSlotKey</span><span class="o">&gt;</span> <span class="c1">// The Key type will never be trully used. </span>
+<span class="k">class</span> <span class="nc">Slot</span>
+<span class="p">{</span>
+    <span class="c1">// ...</span>
+<span class="p">};</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="n">class</span><span class="p">...</span> <span class="n">Slots</span><span class="o">&gt;</span>
+<span class="k">class</span> <span class="nc">Repository</span> <span class="o">:</span> <span class="k">private</span> <span class="n">Slots</span><span class="p">...</span>
+<span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+    <span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Type</span><span class="p">,</span> <span class="k">class</span> <span class="nc">Key</span> <span class="o">=</span> <span class="n">DefaultSlotKey</span><span class="o">&gt;</span> <span class="c1">// The default key must be here too.</span>
+    <span class="n">Type</span><span class="o">&amp;</span> <span class="n">get</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="n">Slot</span><span class="o">&lt;</span><span class="n">Type</span><span class="p">,</span> <span class="n">Key</span><span class="o">&gt;::</span><span class="n">doGet</span><span class="p">();</span>
+    <span class="p">}</span>
+
+    <span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Type</span><span class="p">,</span> <span class="k">class</span> <span class="nc">Key</span> <span class="o">=</span> <span class="n">DefaultSlotKey</span><span class="o">&gt;</span>
+    <span class="kt">void</span> <span class="n">set</span><span class="p">(</span><span class="k">const</span> <span class="n">Type</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">Slot</span><span class="o">&lt;</span><span class="n">Type</span><span class="p">,</span> <span class="n">Key</span><span class="o">&gt;::</span><span class="n">doSet</span><span class="p">(</span><span class="n">value</span><span class="p">);</span>
+    <span class="p">}</span>
+<span class="p">};</span>
+
+<span class="k">struct</span> <span class="n">Key1</span><span class="p">;</span> <span class="c1">// No need for definition.</span>
+<span class="k">struct</span> <span class="n">Key2</span><span class="p">;</span>
+
+<span class="c1">// Now you can do:</span>
+<span class="k">using</span> <span class="n">MyRepository</span> <span class="o">=</span> <span class="n">Repository</span>
+    <span class="o">&lt;</span>
+            <span class="n">Slot</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">,</span>       <span class="c1">// Let&#39;s pick the type of our slots.</span>
+            <span class="n">Slot</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">Key1</span><span class="o">&gt;</span><span class="p">,</span>
+            <span class="n">Slot</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">Key2</span><span class="o">&gt;</span>
+    <span class="o">&gt;</span><span class="p">;</span>
+</pre></div>
+
+
+<p>Here is a UML representation of this Repository using distinct <strong>Keys</strong> for the type <strong>std::string</strong>:
+<img alt="A nice UML diagram of my classes" src="//jguegant.github.io/blogs/tech/images/repository_uml.png"></p>
+<p>Our repository class is missing an <strong>emplace</strong> method, right? <strong>emplace</strong> is taking a variable number of arguments with different types and <strong>forward</strong> them to create an object within one of our slots. A variable number of arguments and types must remind you something... <strong>variadic templates</strong>! Let's create this variadic <strong>emplace</strong> method as well as its equivalent in the Slot class:</p>
+<div class="highlight"><pre><span></span><span class="c1">// In class Slot:</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="n">class</span><span class="p">...</span> <span class="n">Args</span><span class="o">&gt;</span>
+<span class="kt">void</span> <span class="n">doEmplace</span><span class="p">(</span><span class="k">const</span> <span class="n">Args</span><span class="o">&amp;</span><span class="p">...</span> <span class="n">args</span><span class="p">)</span> <span class="c1">// Here the pattern is const  &amp;.</span>
+<span class="p">{</span>
+    <span class="n">value_</span> <span class="o">=</span> <span class="n">Type</span><span class="p">(</span><span class="n">args</span><span class="p">...);</span> <span class="c1">// copy-operator (might use move semantics).</span>
+<span class="p">}</span>
+
+<span class="c1">// In class Repository:</span>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Type</span><span class="p">,</span> <span class="k">class</span> <span class="nc">Key</span> <span class="o">=</span> <span class="n">DefaultSlotKey</span><span class="p">,</span> <span class="n">class</span><span class="p">...</span> <span class="n">Args</span><span class="o">&gt;</span>
+<span class="kt">void</span> <span class="n">emplace</span><span class="p">(</span><span class="k">const</span> <span class="n">Args</span><span class="o">&amp;</span><span class="p">...</span> <span class="n">args</span><span class="p">)</span> <span class="c1">// Here the pattern is const  &amp;.</span>
+<span class="p">{</span>
+    <span class="n">Slot</span><span class="o">&lt;</span><span class="n">Type</span><span class="p">,</span> <span class="n">Key</span><span class="o">&gt;::</span><span class="n">doEmplace</span><span class="p">(</span><span class="n">args</span><span class="p">...);</span>
+<span class="p">}</span>
+
+<span class="c1">// Usage:</span>
+<span class="n">myRepository</span><span class="p">.</span><span class="n">emplace</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="sc">&#39;a&#39;</span><span class="p">);</span> <span class="c1">// Create a std::string &quot;aaaa&quot;.</span>
+</pre></div>
+
+
+<p>One last improvement for the future users of your repositories! If one morning, badly awake, a coworker of yours is trying to get a type or key that doesn't exist (like myRepository.get&lt; double&gt;();), he might be welcomed by such a message:</p>
+<div class="highlight"><pre><span></span><span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">jguegant</span><span class="o">/</span><span class="n">Coding</span><span class="o">/</span><span class="n">ConfigsRepo</span><span class="o">/</span><span class="n">main</span><span class="p">.</span><span class="nl">cpp</span><span class="p">:</span><span class="mi">36</span><span class="o">:</span><span class="mi">33</span><span class="o">:</span> <span class="nl">error</span><span class="p">:</span> <span class="n">call</span> <span class="n">to</span> <span class="n">non</span><span class="o">-</span><span class="k">static</span> <span class="n">member</span> <span class="n">function</span> <span class="n">without</span> <span class="n">an</span> <span class="n">object</span> <span class="n">argument</span>
+    <span class="k">return</span> <span class="n">Slot</span><span class="o">&lt;</span><span class="n">Type</span><span class="p">,</span> <span class="n">Key</span><span class="o">&gt;::</span><span class="n">doGet</span><span class="p">();</span>
+           <span class="o">~~~~~~~~~~~~~~~~~^~~~~</span>
+<span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">jguegant</span><span class="o">/</span><span class="n">Coding</span><span class="o">/</span><span class="n">ConfigsRepo</span><span class="o">/</span><span class="n">main</span><span class="p">.</span><span class="nl">cpp</span><span class="p">:</span><span class="mi">67</span><span class="o">:</span><span class="mi">18</span><span class="o">:</span> <span class="nl">note</span><span class="p">:</span> <span class="n">in</span> <span class="n">instantiation</span> <span class="n">of</span> <span class="n">function</span> <span class="k">template</span> <span class="n">specialization</span> <span class="err">&#39;</span><span class="n">Repository</span><span class="o">&lt;</span><span class="n">Slot</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="n">DefaultSlotKey</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">Slot</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">__1</span><span class="o">::</span><span class="n">basic_string</span><span class="o">&lt;</span><span class="kt">char</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">DefaultSlotKey</span><span class="o">&gt;</span> <span class="o">&gt;::</span><span class="n">get</span><span class="o">&lt;</span><span class="kt">double</span><span class="p">,</span> <span class="n">DefaultSlotKey</span><span class="o">&gt;</span><span class="err">&#39;</span> <span class="n">requested</span> <span class="n">here</span>
+    <span class="n">myRepository</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">();</span>
+                 <span class="o">^</span>
+<span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">jguegant</span><span class="o">/</span><span class="n">Coding</span><span class="o">/</span><span class="n">ConfigsRepo</span><span class="o">/</span><span class="n">main</span><span class="p">.</span><span class="nl">cpp</span><span class="p">:</span><span class="mi">36</span><span class="o">:</span><span class="mi">33</span><span class="o">:</span> <span class="nl">error</span><span class="p">:</span> <span class="err">&#39;</span><span class="n">doGet</span><span class="err">&#39;</span> <span class="n">is</span> <span class="n">a</span> <span class="k">protected</span> <span class="n">member</span> <span class="n">of</span> <span class="err">&#39;</span><span class="n">Slot</span><span class="o">&lt;</span><span class="kt">double</span><span class="p">,</span> <span class="n">DefaultSlotKey</span><span class="o">&gt;</span><span class="err">&#39;</span>
+        <span class="k">return</span> <span class="n">Slot</span><span class="o">&lt;</span><span class="n">Type</span><span class="p">,</span> <span class="n">Key</span><span class="o">&gt;::</span><span class="n">doGet</span><span class="p">();</span>
+                                <span class="o">^</span>
+<span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">jguegant</span><span class="o">/</span><span class="n">Coding</span><span class="o">/</span><span class="n">ConfigsRepo</span><span class="o">/</span><span class="n">main</span><span class="p">.</span><span class="nl">cpp</span><span class="p">:</span><span class="mi">10</span><span class="o">:</span><span class="mi">11</span><span class="o">:</span> <span class="nl">note</span><span class="p">:</span> <span class="n">declared</span> <span class="k">protected</span> <span class="n">here</span>
+    <span class="n">Type</span><span class="o">&amp;</span> <span class="n">doGet</span><span class="p">()</span>
+          <span class="o">^</span>
+<span class="mi">2</span> <span class="n">errors</span> <span class="n">generated</span><span class="p">.</span>
+</pre></div>
+
+
+<p>This message is very confusing, our class does not inherit from <strong>Slot&lt; double, DefaultSlotKey&gt;</strong>! And we are talking about a <strong>clang</strong> output, I wonder what <strong>gcc</strong> or <strong>MSVC</strong> could produce... If you do not want to be assinated from your moody colleague with a spoon, here is a nice solution using <strong>C++11</strong>'s <a href="http://en.cppreference.com/w/cpp/language/static_assert">static_asserts</a>. <strong>Static asserts</strong> give you the possibility to generate your own compiler error messages in the same fashion as normal asserts but at compile-time. Using a the trait like <strong>std::is_base_of</strong>, you can suggest the user of your repository to check twice his type. Let's put this <strong>static_assert</strong> at the beggining of all the methods of <strong>Repository</strong>:</p>
+<div class="highlight"><pre><span></span><span class="k">static_assert</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">is_base_of</span><span class="o">&lt;</span><span class="n">Slot</span><span class="o">&lt;</span><span class="n">Type</span><span class="p">,</span> <span class="n">Key</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">Repository</span><span class="o">&lt;</span><span class="n">Slots</span><span class="p">...</span><span class="o">&gt;&gt;::</span><span class="n">value</span><span class="p">,</span> 
+          <span class="s">&quot;Please ensure that this type or this key exists in this repository&quot;</span><span class="p">);</span>
+</pre></div>
+
+
+<p>We are done for this part (finally...), time to think about multi-threading! If you want to know more about the magic behind <strong>std::is_base_of</strong>, I would suggest you to read my previous post on <a href="//jguegant.github.io/blogs/tech/sfinae-introduction.html">SFINAE</a>, it might give you few hints. Here is a <a href="https://gist.github.com/Jiwan/c1daf7a80ebeb166dc61">gist</a> of what we achieved so far. Did you notice the change on <strong>emplace</strong>? If you do not understand it, have a look at <a href="http://thbecker.net/articles/rvalue_references/section_07.html">this explanation on perfect forwarding</a>. Sadly, it would be a way too long topic for this post (trust me on that point!) and has a minor impact on our repository right now.</p>
+<h4>Let's play safe:</h4>
+<p>The repository we just succeeded to craft can now be used in a single-thread environment without further investigation. But the initial decision was to make this class manipulable from multiple-threads without any worries considering the safety of our operations. As explained in the beginning of this post, we will not use direct values as we currently do, but instead allocate our objects on the heap and use some <strong>shared pointers</strong> to strictly control their <strong>lifetime</strong>. No matter which version (recent or deprecated) of the object a thread is manipulating, it's lifetime will be extended until the last thread using it definitely release it. It also implies that the objects themselves are thread-safe. In the case of read-only objects like configs or assets, it shouldn't be too much a burden. In this <a href="https://gist.github.com/Jiwan/cb66d01c38128a351f42">gist</a>, you will find a repository version using <strong>std::shared_ptrs</strong>.</p>
+<p><strong>std::shared_ptr</strong> is an amazing feature of <strong>C++11</strong> when dealing with multi-threading, but has its weakness. Within my code (in the previous gist link) a race condition can occur:</p>
+<div class="highlight"><pre><span></span><span class="c1">// What if I try to copy value_ at the return point...</span>
+<span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Type</span><span class="o">&gt;</span> <span class="n">doGet</span><span class="p">()</span> <span class="k">const</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="n">value_</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="c1">// ... meanwhile another thread is changing value_ to value?</span>
+<span class="kt">void</span> <span class="n">doSet</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Type</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">value</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">value_</span> <span class="o">=</span> <span class="n">value</span><span class="p">;</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>As specified: "If multiple threads of execution access the <strong>same</strong> std::shared_ptr object without synchronization and any of those accesses uses a non-const member function of shared_ptr then a data race will occur". Note that we are talking about the <strong>same</strong> shared pointer. Multiple shared pointer <strong>copies</strong> pointing to the same object are fine, as long as these copies originated from the same shared pointer in first place. Copies are sharing the same <strong>control block</strong>, where the <strong>reference counters</strong> (one for shared_ptr and one for weak_ptr) are located, and the specification says "the control block of a shared_ptr is thread-safe: different std::shared_ptr objects can be accessed using mutable operations, such as operator= or reset, simultaneously by multiple threads, even when these instances are copies, and share the same control block internally.".</p>
+<p>Depending on the age of your compiler and its standard library, I suggest two solutions:</p>
+<h5>1) A global mutex:</h5>
+<p>A straightforward solution relies on a <a href="http://en.cppreference.com/w/cpp/thread/mutex">std::mutex</a> that we lock during <strong>doGet</strong> and <strong>doSet</strong> execution:</p>
+<div class="highlight"><pre><span></span><span class="p">...</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Type</span><span class="o">&gt;</span> <span class="n">doGet</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="c1">// The lock is enabled until value_ has been copied!</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">lock</span><span class="p">(</span><span class="n">mutex_</span><span class="p">);</span>
+        <span class="k">return</span> <span class="n">value_</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kt">void</span> <span class="n">doSet</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Type</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">value</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="c1">// The lock is enabled until value has been copied into value!</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">lock</span><span class="p">(</span><span class="n">mutex_</span><span class="p">);</span>
+        <span class="n">value_</span> <span class="o">=</span> <span class="n">value</span><span class="p">;</span>
+    <span class="p">}</span>
+
+<span class="k">private</span><span class="o">:</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">mutex</span> <span class="n">mutex_</span><span class="p">;</span>
+<span class="p">...</span>
+</pre></div>
+
+
+<p>This solution is ideal if you have a <strong>Linux</strong> distribution that only ships <strong>gcc 4.8.x</strong> like mine. While not particularly elegant, it doesn't have a great impact on performances compared to the next solution. </p>
+<h5>2) Atomic access functions:</h5>
+<p>Starting from <strong>gcc 4.9</strong>, one can use <a href="http://en.cppreference.com/w/cpp/memory/shared_ptr/atomic">atomic access functions</a> to manipulate shared pointers. I dream of a day where a specialisation for <strong>std::atomic&lt; std::shared_ptr<T>&gt;</strong> exists, but from now, we will resort to use <strong>std::atomic_load</strong> and <strong>std::atomic_exchange</strong>:</p>
+<div class="highlight"><pre><span></span><span class="p">...</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Type</span><span class="o">&gt;</span> <span class="n">doGet</span><span class="p">()</span> <span class="k">const</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">atomic_load</span><span class="p">(</span><span class="o">&amp;</span><span class="n">value_</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="kt">void</span> <span class="n">doSet</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Type</span><span class="o">&gt;</span> <span class="o">&amp;</span><span class="n">value</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">atomic_exchange</span><span class="p">(</span><span class="o">&amp;</span><span class="n">value_</span><span class="p">,</span> <span class="n">value</span><span class="p">);</span>
+    <span class="p">}</span>
+
+<span class="k">private</span><span class="o">:</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Type</span><span class="o">&gt;</span> <span class="n">value_</span><span class="p">;</span>
+<span class="p">...</span>
+</pre></div>
+
+
+<p><strong>Atomics</strong> are elegants and can often bring a great increase of performances if using lock-free instructions internally. Sadly, in the case of <strong>shared_ptrs</strong>, <strong>atomic_is_lock_free</strong> will return you <strong>false</strong>. By digging in <strong>libstdc++</strong> and <strong>libc++</strong>, you will find some mutexes. <strong>gcc</strong> seems to use a fixed size "pool" of mutexes attributed to a shared_ptr according to a hash of its pointee address, when dealing with atomic operations. In other words, no rocket-science for atomic shared pointers until now.</p>
+<h4>Our own watchers:</h4>
+<p>"...I shall live and die at my post. I am the sword in the darkness. I am the watcher on the walls. I am the shield that guards the realms of men..." <strong>-- The Night's Watch oath</strong></p>
+<p>We want to be able to seal a bond between one of the slot and a context. By context, I mean the lifetime of an object in a thread, a function or a method. If an update has been made on that slot, we must be signaled in that context and to retrieve the new update. The bond must be destroyed if the context does not exist anymore. It should reminds you the Night's Watch oath ... as well as the <a href="https://en.wikipedia.org/wiki/Resource_Acquisition_Is_Initialization">RAII idiom</a>: "holding a resource is tied to object lifetime: resource acquisition is done during object creation, by the constructor, while resource deallocation is done during object destruction, by the destructor. If objects are destroyed properly, resource leaks do not occur.". A strong ownership policy can be obtained with the help of a <a href="http://en.cppreference.com/w/cpp/memory/unique_ptr">std::unique_ptr</a> and the signalisation can be done using a <strong>boolean flag</strong>.</p>
+<p>We will, therefore, encapsulate a <a href="http://en.cppreference.com/w/cpp/atomic/atomic">std::atomic_bool</a> into a class <strong>Watcher</strong> automagically registered to a slot once created, and unregistered once destructed. This <strong>Watcher</strong> class also takes as a reference the slot in order to query its value as you can see:</p>
+<div class="highlight"><pre><span></span><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Type</span><span class="p">,</span> <span class="k">class</span> <span class="nc">Key</span><span class="o">&gt;</span>
+<span class="k">class</span> <span class="nc">Watcher</span>
+<span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+    <span class="n">Watcher</span><span class="p">(</span><span class="n">Slot</span><span class="o">&lt;</span><span class="n">Type</span><span class="p">,</span> <span class="n">Key</span><span class="o">&gt;&amp;</span> <span class="n">slot</span><span class="p">)</span><span class="o">:</span>
+            <span class="n">slot_</span><span class="p">(</span><span class="n">slot</span><span class="p">),</span>
+            <span class="n">hasBeenChanged_</span><span class="p">(</span><span class="nb">false</span><span class="p">)</span>
+    <span class="p">{</span>
+    <span class="p">}</span>
+
+    <span class="n">Watcher</span><span class="p">(</span><span class="k">const</span> <span class="n">Watcher</span><span class="o">&amp;</span><span class="p">)</span> <span class="o">=</span> <span class="k">delete</span><span class="p">;</span>               <span class="c1">// Impossible to copy that class.</span>
+
+    <span class="n">Watcher</span> <span class="o">&amp;</span> <span class="k">operator</span><span class="o">=</span><span class="p">(</span><span class="k">const</span> <span class="n">Watcher</span><span class="o">&amp;</span><span class="p">)</span> <span class="o">=</span> <span class="k">delete</span><span class="p">;</span>   <span class="c1">// Impossible to copy that class.</span>
+
+    <span class="kt">bool</span> <span class="nf">hasBeenChanged</span><span class="p">()</span> <span class="k">const</span>
+    <span class="p">{</span>
+        <span class="k">return</span> <span class="n">hasBeenChanged_</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="kt">void</span> <span class="nf">triggerChanges</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="n">hasBeenChanged_</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
+    <span class="p">}</span>
+
+    <span class="k">auto</span> <span class="nf">get</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="k">decltype</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">declval</span><span class="o">&lt;</span><span class="n">Slot</span><span class="o">&lt;</span><span class="n">Type</span><span class="p">,</span> <span class="n">Key</span><span class="o">&gt;&gt;</span><span class="p">().</span><span class="n">doGet</span><span class="p">())</span>
+    <span class="p">{</span>
+        <span class="n">hasBeenChanged_</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span> <span class="c1">// Note: even if there is an update of the value between this line and the getValue one,</span>
+        <span class="c1">// we will still have the latest version.</span>
+        <span class="c1">// Note 2: atomic_bool automatically use a barrier and the two operations can&#39;t be inversed.</span>
+        <span class="k">return</span> <span class="n">slot_</span><span class="p">.</span><span class="n">doGet</span><span class="p">();</span>
+    <span class="p">}</span>
+
+<span class="k">private</span><span class="o">:</span>
+    <span class="n">Slot</span><span class="o">&lt;</span><span class="n">Type</span><span class="p">,</span> <span class="n">Key</span><span class="o">&gt;&amp;</span> <span class="n">slot_</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">atomic_bool</span> <span class="n">hasBeenChanged_</span><span class="p">;</span>
+<span class="p">};</span>
+</pre></div>
+
+
+<p>As for the automatic registration, we will add two private methods <strong>registerWatcher</strong> and <strong>unregisterWatcher</strong> to our <strong>Slot</strong> class that add or remove a watcher from an internal list. The list is always protected, when accessed, with a <strong>std::mutex</strong> and tracks all the current watchers that must be signaled when <strong>set</strong> is called on that slot. </p>
+<div class="highlight"><pre><span></span><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Type</span><span class="p">,</span> <span class="k">class</span> <span class="nc">Key</span><span class="o">&gt;</span>
+<span class="k">class</span> <span class="nc">Slot</span>
+<span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+    <span class="k">using</span> <span class="n">ThisType</span> <span class="o">=</span> <span class="n">Slot</span><span class="o">&lt;</span><span class="n">Type</span><span class="p">,</span> <span class="n">Key</span><span class="o">&gt;</span><span class="p">;</span>
+    <span class="k">using</span> <span class="n">WatcherType</span> <span class="o">=</span> <span class="n">Watcher</span><span class="o">&lt;</span><span class="n">Type</span><span class="p">,</span> <span class="n">Key</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="p">...</span>
+<span class="k">private</span><span class="o">:</span>
+    <span class="kt">void</span> <span class="n">registerWatcher</span><span class="p">(</span><span class="n">WatcherType</span><span class="o">*</span> <span class="n">newWatcher</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">l</span><span class="p">(</span><span class="n">watchers_mutex_</span><span class="p">);</span>
+        <span class="n">watchers_</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">newWatcher</span><span class="p">);</span>
+    <span class="p">}</span>
+
+    <span class="kt">void</span> <span class="n">unregisterWatcher</span><span class="p">(</span><span class="n">WatcherType</span> <span class="o">*</span><span class="n">toBeDelete</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">l</span><span class="p">(</span><span class="n">watchers_mutex_</span><span class="p">);</span>
+        <span class="n">watchers_</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">remove</span><span class="p">(</span><span class="n">watchers_</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">watchers_</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="n">toBeDelete</span><span class="p">),</span> <span class="n">watchers_</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+
+        <span class="k">delete</span> <span class="n">toBeDelete</span><span class="p">;</span> <span class="c1">// Now that we removed the watcher from the list, we can proceed to delete it.</span>
+    <span class="p">}</span>
+
+    <span class="kt">void</span> <span class="n">signal</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="n">std</span><span class="o">::</span><span class="n">lock_guard</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">mutex</span><span class="o">&gt;</span> <span class="n">l</span><span class="p">(</span><span class="n">watchers_mutex_</span><span class="p">);</span>
+        <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="nl">watcher</span> <span class="p">:</span> <span class="n">watchers_</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">watcher</span><span class="o">-&gt;</span><span class="n">triggerChanges</span><span class="p">();</span> <span class="c1">// Let&#39;s raise the hasBeenChanged_ atomic boolean flag. </span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+
+<span class="k">private</span><span class="o">:</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">WatcherType</span><span class="o">*&gt;</span> <span class="n">watchers_</span><span class="p">;</span> <span class="c1">// All the registered watchers are in that list.</span>
+
+<span class="p">...</span>
+<span class="p">};</span>
+</pre></div>
+
+
+<p>You may have notice that we are passing a bare <strong>WatcherType</strong> pointers. The ownership is actually given to whoever is using that watcher encapsulated within a <strong>std::unique_ptr</strong>. <strong>C++11</strong>'s unique pointers are designed such as you can pass a <strong>custom deleter</strong>, or a <strong>delete callback</strong> so to speak. Hence, we can create a method that get a <strong>Watcher</strong> for a <strong>Slot</strong>, and register as the deleter of that <strong>Watcher</strong> a <strong>lambda function</strong> designed to call <strong>unregisterWatcher</strong>. Note that the slot MUST always lives longer than the unique pointer and its associated watcher (it should not be a problem in most cases). Let's finish that <strong>Slot</strong> class forever and ever:</p>
+<div class="highlight"><pre><span></span><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Type</span><span class="p">,</span> <span class="k">class</span> <span class="nc">Key</span><span class="o">&gt;</span>
+<span class="k">class</span> <span class="nc">Slot</span>
+<span class="p">{</span>
+<span class="k">public</span><span class="o">:</span>
+    <span class="k">using</span> <span class="n">ThisType</span> <span class="o">=</span> <span class="n">Slot</span><span class="o">&lt;</span><span class="n">Type</span><span class="p">,</span> <span class="n">Key</span><span class="o">&gt;</span><span class="p">;</span>
+    <span class="k">using</span> <span class="n">WatcherType</span> <span class="o">=</span> <span class="n">Watcher</span><span class="o">&lt;</span><span class="n">Type</span><span class="p">,</span> <span class="n">Key</span><span class="o">&gt;</span><span class="p">;</span>
+
+    <span class="c1">// We use unique_ptr for a strong ownership policy.</span>
+    <span class="c1">// We use std::function to declare the type of our deleter.</span>
+    <span class="k">using</span> <span class="n">WatcherTypePtr</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">WatcherType</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">void</span><span class="p">(</span><span class="n">WatcherType</span><span class="o">*</span><span class="p">)</span><span class="o">&gt;&gt;</span> <span class="p">;</span>
+
+<span class="p">...</span>
+
+<span class="k">public</span><span class="o">:</span>
+    <span class="n">WatcherTypePtr</span> <span class="n">doGetWatcher</span><span class="p">()</span>
+    <span class="p">{</span>
+        <span class="c1">// Create a unique_ptr and pass a lambda as a deleter.</span>
+        <span class="c1">// The lambda capture &quot;this&quot; and will call unregisterWatcher.</span>
+        <span class="n">WatcherTypePtr</span> <span class="n">watcher</span><span class="p">(</span><span class="k">new</span> <span class="n">WatcherType</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">),</span> <span class="p">[</span><span class="k">this</span><span class="p">](</span><span class="n">WatcherType</span><span class="o">*</span> <span class="n">toBeDelete</span><span class="p">)</span> <span class="p">{</span>
+            <span class="k">this</span><span class="o">-&gt;</span><span class="n">unregisterWatcher</span><span class="p">(</span><span class="n">toBeDelete</span><span class="p">);});</span>
+
+        <span class="n">registerWatcher</span><span class="p">(</span><span class="n">watcher</span><span class="p">.</span><span class="n">get</span><span class="p">());</span>
+
+        <span class="k">return</span> <span class="n">watcher</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">...</span>
+<span class="p">};</span>
+</pre></div>
+
+
+<p>Are we done? Hell no, but we will be really soon. All we need is to expose the possibility to acquire a watcher from the repository itself. In the same manner as <strong>set</strong> and <strong>get</strong>, we simply dispatch using the type and the key on one of our slot:</p>
+<div class="highlight"><pre><span></span><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Type</span><span class="p">,</span> <span class="k">class</span> <span class="nc">Key</span> <span class="o">=</span> <span class="n">DefaultSlotKey</span><span class="o">&gt;</span>
+<span class="k">typename</span> <span class="n">Slot</span><span class="o">&lt;</span><span class="n">Type</span><span class="p">,</span> <span class="n">Key</span><span class="o">&gt;::</span><span class="n">WatcherTypePtr</span> <span class="n">getWatcher</span><span class="p">()</span> <span class="c1">// typename is used for disambiguate</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="n">Slot</span><span class="o">&lt;</span><span class="n">Type</span><span class="p">,</span> <span class="n">Key</span><span class="o">&gt;::</span><span class="n">doGetWatcher</span><span class="p">();</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p><strong>WAIT</strong>, don't close that page too fast. If you want to be able to snub everyone, you can replace this ugly <strong>typename Slot<Type, Key>::WatcherTypePtr</strong> with <strong>auto</strong> and claim that your repository class is <strong>C++14</strong> only! Grab the full code of what we build together on <a href="https://gist.github.com/Jiwan/31f8f837e4f4b90fed13">gist</a> and enjoy!</p>
+<h3>Conclusion:</h3>
+<p>Once again, I hope you enjoyed this post about one of my favourite subject: C++. I might not be the best teacher nor the best author but I wish that you learnt something today! Please, if you any suggestions or questions, feel free to post anything in the commentaries. My broken English being what it is, I kindly accept any help for my written mistakes.</p>
+<p>Many thanks to my colleagues that greatly helped me by reviewing my code and for the time together.</p>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="//jguegant.github.io/blogs/tech/tag/c11.html">C++11</a>
+      <a href="//jguegant.github.io/blogs/tech/tag/c14.html">C++14</a>
+      <a href="//jguegant.github.io/blogs/tech/tag/variadic-templates.html">variadic templates</a>
+      <a href="//jguegant.github.io/blogs/tech/tag/meta-programming.html">meta programming</a>
+    </p>
+  </div>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = 'jeanguegantswebsite';
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+</article>
+
+    <footer>
+<p>
+  &copy; Jean Guegant 2015 - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>
+</p>
+<p>Built using <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a></p><p>
+  <a rel="license"
+     href="http://creativecommons.org/licenses/by-sa/4.0/"
+     target="_blank">
+    <img alt="Creative Commons License"
+         title="Creative Commons License"
+         style="border-width:0"
+         src="https://i.creativecommons.org/l/by-sa/4.0/80x15.png"
+         width="80"
+         height="15"/>
+  </a>
+</p>    </footer>
+  </main>
+<script type="text/javascript">
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-68827527-1', 'auto');
+  ga('send', 'pageview');
+</script>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "name": "An introduction to C++'s variadic templates: a thread-safe multi-type map",
+  "headline": "An introduction to C++'s variadic templates: a thread-safe multi-type map",
+  "datePublished": "2016-02-01 14:00:00+01:00",
+  "dateModified": "2016-02-01 14:00:00+01:00",
+  "author": {
+    "@type": "Person",
+    "name": "Jean Guegant",
+    "url": "//jguegant.github.io/blogs/tech/author/jean-guegant.html"
+  },
+  "image": "//jguegant.github.io/blogs/tech/images/myself.png",
+  "url": "//jguegant.github.io/blogs/tech/thread-safe-multi-type-map.html",
+  "description": "Trivia: One of our favorite motto in our C++ team at work is: you shall use dependency injections instead of singletons! It actually comes with our unit-testing strategy. If the various components of your architecture are too tightly coupled, it becomes a tremendous effort to deeply test small critical chunks …"
+}
+</script></body>
+</html>

@@ -1,0 +1,425 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
+  <link rel="stylesheet" type="text/css" href="//jguegant.github.io/blogs/tech/theme/css/style.min.css">
+  <link rel="stylesheet" type="text/css" href="//jguegant.github.io/blogs/tech/theme/css/monokai.css">
+  <link rel="stylesheet" type="text/css" href="//jguegant.github.io/blogs/tech/theme/css/font-awesome.min.css">
+  <link href="//jguegant.github.io/blogs/tech/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Jean Guegant's Blog Atom">
+
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="robots" content="index, follow" />
+<meta name="author" content="Jean Guegant" />
+<meta name="description" content="Finally, after years of watching youtube videos on that topic, I made it to my first C++ international conference! Thanks to my current employer King, I went last week to Meeting C++ in Berlin, which is, as far as I know, the biggest C++ event in Europe. I really enjoyed …" />
+<meta name="keywords" content="C++, event, meetingcpp">
+<meta property="og:site_name" content="Jean Guegant's Blog"/>
+<meta property="og:title" content="Trip report - Meeting C++ 2017"/>
+<meta property="og:description" content="Finally, after years of watching youtube videos on that topic, I made it to my first C++ international conference! Thanks to my current employer King, I went last week to Meeting C++ in Berlin, which is, as far as I know, the biggest C++ event in Europe. I really enjoyed …"/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="//jguegant.github.io/blogs/tech/trip-report-meetingcpp-2017.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2017-11-16 23:09:00+01:00"/>
+<meta property="article:modified_time" content="2017-11-16 23:09:00+01:00"/>
+<meta property="article:author" content="//jguegant.github.io/blogs/tech/author/jean-guegant.html">
+<meta property="article:section" content="C++"/>
+<meta property="article:tag" content="C++"/>
+<meta property="article:tag" content="event"/>
+<meta property="article:tag" content="meetingcpp"/>
+<meta property="og:image" content="//jguegant.github.io/blogs/tech/images/myself.png">  <title>Jean Guegant's Blog &ndash; Trip report - Meeting C++ 2017</title>
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="//jguegant.github.io/blogs/tech">
+        <img src="//jguegant.github.io/blogs/tech/images/myself.png" alt="Jean Guegant" title="Jean Guegant">
+      </a>
+      <h1><a href="//jguegant.github.io/blogs/tech">Jean Guegant</a></h1>
+      <p>Software Engineer - C++, security, game development and random thoughts.</p>
+      <nav>
+        <ul class="list">
+          <li><a href="//jguegant.github.io/blogs/tech/pages/about.html#about">About</a></li>
+          <li><a href="//jguegant.github.io/blogs/tech/pages/contact.html#contact">Contact</a></li>
+        </ul>
+      </nav>
+      <ul class="social">
+        <li><a class="sc-linkedin" href="https://se.linkedin.com/in/jguegant" target="_blank"><i class="fa fa-linkedin"></i></a></li>
+        <li><a class="sc-github" href="https://github.com/Jiwan" target="_blank"><i class="fa fa-github"></i></a></li>
+      </ul>
+    </div>
+  </aside>
+  <main>
+    <nav>
+      <a href="//jguegant.github.io/blogs/tech">Home</a>
+      <a href="//jguegant.github.io/blogs/tech/archives.html">Archives</a>
+      <a href="//jguegant.github.io/blogs/tech/categories.html">Categories</a>
+      <a href="//jguegant.github.io/blogs/tech/tags.html">Tags</a>
+      <a href="//jguegant.github.io/blogs/tech/feeds/all.atom.xml">Atom</a>
+    </nav>
+
+<article>
+  <header>
+    <h1 id="trip-report-meetingcpp-2017">Trip report - Meeting C++ 2017</h1>
+    <p>Posted on Thu 16 November 2017 in <a href="//jguegant.github.io/blogs/tech/category/c.html">C++</a></p>
+  </header>
+  <div>
+    <p>Finally, after years of watching youtube videos on that topic, I made it to my first <strong>C++</strong> international conference!
+Thanks to my current employer <a href="https://discover.king.com/about/">King</a>, I went last week to <a href="http://meetingcpp.com/">Meeting C++</a> in <strong>Berlin</strong>, which is, as far as I know, the biggest <strong>C++</strong> event in Europe. I really enjoyed my time there with few hundred other fellow <strong>C++</strong> enthusiasts. In this post, I will try to relate how I experienced the event and dress a list of the must-watch talks.</p>
+<h1>About meeting C++:</h1>
+<h2>The concept:</h2>
+<p><img style="float: right;" width=200 height=250 src="//jguegant.github.io/blogs/tech/images/badge.jpg"/></p>
+<p>Held in the magnificient <a href="http://meetingcpp.com/2017/Location.html">Andels Hotel</a> in <strong>Berlin</strong>, <strong>Meeting C++</strong> offers the possibility to attend keynotes, talks and lightning talks (respectively lasting 2 hours, 50min and 5min) about our favourite language <strong>C++</strong> for 3 days (one extra day added for the 6th edition of the event). <strong>C++</strong> being multi-paradigm and a general-purpose programming language, the variety of the topics being discussed is pretty wide. It ranges from subject on "(Template) Meta-programming" to a deep dive on "How a C++ debugger work", from begginner friendly talks to hairy discussions on the yet-to-be-standardised white paper on <strong>std::expected&lt;T, E></strong>.</p>
+<p>As some talks happen simulteanously in different rooms, you cannot physically attend all the talks. Instead, you would usually prepare your own schedule by trying to guess the content of the talks from their summary. It is always a dilemna to choose between a topic that you like with the risk to have nothing new to learn, and a brand-new topic for you, where sleepness may kick-in midway to the presentation. If you are curious and daring, the lightning talks on the last day permit you to randomly discover antyhing about C++ in succint presentations. In any case, you can always catch-up the missed talks by checking the <a href="https://www.youtube.com/user/MeetingCPP">Youtube channel</a>.</p>
+<p>Generally, I was not disapointed by the quality of the slides and the speakers. I picked up quite a few new concepts, prepared myself for the future of <strong>C++</strong> (C++20) and refreshed myself on some fields I did not touch for a while.</p>
+<h2>More than just talks:</h2>
+<p>Where <strong>Meeting C++</strong> really shines is in its capacity to gather roughly 600 passionated developers from various backgrounds (university, gaming industry, finance, Sillicon Valley's giants...) in one building and <strong>share</strong>. Just share anything about C++, about reverse-engineering, about your job, about your country, about the german food in your plate! The C++ community represented at this event is very active, open-minded and willing to help. The catering between the sessions and the dinner parties permit you to meet anyone easily. The even team also oganises some really fun events</p>
+<p>In a room full of "world-class developers", it is easy to be intimidated, but you should not hesitate to reach them. They will not nitpick your words nor snob you. For some people, it is a dream to meet an Hollywood Star in the street, for me it was really delightful to have casual conversations with these "legendary" coders from the web.</p>
+<h1>The chief's suggestions of the day:</h1>
+<p>Here is a menu of most of the talks I attended. The legend is pretty simple:</p>
+<ul>
+<li>💀 : The difficulty of the talk (💀: Begginer friendly, 💀💀: Intermediate, 💀💀💀: High exposure to C++'s dark corners)</li>
+<li>★ : My interest for the talk (★: Good talk, ★★: Tasty talk, ★★★: Legendary talk)</li>
+</ul>
+<p>I will not spoil all the talks, but simply try to give an overview of what you can expect within them. Note that all the talks are generally of high quality and my appreciation very subjective. I have seen people with very different "favorite talk".</p>
+<h3>[Keynote] Better Code: Human interface - By Sean Parent - 💀 ★★</h3>
+<ul>
+<li>Slides: <a href="https://github.com/sean-parent/sean-parent.github.io/blob/master/presentations/2017-11-09-human-interface/2017-11-09-human-interface.pdf">link</a></li>
+<li>Video: <a href="">coming-soon</a></li>
+</ul>
+<p>Sean Parent is a Principal Scientist at Adobe Systems and has been working on the famous software <strong>Photoshop</strong> for more than 15 years. Sean Parent is a regular and prominent speaker at C++ conferences, one of his recently most famous talk being <a href="https://www.youtube.com/watch?v=QGcVXgEVMJg">Better Code: Runtime Polyphormism</a> from the same series of talks (Better Code) as the one he gave during <strong>Meeting C++</strong>.</p>
+<p>Thorough his keynote, Sean was conveing the message that in order to have ergonomic human interfaces, you must design your code to reflects its usage through UI. By following such a principle, one can easily come-up with good namings, semantics and grouping of your UI components.</p>
+<p>For instance, Sean was explaining that most of the menu actions in <strong>Photoshop</strong> somehow mapped some object, their methods, properties and most importantly their <strong>relations</strong>:</p>
+<ul>
+<li>The menu action <strong>Create New Layer</strong> will somehow call the constructor of a class called something like <strong>Layer</strong>.</li>
+<li>Likewise the action <strong>Delete A Layer</strong> would call its destructor.</li>
+<li>A selection in <strong>Photoshop</strong> will most likely translate in a container of objects.</li>
+</ul>
+<p>As a counter-example he explained that the old version of <strong>Gmail</strong> used to have a confusing flow when it comes to the most trivial usage of a mail service: creating a mail. A <strong>link</strong>, which implies <strong>navigation</strong>, was used instead of <strong>button</strong> for the "compose message" action.</p>
+<p><img alt="Gmail failed compose button" src="//jguegant.github.io/blogs/tech/images/gmail-failure.png"></p>
+<p>Sean put a strong emphasis that relationships are the most difficult part of an architecture to represent. He came up with few examples on how <a href="http://en.cppreference.com/w/cpp/algorithm/stable_partition">std::stable_partition</a> can be used to solve in an elegant way the gathering and display of items </p>
+<p>Overall a very nice talk, but on a very abstract topic, since not much has been explored on that subject yet! This is worth paying attention in game-programming where a good UI is a key-part of the success of a game.</p>
+<h2>[Talk] Threads and Locks must Go - Rainer Grimm - 💀💀 ★</h2>
+<ul>
+<li>Slides: <a href="">coming-soon</a></li>
+<li>Video: <a href="https://www.youtube.com/watch?v=fkqVRzy4JhA">link</a></li>
+</ul>
+<p>In this talk <strong>Rainer Grimm</strong>, a German author of multiple <a href="https://www.goodreads.com/author/show/7496329.Rainer_Grimm">C++ books</a>, brought under the spotlight the concurrency features introduced by the new C++ standard <strong>C++17</strong> and the coming one <strong>C++20</strong>. Here is a short summary of my favourite features:</p>
+<h3>For C++17 (and concurrency TS):</h3>
+<ul>
+<li>The new parallel algorithms in <a href="http://en.cppreference.com/w/cpp/algorithm">&lt;algorithm></a> and the associated execution policies <a href="http://en.cppreference.com/w/cpp/algorithm/execution_policy_tag_t">seq, par and par_unseq</a>.</li>
+</ul>
+<div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">v</span> <span class="o">=</span> <span class="p">{...};</span> <span class="c1">// A bit vector... </span>
+<span class="n">std</span><span class="o">::</span><span class="n">sort</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">execution</span><span class="o">::</span><span class="n">par</span><span class="p">{},</span> <span class="n">v</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">v</span><span class="p">.</span><span class="n">end</span><span class="p">());</span>
+<span class="c1">// Due to &quot;par&quot;, this **might** execute the sort in parallel using a thread pool of some sort.</span>
+</pre></div>
+
+
+<ul>
+<li>The new <a href="http://en.cppreference.com/w/cpp/experimental/future">std::future</a> interface which permits to add continuations to the shared state using the <a href="http://en.cppreference.com/w/cpp/experimental/future/then">then member function</a>.</li>
+</ul>
+<div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">future</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">foo</span><span class="p">();</span>
+
+<span class="k">auto</span> <span class="n">f</span> <span class="o">=</span> <span class="n">foo</span><span class="p">();</span>
+<span class="n">f</span><span class="p">.</span><span class="n">then</span><span class="p">([](</span><span class="n">std</span><span class="o">::</span><span class="n">future</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&amp;</span> <span class="n">f</span><span class="p">)</span> <span class="p">{</span>
+    <span class="c1">// Will be called when f is done.</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">f</span><span class="p">.</span><span class="n">get</span><span class="p">();</span> <span class="c1">// Will therefore not block.</span>
+<span class="p">});</span>
+</pre></div>
+
+
+<h3>Hopefully for C++20:</h3>
+<ul>
+<li>The stackless <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/n4680.pdf">coroutines</a> as implemented by MSVC and clang. This introduce two keywords <strong>co_await</strong> and <strong>co_yield</strong>. Considering the previous example using std::future, it could be rewritten in the following way:</li>
+</ul>
+<div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">future</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">foo</span><span class="p">();</span>
+
+<span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="n">co_await</span> <span class="n">foo</span><span class="p">();</span> <span class="c1">// The continuation is &quot;generated&quot; by the compiler using the keyword co_await.</span>
+<span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">x</span><span class="p">;</span> <span class="c1">// Everything after co_await is implicitely part of the continuation.</span>
+</pre></div>
+
+
+<ul>
+<li>A new <a href="http://en.cppreference.com/w/cpp/language/transactional_memory">synchronized keyword</a> applying the transactional memory concept on a group of statements.</li>
+</ul>
+<div class="highlight"><pre><span></span><span class="kt">int</span> <span class="n">x</span><span class="p">;</span> <span class="n">y</span><span class="p">;</span> <span class="c1">// Global vars</span>
+
+<span class="kt">void</span> <span class="nf">foo</span><span class="p">()</span> <span class="p">{</span> <span class="c1">// Foo can be called by multiple thread simuteanously.</span>
+    <span class="c1">// Reads-writes on x and y are now thread-safe and synchronized.</span>
+    <span class="n">synchronized</span> <span class="p">{</span>
+        <span class="o">++</span><span class="n">x</span><span class="p">;</span> 
+        <span class="o">++</span><span class="n">y</span><span class="p">;</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></div>
+
+
+<p>As explained by <strong>Rainer Grimm</strong>, we will have the possibility to easily bring concurrency to our C++ codebases without ressorting to the low-level, and tricky to get right, features like thread and locks. While I appreciated the talk, it lacked a bit of novelty as I was already aware of most of the features.</p>
+<h2>[Talk] Strong types for strong interfaces - Johnathan Boccora -  💀 ★★★</h2>
+<ul>
+<li>Related blog post: <a href="https://www.fluentcpp.com/2016/12/08/strong-types-for-strong-interfaces/">link</a></li>
+<li>Video: <a href="https://www.youtube.com/watch?v=WVleZqzTw2k&amp;t=1536s">link</a></li>
+</ul>
+<p>A <strong>must watch</strong>! Even when facing some technical issues,  <strong>Johnathan</strong> is very good speaker and I was quickly captivated by the topic of <strong>strong types</strong>. Jonathan is also a talented writer with his famous blog <a href="https://www.fluentcpp.com/">fluentcpp</a> (I would really suggest to have a look at it once in a while).</p>
+<p>As C++ developers, we heavily rely on the language's type system to express our intentions to other developers, to optimise our code and avoid shooting ourselves into our feet. Yet, we always reuse some <strong>types</strong> to express very different properties of our system. For instance to describe a person, you would use an <strong>int</strong> for her/his age and his/her weight. Did it ever come to you that the unit <strong>year</strong> (for age) should be a very different type than <strong>kg</strong> (for weight)? The concept of <strong>strong type</strong> would solve this problem by introducing new int-compatible types:</p>
+<div class="highlight"><pre><span></span> <span class="c1">// We need to have these empty tag types to create entirely new types and not just weakly-typed aliases.</span>
+<span class="k">using</span> <span class="n">kg</span> <span class="o">=</span> <span class="n">strong_type</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="k">struct</span> <span class="n">KgTag</span><span class="o">&gt;</span><span class="p">;</span>
+<span class="k">using</span> <span class="n">years</span> <span class="o">=</span> <span class="n">strong_type</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="k">struct</span> <span class="n">YearsTag</span><span class="o">&gt;</span><span class="p">;</span>
+
+<span class="kt">void</span> <span class="nf">unsafe_create_person</span><span class="p">(</span><span class="kt">int</span> <span class="n">age</span><span class="p">,</span> <span class="kt">int</span> <span class="n">weight</span><span class="p">);</span>
+<span class="kt">void</span> <span class="nf">create_person</span><span class="p">(</span><span class="n">years</span> <span class="n">age</span><span class="p">,</span> <span class="n">kg</span> <span class="n">weight</span><span class="p">);</span> <span class="c1">// Explicit interface.</span>
+
+<span class="kt">int</span> <span class="n">age</span> <span class="o">=</span> <span class="mi">42</span><span class="p">;</span>
+<span class="kt">int</span> <span class="n">weight</span> <span class="o">=</span> <span class="mi">1337</span><span class="p">;</span>
+
+<span class="n">unsafe_create_person</span><span class="p">(</span><span class="n">weight</span><span class="p">,</span> <span class="n">age</span><span class="p">);</span> <span class="c1">// Oops I inversed the arguments but no compiler error.</span>
+
+<span class="n">create_person</span><span class="p">(</span><span class="n">years</span><span class="p">(</span><span class="n">age</span><span class="p">),</span> <span class="n">kg</span><span class="p">(</span><span class="n">weight</span><span class="p">)));</span> <span class="c1">// Much less error-prone.</span>
+</pre></div>
+
+
+<p>As a bonus, <strong>strong types</strong> can actually affect positively the performances of your codebase as the compiler can agressively optimise without violating <a href="http://cellperformance.beyond3d.com/articles/2006/06/understanding-strict-aliasing.html">strict-aliasing rules</a>, since the types are now strictly unrelated.</p>
+<p>This concept is not new and is already used in <a href="http://en.cppreference.com/w/cpp/chrono">std::chrono</a> or <a href="http://www.boost.org/doc/libs/1_65_1/doc/html/boost_units.html">Boost.Unit</a>, but it was really refreshing to have an explanation with simple words and good examples! I am now very keen to use this in my personal projects and at work too.</p>
+<h2>[Talk] How C++ Debuggers Work - Simon Brand (4/5) - 💀💀 ★★</h2>
+<ul>
+<li>Related blog post: <a href="https://blog.tartanllama.xyz/writing-a-linux-debugger-setup/">link</a></li>
+<li>Video: <a href="https://www.youtube.com/watch?v=Q3Rm95Mk03c">link</a></li>
+</ul>
+<p><strong>Simon Brand</strong>, also known as <a href="https://blog.tartanllama.xyz/">TartanLlama</a> (a really fancy fictious name for a Scott), presented us how a mixture of calls to <a href="http://man7.org/linux/man-pages/man2/ptrace.2.html">ptrace</a>, injection of the <a href="https://en.wikipedia.org/wiki/INT_(x86_instruction)">int3 opcode</a>, parsing of the <a href="https://en.wikipedia.org/wiki/DWARF">DWARF format</a> and perseverance is the base to create a debugger on a <strong>x86</strong>(_64) architecture with a <strong>Unix</strong> platform (or <strong>Linux</strong> platform only if you OS specific calls like <a href="http://man7.org/linux/man-pages/man2/process_vm_readv.2.html">process_vm_readv, process_vm_writev</a>).</p>
+<p>Unlike some of the other talks, it would be hard to give succinct code examples, but I trully appreciated his presentation! When it comes to low-level APIs for debbuging and reverse-engineering, I have a better understanding of the Windows platform. I think that <strong>Simon</strong> did an excellent job to help me transfer my knowledge to the Unix world.</p>
+<p>If one day I have to tackle the creation of a debugger on Unix, I would certainely come back to this talk or follow his series of <a href="https://blog.tartanllama.xyz/writing-a-linux-debugger-setup/">blog posts</a> on the same subject. I also think that as programmer, it is always beneficial to have some knowledge on the underlying mechanims of the tools you use (gdb, or lldb in that case). I would, therefore suggest to watch that talk to any C++ enthusiast willing to progress in their art of programming.</p>
+<h3>[Talk] The Three Little Dots and the Big Bad Lambdas - Joel Falcou - 💀💀💀 ★★★</h3>
+<ul>
+<li>Slides: <a href="">coming-soon</a></li>
+<li>Video: <a href="https://www.youtube.com/watch?v=WU5v4FT7CMM">link</a></li>
+</ul>
+<p>I am always excited by watching a talk from <a href="https://twitter.com/joel_f?lang=en">Joel Falcou</a>: he is a venerable (template) metra-programmer wizzard with a very didactic approach to explain things (and also we share the same nationality \O/). Once again, I was not disapointed by his session.</p>
+<p>With a lot of humour, Joel introduced a new facet to <strong>meta-programming</strong> in C++. We used to have <a href="https://en.wikipedia.org/wiki/Template_metaprogramming">template meta-programming</a> to manipulate types at compile-time (and with difficulties values), then came <a href="http://en.cppreference.com/w/cpp/language/constexpr">constexpr</a> to ease value computation, and recently a <strong>Louis Dionne</strong> came-up with a powerful combo of these two cadrants with <a href="http://www.boost.org/doc/libs/1_61_0/libs/hana/doc/html/index.html#tutorial-introduction-quadrants">Boost.Hana</a>. <strong>Joel</strong> statement was that <a href="http://en.cppreference.com/w/cpp/language/lambda">lambdas expressions</a> combined with <a href="http://en.cppreference.com/w/cpp/language/auto">auto</a> and <a href="http://en.cppreference.com/w/cpp/language/parameter_pack">parameter packs</a> are powerful enough to replace some cases where we would have resort to use <strong>template meta-programming</strong> or the uglier infamous <strong>macros</strong>! <strong>Joel</strong> came to that conclusion after being inspired by the language <a href="http://okmij.org/ftp/ML/MetaOCaml.html">MetaOCaml</a>.</p>
+<p>Let's say that you want to fill a vector with push-back instruction generated at compile-time:</p>
+<div class="highlight"><pre><span></span><span class="cp">#include</span> <span class="cpf">&lt;tuple&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;array&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;utility&gt;</span><span class="cp"></span>
+<span class="cp">#include</span> <span class="cpf">&lt;vector&gt;</span><span class="cp"></span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">F</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="p">...</span> <span class="n">I</span><span class="o">&gt;</span>
+<span class="kt">void</span> <span class="n">apply_imp</span><span class="p">(</span><span class="n">F</span><span class="o">&amp;&amp;</span> <span class="n">f</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">index_sequence</span><span class="o">&lt;</span><span class="n">I</span><span class="p">...</span><span class="o">&gt;</span><span class="p">)</span> <span class="p">{</span>
+    <span class="p">(</span><span class="n">f</span><span class="p">(</span><span class="n">I</span><span class="p">),</span> <span class="p">...);</span> <span class="c1">// C++17 fold expression.</span>
+<span class="p">}</span>
+
+<span class="k">template</span> <span class="o">&lt;</span><span class="kt">int</span> <span class="n">N</span><span class="p">,</span> <span class="k">class</span> <span class="nc">F</span><span class="o">&gt;</span>
+<span class="kt">void</span> <span class="n">apply</span><span class="p">(</span><span class="n">F</span><span class="o">&amp;&amp;</span> <span class="n">f</span><span class="p">)</span> <span class="p">{</span>
+    <span class="n">apply_imp</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">make_index_sequence</span><span class="o">&lt;</span><span class="n">N</span><span class="o">&gt;</span><span class="p">{});</span>
+<span class="p">}</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">bob</span><span class="p">;</span>
+
+<span class="k">auto</span> <span class="n">bind</span> <span class="o">=</span> <span class="p">[](</span><span class="k">auto</span><span class="o">&amp;</span> <span class="n">v</span><span class="p">,</span> <span class="k">auto</span> <span class="n">f</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="p">[</span><span class="o">&amp;</span><span class="n">v</span><span class="p">,</span> <span class="n">f</span><span class="p">](</span><span class="k">auto</span> <span class="n">x</span><span class="p">){</span> <span class="n">f</span><span class="p">(</span><span class="n">v</span><span class="p">,</span> <span class="n">x</span><span class="p">);</span> <span class="p">};</span> <span class="p">};</span>
+<span class="k">auto</span> <span class="n">push_back</span> <span class="o">=</span> <span class="n">bind</span><span class="p">(</span><span class="n">bob</span><span class="p">,</span> <span class="p">[](</span><span class="k">auto</span><span class="o">&amp;</span> <span class="n">v</span><span class="p">,</span> <span class="kt">int</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span> <span class="n">v</span><span class="p">.</span><span class="n">push_back</span><span class="p">(</span><span class="n">x</span> <span class="o">*</span> <span class="mi">3</span><span class="p">);</span> <span class="p">});</span>
+
+<span class="n">apply</span><span class="o">&lt;</span><span class="mi">3</span><span class="o">&gt;</span><span class="p">(</span><span class="n">push_back</span><span class="p">);</span>
+<span class="c1">// Will generate at compile time:</span>
+<span class="c1">// bob.push_back(0);</span>
+<span class="c1">// bob.push_back(3);</span>
+<span class="c1">// bob.push_back(6);</span>
+</pre></div>
+
+
+<p>This example is fairly trivial and there would be a high chance that you would reach the same assembly output using a simple <strong>for loop</strong>. But it is very interesting to notice that <strong>lambdas</strong> are reusable type-safe <strong>units of code</strong> that you transport, combine and "instantiate" at any time. Performance-wise, <strong>lambdas</strong> are pretty incredible according to Joel's measurement on his linear-algebra project. <strong>C++17</strong> <strong>constexpr lambdas</strong> could also help on that topic. One drawback might be the debugging complexity when navigating in nested lambdas. I still need to wrap my head around this new concept and I am eager to rewatch Joel's talk to explore it more!</p>
+<h2>[Keynote] Its complicated! - Kate Gregory - 💀 ★★★</h2>
+<ul>
+<li>Slides: <a href="">coming-soon</a></li>
+<li>Video: <a href="https://www.youtube.com/watch?v=tTexD26jIN4">link</a></li>
+</ul>
+<p>While excellent, <a href="http://www.gregcons.com/kateblog/">Kate</a>'s keynote would be very hard to summarise correctly within few paragraphs. It makes you reflect on the difficulties to introduce <strong>C++</strong> to newcomers. You would hope that there is a subset of the language that could be easily assimilate by anyone, <strong>Kate</strong> argues that the reality is sadly more <strong>complicated</strong> than that. Just have a look at how long are the <a href="http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines#fcall-parameter-passing">C++ core guidelines</a> on passing parameters to function calls. One day or another, a begginer must learn on how to pass parameters with good semantics and in an optimised fashio. Well, good luck to her/him! On the other hand, it does not mean that the language could have been designed in a simpler way. What we should strive for instead might be better naming of these concepts: the acronym <a href="http://en.cppreference.com/w/cpp/language/raii">RAII (Resource Acquisition Is Initialization)</a> is obviously not as straightforward as <a href="https://en.wikipedia.org/wiki/Copy-on-write">COW (Copy-on-write)</a>. Whether you are a "newbie" or the best "lead over-engineer" of your company, this talk is really worth a look!</p>
+<h2>[Talk] There Is A New Future - Felix Petriconi - 💀💀 ★★</h2>
+<ul>
+<li>Slides: <a href="">coming-soon</a></li>
+<li>Video: <a href="https://www.youtube.com/watch?v=vDmQlIeY4z0">link</a></li>
+</ul>
+<p><a href="https://petriconi.net/?author=1">Felix Petriconi</a> and <strong>Sean Parent</strong> have been working on a the <a href="http://stlab.cc/libraries/concurrency/">stlab</a> library for quite some time. <strong>stlab</strong> takes the best of the various <strong>future</strong> implementations <a href="http://en.cppreference.com/w/cpp/thread/future">std::future (C++11)</a>, <a href="http://en.cppreference.com/w/cpp/thread/future">std::future (C++14)</a> or <a href="http://www.boost.org/doc/libs/1_65_0/doc/html/thread/synchronization.html#thread.synchronization.futures">boost::future</a>, and adds a bit of it owns features on top of it. For instance, <strong>stlabs</strong> supports passing explicit executors to control where <a href="http://stlab.cc/libraries/concurrency/future/async.html">async</a> will execute the tasks, and where the continuation associated with <a href="http://stlab.cc/libraries/concurrency/future/future/then.html">then</a> will be executed too. <strong>Executors</strong> are akin to <strong>event-loops</strong> (or message-pumps in the .Net world) that will process the tasks.</p>
+<div class="highlight"><pre><span></span><span class="c1">// This task will be executed on ``an_executor``</span>
+<span class="k">auto</span> <span class="n">f</span> <span class="o">=</span> <span class="n">stlab</span><span class="o">::</span><span class="n">async</span><span class="p">(</span><span class="n">an_executor</span><span class="p">,</span> <span class="p">[]</span> <span class="p">{</span> <span class="k">return</span> <span class="mi">42</span><span class="p">;</span> <span class="p">});</span>
+
+<span class="c1">// The continuation on another executor.</span>
+<span class="n">f</span><span class="p">.</span><span class="n">then</span><span class="p">(</span><span class="n">another_executor</span><span class="p">,</span> <span class="p">[](</span><span class="kt">int</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span> <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">x</span><span class="p">;</span> <span class="p">});</span>
+</pre></div>
+
+
+<p>While <strong>executors</strong> are present in <a href="http://www.boost.org/doc/libs/1_65_1/doc/html/thread.html">Boost.Thread</a>, <strong>stlabs's</strong> <a href="http://stlab.cc/libraries/concurrency/channel/channel.html">channels</a> are unique to this <strong>future</strong> library. <strong>Channels</strong> are one of the Go language's favorite <a href="https://gobyexample.com/channels">toy</a>. It is a neat way to create communication between a <strong>sender</strong> and a <strong>receiver</strong> on different <strong>executors</strong>:</p>
+<div class="highlight"><pre><span></span><span class="k">auto</span> <span class="p">[</span><span class="n">sender</span><span class="p">,</span> <span class="n">receiver</span><span class="p">]</span> <span class="o">=</span> <span class="n">channel</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">receive_executor</span><span class="p">);</span> <span class="c1">// Create the link.</span>
+
+<span class="n">receiver</span> <span class="o">|</span> <span class="p">[](</span><span class="kt">int</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span> <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">x</span><span class="p">;</span> <span class="p">};</span> <span class="c1">// Define what should happen at the reception.</span>
+
+<span class="c1">// Establish the connections.</span>
+<span class="n">receiver</span><span class="p">.</span><span class="n">set_ready</span><span class="p">();</span>
+
+<span class="n">sender</span><span class="p">(</span><span class="mi">42</span><span class="p">);</span> <span class="c1">// Sent 42 through the channel.</span>
+<span class="c1">// Receiver will print 42 when executing the task.</span>
+</pre></div>
+
+
+<p>I really like some of the features in <strong>stlabs</strong>, hopefully this could be incorporated into the <strong>C++</strong> standard (the executors are down in the pipe of the standardisation process).</p>
+<h3>[Talk] Introduction to proposed std::expected<T, E> - Niall Douglas - 💀💀💀 ★</h3>
+<ul>
+<li>Slides: <a href="">coming-soon</a></li>
+<li>Video: <a href="https://www.youtube.com/watch?v=JfMBLx7qE0I">link</a></li>
+</ul>
+<p>Are you the kind of person that would rather have errors on the return values rather than using <strong>exceptions</strong>. <a href="https://twitter.com/ned14?lang=en">Niall</a> has a solution for you: <a href="https://github.com/viboes/std-make/blob/master/doc/proposal/expected/p0323r3.pdf">std::expected&lt;T, E></a>. You can see <strong>std::expected&lt;T, E></strong> either as a <a href="http://en.cppreference.com/w/cpp/utility/optional">std::optional&lt;T></a> with a empty state containing an error for being empty, or as a <a href="http://en.cppreference.com/w/cpp/utility/variant">std::variant&lt;T, E></a> where you agree that the first alternative is the return value and the second alternative is the potential error. Example:</p>
+<div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">expected</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">foo</span><span class="p">(</span><span class="kt">int</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">x</span> <span class="o">&lt;</span> <span class="mi">0</span><span class="p">)</span> <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unexpected</span><span class="p">(</span><span class="s">&quot;x &lt; 0&quot;</span><span class="p">);</span>    
+    <span class="k">return</span> <span class="mi">42</span><span class="p">;</span>
+<span class="p">}</span>
+
+<span class="k">auto</span> <span class="n">result</span> <span class="o">=</span> <span class="n">foo</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+
+<span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">result</span><span class="p">)</span> <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">result</span><span class="p">.</span><span class="n">error</span><span class="p">().</span><span class="n">value</span><span class="p">();</span> <span class="c1">// Prints &quot; x &lt; 0&quot;.</span>
+</pre></div>
+
+
+<p><strong>std::expected</strong> starts to be cumbersome to use when combining or propogating returned results. To palliate this problem, <strong>std::expected</strong> exposes a <a href="https://en.wikipedia.org/wiki/Monad_(functional_programming)">Monad interface</a>, with the bind member function coming directly to your mind. If you are a Haskell user, <strong>std::expected</strong> should remind you of the <a href="https://en.wikibooks.org/wiki/Haskell/Understanding_monads/Maybe">Maybe Monad</a>. Using <strong>bind</strong> is still verbose and hopefully we obtain a dedicated keyword <strong>try</strong> to ease our pain.</p>
+<h2>[Talk] The most valuable values - Juan Pedro Bolívar Puente - 💀💀 ★★</h2>
+<ul>
+<li>Slides: <a href="">coming-soon</a></li>
+<li>Video: <a href="">coming-soon</a></li>
+</ul>
+<p>During his presentation, <a href="https://sinusoid.es/do">Juan</a> actively promoted <a href="https://isocpp.org/wiki/faq/value-vs-ref-semantics#val-vs-ref-semantics">value semantic over reference semantic</a> and did so with some analogies from our physical world (from our dear philosopher Platos) and code examples. The talk quickly moved onto immutability and functionnal programming applied to user interfaces. There is a trend in the web sphere to follow a software architectural pattern called <a href="https://facebook.github.io/flux/">flux</a> with a main implementation the <a href="https://redux.js.org/">redux</a> framework. Arguably, <strong>flux</strong> is a glorified good old <a href="https://en.wikipedia.org/wiki/Model%E2%80%93view%E2%80%93controller">MVC (Model View Controller) architecture</a> with a strong emphasis on the immutability of the <strong>model</strong> and strict <strong>flow</strong> on the interactions between the components of <strong>MVC</strong>. <strong>Model</strong>, <strong>View</strong> and <strong>Controller</strong> also get respectively renamed to <strong>Store</strong>, <strong>View</strong> and <strong>Dispatcher</strong>. An action submitted to the <strong>Dispatcher</strong> will update the <strong>Store</strong> with a new <strong>Store</strong> in a determinstic way, which will imply a redraw of the <strong>View</strong>. </p>
+<p><strong>Juan</strong> succeeded to mimic <strong>redux</strong> in the <strong>C++</strong> world using his library <a href="https://sinusoid.es/immer/">immer</a>. To demonstrate the capabilities of his library, <strong>Juan</strong> recreated an emacs-like <a href="https://github.com/arximboldi/ewig">editor</a>. The beauty of having an immutable <strong>Store</strong> is truly expressed in the <strong>time-traveling machine</strong> that you can create from it: by saving all the states of the <strong>Store</strong>, you can easily come back to a previous state of your application (similar to undo / redo). You should absolutely watch the video to understand how easy it seems to implement this. On top of that you will have the chance to watch what might be the most audacious ending of a <strong>C++</strong> talk I have ever seen.</p>
+<h2>[Talk] Reactive Equations - André Bergner - 💀💀💀 ★★★</h2>
+<ul>
+<li>Github project: <a href="https://github.com/andre-bergner/zignal/tree/master/reactive_equations">link</a></li>
+<li>Video: <a href="https://www.youtube.com/watch?v=QYNRoeWJuAw">link</a></li>
+</ul>
+<p>As a meta-programmer aficionado, this was the most "devilish" talk, and therefore highly thrilling, I attended during the event. It was not the first time I heard from <strong>André Bergner</strong>, he attended the cppcon in 2015 and I remembered that he <a href="https://www.youtube.com/watch?v=zVLLdGlbCSw">presented</a> a nice way to have <a href="https://en.wikipedia.org/wiki/Currying">currying</a> on your function. This time, <strong>André</strong> focused on reactive equations. If this sounds foreign to you, you might be more familiar with <a href="https://en.wikipedia.org/wiki/Data_binding">data binding</a> in <a href="http://doc.qt.io/qt-5/qtqml-javascript-expressions.html#javascript-in-property-bindings">Qt QML</a> using Javascript expression. <strong>André</strong>'s reactive equations are similar but with simpler expressions:</p>
+<div class="highlight"><pre><span></span><span class="c1">// ***** Using a pseudo-language, let&#39;s define the equations *****</span>
+<span class="nl">x</span> <span class="p">:</span> <span class="kt">float</span>
+<span class="nl">y</span> <span class="p">:</span> <span class="kt">float</span>
+<span class="nl">z</span> <span class="p">:</span> <span class="kt">float</span>
+
+<span class="n">y</span> <span class="o">=</span> <span class="n">x</span> <span class="o">*</span> <span class="mi">42</span> <span class="c1">// When x is updated, y will be automatically updated.</span>
+<span class="n">z</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="n">x</span> <span class="c1">// When y or x is updated, z will be automatically updated.</span>
+</pre></div>
+
+
+<p>You may notice that I didn't write any <strong>C++</strong> code. By default <strong>C++</strong> would not permit to have expressions that update themselves by "magic" if one variable changes. You could write the update logic manually, but with a lot of long equations, this becomes very error prone. Instead <strong>André</strong> created a <a href="https://en.wikipedia.org/wiki/Domain-specific_language">DSL (Domain Specific Language)</a>, which is equivalent to create a language within <strong>C++</strong> itself. To define his DSL, <strong>André</strong> used <a href="https://en.wikipedia.org/wiki/Expression_templates">expression templates</a>. <strong>Expression templates</strong> are tricky creatures, which roughly consist in encapsulating <strong>C++</strong> expressions into a type at compile-time. This type will retain all the operators / functions (let's call them operations) that you applied in your expression. These operations can be queried at compile-time to generate other expression that you will execute at runtime. In <strong>André</strong>'s case, the encapsulated operations from his reactive equations would be used to automagically generate the update logic. To facilitate his task, <strong>André</strong> heavily relied on <a href="http://www.boost.org/doc/libs/1_65_1/doc/html/proto.html">Boost.Proto</a>. If you are versed in the art of meta-programming, this will certainely be entertaining to you!</p>
+<h2>[Talk] Free your functions - Klaus Iglberger - 💀 ★★★</h2>
+<ul>
+<li>Slides: <a href="https://github.com/CppCon/CppCon2017/raw/master/Presentations/Free%20Your%20Functions/Free%20Your%20Functions%20-%20Klaus%20Iglberger%20-%20CppCon%202017.pdf">link</a></li>
+<li>Video: <a href="https://www.youtube.com/watch?v=nWJHhtmWYcY">link</a></li>
+</ul>
+<p>This was a glorious hymn to our beloved free functions by <a href="https://www.linkedin.com/in/klaus-iglberger-2133694/">Klaus Iglberger</a>. Programmers often resort to use <strong>member functions</strong> and inheritance to provide polyphormism in <strong>C++</strong>, often overlooking that <strong>free functions</strong> and <strong>overloading</strong> would be a smarter choice.</p>
+<p>Let's take a situation where you would need to implement a <strong>serialise</strong> function for a bunch of unrelated types. Would rather use the implementation <strong>1</strong>?</p>
+<div class="highlight"><pre><span></span><span class="k">struct</span> <span class="n">serialisable</span> <span class="p">{</span>
+    <span class="k">virtual</span> <span class="o">~</span><span class="n">serialisable</span><span class="p">();</span>
+    <span class="k">virtual</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">serialise</span><span class="p">();</span>
+<span class="p">};</span>
+
+<span class="k">struct</span> <span class="nl">A</span> <span class="p">:</span> <span class="n">serialisable</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">serialise</span><span class="p">()</span> <span class="k">override</span> <span class="p">{</span> <span class="cm">/* return something... */</span> <span class="p">};</span>
+<span class="p">};</span>
+
+<span class="k">struct</span> <span class="nl">B</span> <span class="p">:</span> <span class="n">serialisable</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">serialise</span><span class="p">()</span> <span class="k">override</span> <span class="p">{</span> <span class="cm">/* return something... */</span> <span class="p">};</span>
+<span class="p">};</span>
+</pre></div>
+
+
+<p>Or the solution <strong>2</strong>?</p>
+<div class="highlight"><pre><span></span><span class="k">struct</span> <span class="n">A</span> <span class="p">{};</span>
+<span class="k">struct</span> <span class="n">B</span> <span class="p">{};</span>
+
+<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">serialise</span><span class="p">(</span><span class="k">const</span> <span class="n">A</span><span class="o">&amp;</span> <span class="n">a</span><span class="p">)</span> <span class="p">{</span> <span class="cm">/* return something... */</span> <span class="p">}</span>
+<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">serialise</span><span class="p">(</span><span class="k">const</span> <span class="n">B</span><span class="o">&amp;</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span> <span class="cm">/* return something... */</span> <span class="p">}</span>
+</pre></div>
+
+
+<p>As <strong>Kate</strong> explained, it is complicated! If you are looking for <strong>runtime polyphormism</strong>, then you will certainely use the solution <strong>1</strong>. If not, the solution <strong>2</strong> is actually preferable. It has a lot of advantages that <strong>Klaus</strong> explained for one full hour. My favorite one being that you can extend your polyphormism to types that you do not own. Let's say that you want to serialise <strong>std::vector</strong>, you can simply write an overload for it:</p>
+<div class="highlight"><pre><span></span><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span>
+<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">serialise</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span> <span class="n">v</span><span class="p">)</span> <span class="p">{</span> <span class="cm">/* return something... */</span> <span class="p">}</span>
+</pre></div>
+
+
+<p>In practice, nothing prevent you from mixing a both solutions to your needs. One counter-argument being that <strong>free functions</strong> have an ugly syntax: <code>v.serialise();</code> feels more natural than <code>serialize(v);</code>. That issue could have been solve with the <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0251r0.pdf">unified call syntax</a> proposal by <strong>Bjarne Stroustrup</strong> and <strong>Herb Sutter</strong>. Sadly, it was rejected by the <strong>C++</strong> committee.</p>
+<h2>[Talk] Reader-Write Lock versus Mutex - Understanding a Lost Bet - Jeffrey Mendelsohn - 💀💀💀 ★★</h2>
+<ul>
+<li>Slides: <a href="">coming-soon</a></li>
+<li>Video: <a href="https://www.youtube.com/watch?v=GzLsHTgZ-XI">link</a></li>
+</ul>
+<p><a href="https://www.linkedin.com/in/jeffrey-mendelsohn-ph-d-8417454">Jeffrey Mendelson</a> from <strong>Bloomberg</strong> had a bet with a colleague on whether a <a href="https://en.wikipedia.org/wiki/Readers%E2%80%93writer_lock">readers-writer lock</a> would be faster than a <a href="https://en.wikipedia.org/wiki/Lock_(computer_science)">mutex</a> to protect the access on a <strong>resource</strong> that could be written by a single writer, but could have multiple readers simultaneously. The <strong>readers-writer lock</strong> would follow exactly that behaviour (multiple readers, single writer). The <strong>mutex</strong> would keep the exclusivity to one writer or one reader only! <strong>Jeffrey</strong> lost the bet, but that did not hindered him from exploring the reasons behind his lost. It was challenging for me to grasp all the implications on this topic, but here is what I understood:</p>
+<ul>
+<li><strong>Jeffrey</strong>'s <strong>reader-writer lock</strong> was made of <a href="http://en.cppreference.com/w/cpp/atomic/atomic">atomic variables</a> to keep track of the amount of readers and writers. If the <strong>resource</strong> was currently written onto, the <strong>readers</strong> and other <strong>writers</strong> would wait onto a semaphor to be waken-up later on.</li>
+<li>If the amount of time spent by the <strong>readers</strong> or the <strong>writers</strong> on the resource is fairly long, the <strong>readers-writer lock</strong> will actually perform better than the <strong>mutex</strong> as multiple <strong>reader</strong> can process simultanesouly.</li>
+<li>On the other hand, if the <strong>writing</strong> and <strong>reading operations</strong> are very fast, the <strong>atomic operations</strong> on the counters will start to be costly comparatively. <strong>Atomics</strong> tend to have nonnegligible effects on the cache lines of your CPU(s). In this case, loosing the ability to have multiple <strong>readers</strong> is actually not as dramatic as you would think in comparison of stressing your cache.</li>
+<li><strong>Jeffrey</strong> came up with an hybrid solution that combines both a <strong>readers-writer lock</strong> and a fallback to a <strong>mutex</strong> that outperformed the previous solutions.</li>
+</ul>
+<p>Once the video of this talk is uploaded, I must have a complete rewatch of it. It always amusing that our intuitions can be entirely wrong when it comes to concurrency and programming.  </p>
+<h2>[Other] The not-so-secret lightning talks</h2>
+<p>Videos: <a href="https://www.youtube.com/watch?v=ARosL9xrozk">link</a>, <a href="https://www.youtube.com/watch?v=UNSkp6KpMNk">link</a>, <a href="https://www.youtube.com/watch?v=2KGkcGtGVM4">link</a>, <a href="https://www.youtube.com/watch?v=rj_BSmixRYg">link</a>, <a href="https://www.youtube.com/watch?v=Kq8lOymvRcE">link</a>, <a href="https://www.youtube.com/watch?v=7GIZN03-_6w">link</a></p>
+<p>Before the last Keynote, we had the pleasure to listen to some not-so-unexpected lightning talks. I will not spoil too much of it!</p>
+<p>I just want to express my gratitude to <strong>Guy Davidson</strong> and <strong>Sean Parent</strong> for bringing <strong>diversity in the C++ community</strong> under the spotlight. It was more than welcome and I am glad of these initiatives. </p>
+<h1>Conclusion:</h1>
+<p>Once again, I was amazed by the <strong>C++</strong> community and how a group of dedicated persons can build such nice event. I am already eager to fly to one of the big conference next year: <strong>Meeting C++</strong> or <strong>cppcon</strong>. I would also encourage anyone with a bit of passion for this language or programming in general to give a try to conferences or local groups, you will discover more than you would expect!</p>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="//jguegant.github.io/blogs/tech/tag/c.html">C++</a>
+      <a href="//jguegant.github.io/blogs/tech/tag/event.html">event</a>
+      <a href="//jguegant.github.io/blogs/tech/tag/meetingcpp.html">meetingcpp</a>
+    </p>
+  </div>
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = 'jeanguegantswebsite';
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+</article>
+
+    <footer>
+<p>
+  &copy; Jean Guegant 2015 - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>
+</p>
+<p>Built using <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a></p><p>
+  <a rel="license"
+     href="http://creativecommons.org/licenses/by-sa/4.0/"
+     target="_blank">
+    <img alt="Creative Commons License"
+         title="Creative Commons License"
+         style="border-width:0"
+         src="https://i.creativecommons.org/l/by-sa/4.0/80x15.png"
+         width="80"
+         height="15"/>
+  </a>
+</p>    </footer>
+  </main>
+<script type="text/javascript">
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-68827527-1', 'auto');
+  ga('send', 'pageview');
+</script>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BlogPosting",
+  "name": "Trip report - Meeting C++ 2017",
+  "headline": "Trip report - Meeting C++ 2017",
+  "datePublished": "2017-11-16 23:09:00+01:00",
+  "dateModified": "2017-11-16 23:09:00+01:00",
+  "author": {
+    "@type": "Person",
+    "name": "Jean Guegant",
+    "url": "//jguegant.github.io/blogs/tech/author/jean-guegant.html"
+  },
+  "image": "//jguegant.github.io/blogs/tech/images/myself.png",
+  "url": "//jguegant.github.io/blogs/tech/trip-report-meetingcpp-2017.html",
+  "description": "Finally, after years of watching youtube videos on that topic, I made it to my first C++ international conference! Thanks to my current employer King, I went last week to Meeting C++ in Berlin, which is, as far as I know, the biggest C++ event in Europe. I really enjoyed …"
+}
+</script></body>
+</html>
