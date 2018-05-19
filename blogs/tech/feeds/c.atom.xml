@@ -1,5 +1,499 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Jean Guegant's Blog - C++</title><link href="//jguegant.github.io/blogs/tech/" rel="alternate"></link><link href="//jguegant.github.io/blogs/tech/feeds/c.atom.xml" rel="self"></link><id>//jguegant.github.io/blogs/tech/</id><updated>2017-11-16T23:09:00+01:00</updated><entry><title>Trip report - Meeting C++ 2017</title><link href="//jguegant.github.io/blogs/tech/trip-report-meetingcpp-2017.html" rel="alternate"></link><published>2017-11-16T23:09:00+01:00</published><updated>2017-11-16T23:09:00+01:00</updated><author><name>Jean Guegant</name></author><id>tag:jguegant.github.io,2017-11-16:/blogs/tech/trip-report-meetingcpp-2017.html</id><summary type="html">&lt;p&gt;Finally, after years of watching youtube videos on that topic, I made it to my first &lt;strong&gt;C++&lt;/strong&gt; international conference!
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Jean Guegant's Blog - C++</title><link href="//jguegant.github.io/blogs/tech/" rel="alternate"></link><link href="//jguegant.github.io/blogs/tech/feeds/c.atom.xml" rel="self"></link><id>//jguegant.github.io/blogs/tech/</id><updated>2018-04-10T14:00:00+02:00</updated><entry><title>Meta Crush Saga: a C++17 compile-time game</title><link href="//jguegant.github.io/blogs/tech/meta-crush-saga.html" rel="alternate"></link><published>2018-04-10T14:00:00+02:00</published><updated>2018-04-10T14:00:00+02:00</updated><author><name>Jean Guegant</name></author><id>tag:jguegant.github.io,2018-04-10:/blogs/tech/meta-crush-saga.html</id><summary type="html">&lt;h2&gt;Trivia:&lt;/h2&gt;
+&lt;p&gt;As a quest to obtain the highly coveted title of &lt;strong&gt;Lead Senior C++ Over-Engineer&lt;/strong&gt;, I decided last year to rewrite the game I work on during daytime (Candy Crush Saga) using the quintessence of modern C++ (C++17). And... thus was born &lt;a href="https://github.com/Jiwan/meta_crush_saga"&gt;Meta Crush Saga&lt;/a&gt;: a &lt;strong&gt;compile-time game&lt;/strong&gt;. I …&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Trivia:&lt;/h2&gt;
+&lt;p&gt;As a quest to obtain the highly coveted title of &lt;strong&gt;Lead Senior C++ Over-Engineer&lt;/strong&gt;, I decided last year to rewrite the game I work on during daytime (Candy Crush Saga) using the quintessence of modern C++ (C++17). And... thus was born &lt;a href="https://github.com/Jiwan/meta_crush_saga"&gt;Meta Crush Saga&lt;/a&gt;: a &lt;strong&gt;compile-time game&lt;/strong&gt;. I was highly inspired by &lt;a href="https://blog.mattbierner.com/stupid-template-tricks-snake/"&gt;Matt Bernier's Nibbler game&lt;/a&gt; that used pure template meta-programming to recreate our the famous snake game we could play on our Nokia 3310 back in the days.&lt;/p&gt;
+&lt;p&gt;"What the &lt;s&gt;hell&lt;/s&gt; heck is a &lt;strong&gt;compile-time game&lt;/strong&gt;?", "How does it looks like?", "What &lt;strong&gt;C++17&lt;/strong&gt; features did you use in this project?", "What was your learnings?" might come to your mind. To answer these questions you can either read the rest of this post or accept your inner laziness and watch the video version of this post, which is a talk I made during a &lt;a href="https://www.meetup.com/swedencpp/events/246069743/"&gt;Meetup event&lt;/a&gt; in Stockholm:&lt;/p&gt;
+&lt;iframe width="560" height="315" src="https://www.youtube.com/embed/XV1lXtB3sqg" frameborder="0" allow="autoplay; encrypted-media" allowfullscreen&gt;&lt;/iframe&gt;
+
+&lt;p&gt;Disclaimer: for the sake of your sanity and the fact that &lt;em&gt;errare humanum est&lt;/em&gt;, this article might contain some alternative facts.&lt;/p&gt;
+&lt;h2&gt;A compile-time game you said?&lt;/h2&gt;
+&lt;p&gt;&lt;img width=20% height=20% src="//jguegant.github.io/blogs/tech/images/what-does-this-mean.png"/&gt;&lt;/p&gt;
+&lt;p&gt;I believe that it's easier to understand what I mean by the "concept" of a &lt;strong&gt;compile-time game&lt;/strong&gt; if you compare the life cycle of such a game with the life cycle of a normal game. So here it is!&lt;/p&gt;
+&lt;h3&gt;Life cycle of a normal game:&lt;/h3&gt;
+&lt;p&gt;As a normal game developer with a normal life working at a normal job with a normal sanity level you would usually start by writing your &lt;strong&gt;game logic&lt;/strong&gt; using your favorite language (C++ of course!), then fire your &lt;strong&gt;compiler&lt;/strong&gt; to transform this, far too often spaghetti-like, logic into an &lt;strong&gt;executable&lt;/strong&gt;. As soon as you double-click on your &lt;strong&gt;executable&lt;/strong&gt; (or use the console), a &lt;strong&gt;process&lt;/strong&gt; will be spawned by your operating system. This &lt;strong&gt;process&lt;/strong&gt; will execute your &lt;strong&gt;game logic&lt;/strong&gt; which 99.42% of time consists of a &lt;strong&gt;game loop&lt;/strong&gt;. A &lt;strong&gt;game loop&lt;/strong&gt; will &lt;strong&gt;update&lt;/strong&gt; the state of your game according to some rules and the &lt;strong&gt;user inputs&lt;/strong&gt;, &lt;strong&gt;render&lt;/strong&gt; the newly computed state of your game in some flashy pixels, again, again and again.&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Life cycle of a normal game" src="//jguegant.github.io/blogs/tech/images/life-cycle-normal-game.png"&gt;&lt;/p&gt;
+&lt;h3&gt;Life cycle of a compile-time game:&lt;/h3&gt;
+&lt;p&gt;As an over-engineer cooking the next big compile-time game, you will still have use of your favorite language (still C++ of course!) to write your &lt;strong&gt;game logic&lt;/strong&gt;. You will still have a &lt;strong&gt;compilation phase&lt;/strong&gt; but... then... here comes the plot twist: you will &lt;strong&gt;execute&lt;/strong&gt; your &lt;strong&gt;game logic&lt;/strong&gt; within this compilation step. One could call it a compilutation. This is where your favorite language C++ truly comes in handy ; it has a some features like &lt;a href="https://en.wikipedia.org/wiki/Template_metaprogramming"&gt;Template Meta Programming (TMP)&lt;/a&gt; or &lt;a href="http://en.cppreference.com/w/cpp/language/constexpr"&gt;constexpr&lt;/a&gt; to actually have &lt;strong&gt;computations&lt;/strong&gt; happening during the &lt;strong&gt;compilation phase&lt;/strong&gt;. We will dive later on the features you can use to do so. As we are executing the &lt;strong&gt;logic&lt;/strong&gt; of the game during this phase, we must also inject the &lt;strong&gt;user inputs&lt;/strong&gt; at that point in time. Obviously, our compiler will still output an &lt;strong&gt;executable&lt;/strong&gt;. What could it be used for? Well, the executable will not contain any &lt;strong&gt;game loop&lt;/strong&gt; anymore, but it will have a very simple mission: output the newly &lt;strong&gt;computed state&lt;/strong&gt;. Let's name this &lt;strong&gt;executable&lt;/strong&gt; a &lt;strong&gt;renderer&lt;/strong&gt; and its &lt;strong&gt;output&lt;/strong&gt; the &lt;strong&gt;rendering&lt;/strong&gt;. Our &lt;strong&gt;rendering&lt;/strong&gt; won't contain any fancy particule effect nor ambiant occlusion shadows, it will be in ASCII. An ASCII &lt;strong&gt;rendering&lt;/strong&gt; of your newly computed &lt;strong&gt;state&lt;/strong&gt; has the nice property that you can easily show it to your player, but you also copy it into a text file. Why a text file? Obviously because you can combine it with your &lt;strong&gt;code&lt;/strong&gt; in some way, redo all the previous steps and therefore have a &lt;strong&gt;loop&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;As you may understand now, a &lt;strong&gt;compile-time&lt;/strong&gt; game is made of a &lt;strong&gt;game-loop&lt;/strong&gt; where each &lt;strong&gt;frame&lt;/strong&gt; of your game is a &lt;strong&gt;compilation step&lt;/strong&gt;. Each &lt;strong&gt;compilation step&lt;/strong&gt; is computing a new &lt;strong&gt;state&lt;/strong&gt; of your game, that you can present to your player and also inject to the following &lt;strong&gt;frame&lt;/strong&gt; / &lt;strong&gt;compilation step&lt;/strong&gt;. &lt;/p&gt;
+&lt;p&gt;I let you contemplate this magnificient diagram for as much time as it takes you to understand what I just wrote above:
+&lt;img alt="Life cycle of a compile-time game" src="//jguegant.github.io/blogs/tech/images/life-cycle-compile-time-game.png"&gt;&lt;/p&gt;
+&lt;p&gt;Before we move on the implementation details of such a loop, I am sure that you have one question you would like to shoot at me...&lt;/p&gt;
+&lt;h3&gt;"Why would you even do that?"&lt;/h3&gt;
+&lt;p&gt;&lt;img width=25% height=25% src="//jguegant.github.io/blogs/tech/images/why-would-you-even-do-that.png"/&gt;&lt;/p&gt;
+&lt;p&gt;Do you really think I would let you break my C++ meta-programming idyll with such a fundamental question? Never!&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;First and foremost, a &lt;strong&gt;compile-time game&lt;/strong&gt; will have amazing runtime performances since most of the computations are done during the &lt;strong&gt;compilation phase&lt;/strong&gt;. Runtime performance is a key to the success of your AAA game in ASCII art! &lt;/li&gt;
+&lt;li&gt;You lessen the probability that a wild crustacean appears in your github repository and ask you to rewrite your game in &lt;strong&gt;Rust&lt;/strong&gt;. His well-prepared speech on security will fall appart as soon as you explain that a dangling pointer cannot exist at compile-time. Smug &lt;strong&gt;Haskell&lt;/strong&gt; programmers might even approve the &lt;strong&gt;type-safety&lt;/strong&gt; of your code.&lt;/li&gt;
+&lt;li&gt;You will gain respect from the &lt;strong&gt;Javascript&lt;/strong&gt; hipster kingdom, where any over-complicated framework with a strong NIH syndrom can reign as long as it has a catchy name.&lt;/li&gt;
+&lt;li&gt;One of my friend used to say that any line of code from a Perl program provides you de-facto a very strong password. I surely bet that he never tried generating credentials from &lt;strong&gt;compile-time C++&lt;/strong&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;So what? Aren't you satisfied with my answers? Maybe your question should have been: "Why could you even do that?".&lt;/p&gt;
+&lt;p&gt;As a matter of fact, I really wanted to play with the features introduced by &lt;strong&gt;C++17&lt;/strong&gt;. Quite a few of them focus on improving the expressiveness of the language as well as the meta-programming facilities (mainly constexpr). Instead of writing small code samples, I thought that it would be more fun to turn all of this into a game. Pet projects are a nice way to learn concepts that you may not use before quite some time at work. Being able to run the core logic of your game at compile-time proves once a again that templates and constepxr are &lt;a href="https://en.wikipedia.org/wiki/Turing_completeness"&gt;turing complete&lt;/a&gt; subsets of the C++ language.&lt;/p&gt;
+&lt;h2&gt;Meta Crush Saga: an overview&lt;/h2&gt;
+&lt;h3&gt;A Match-3 game:&lt;/h3&gt;
+&lt;p&gt;&lt;strong&gt;Meta Crush Saga&lt;/strong&gt; is a &lt;a href="https://en.wikipedia.org/wiki/Tile-matching_video_game"&gt;tiled-matching game&lt;/a&gt; similar to &lt;strong&gt;Bejeweled&lt;/strong&gt; or &lt;strong&gt;Candy Crush Saga&lt;/strong&gt;. The core of the rules consists in matching three or more tiles of the same pattern to increase your scores. Here is sneak peek of a &lt;strong&gt;game state&lt;/strong&gt; I "dumped" (dumping ASCII is pretty damn easy): &lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="sa"&gt;R&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;&lt;/span&gt;&lt;span class="dl"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&lt;/span&gt;
+&lt;span class="s"&gt;    Meta crush saga      &lt;/span&gt;
+&lt;span class="s"&gt;------------------------  &lt;/span&gt;
+&lt;span class="s"&gt;|                        | &lt;/span&gt;
+&lt;span class="s"&gt;| R  B  G  B  B  Y  G  R | &lt;/span&gt;
+&lt;span class="s"&gt;|                        | &lt;/span&gt;
+&lt;span class="s"&gt;|                        | &lt;/span&gt;
+&lt;span class="s"&gt;| Y  Y  G  R  B  G  B  R | &lt;/span&gt;
+&lt;span class="s"&gt;|                        | &lt;/span&gt;
+&lt;span class="s"&gt;|                        | &lt;/span&gt;
+&lt;span class="s"&gt;| R  B  Y  R  G  R  Y  G | &lt;/span&gt;
+&lt;span class="s"&gt;|                        | &lt;/span&gt;
+&lt;span class="s"&gt;|                        | &lt;/span&gt;
+&lt;span class="s"&gt;| R  Y  B  Y (R) Y  G  Y | &lt;/span&gt;
+&lt;span class="s"&gt;|                        | &lt;/span&gt;
+&lt;span class="s"&gt;|                        | &lt;/span&gt;
+&lt;span class="s"&gt;| B  G  Y  R  Y  G  G  R | &lt;/span&gt;
+&lt;span class="s"&gt;|                        | &lt;/span&gt;
+&lt;span class="s"&gt;|                        | &lt;/span&gt;
+&lt;span class="s"&gt;| R  Y  B  G  Y  B  B  G | &lt;/span&gt;
+&lt;span class="s"&gt;|                        | &lt;/span&gt;
+&lt;span class="s"&gt;------------------------  &lt;/span&gt;
+&lt;span class="s"&gt;&amp;gt; score: 9009&lt;/span&gt;
+&lt;span class="s"&gt;&amp;gt; moves: 27&lt;/span&gt;
+&lt;span class="dl"&gt;)&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The game-play of this specific Match-3 is not so interesting in itself, but what about the architecture running all of this? To understand it, I will try to explain each part of the life cycle of this &lt;strong&gt;compile-time&lt;/strong&gt; game in term of code.&lt;/p&gt;
+&lt;h3&gt;Injecting the game state:&lt;/h3&gt;
+&lt;p&gt;&lt;img width=50% height=50% src="//jguegant.github.io/blogs/tech/images/injecting-game-state.png"/&gt;&lt;/p&gt;
+&lt;p&gt;As a C++ afficionados or a nitpicker, you may have noticed that my previous dumped game state started with the following pattern: &lt;strong&gt;R"(&lt;/strong&gt;. This is indeed a &lt;a href="http://en.cppreference.com/w/cpp/language/string_literal"&gt;C++11 raw string literal&lt;/a&gt;, meaning that I do not have to escape special characters like &lt;strong&gt;line feed&lt;/strong&gt;. This raw string literal is stored in a file called &lt;a href="https://github.com/Jiwan/meta_crush_saga/blob/master/current_state.txt"&gt;current_state.txt&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;How do we inject this current game state into a compile state? Let's include it into the loop inputs!&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;// loop_inputs.hpp&lt;/span&gt;
+
+&lt;span class="k"&gt;constexpr&lt;/span&gt; &lt;span class="n"&gt;KeyboardInput&lt;/span&gt; &lt;span class="n"&gt;keyboard_input&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;KeyboardInput&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;KEYBOARD_INPUT&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="c1"&gt;// Get the current keyboard input as a macro&lt;/span&gt;
+
+&lt;span class="k"&gt;constexpr&lt;/span&gt; &lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="n"&gt;get_game_state_string&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[]()&lt;/span&gt; &lt;span class="k"&gt;constexpr&lt;/span&gt;
+&lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="n"&gt;game_state_string&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;constexpr_string&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+        &lt;span class="c1"&gt;// Include the raw string literal into a variable&lt;/span&gt;
+        &lt;span class="cp"&gt;#include&lt;/span&gt; &lt;span class="cpf"&gt;&amp;quot;current_state.txt&amp;quot;&lt;/span&gt;&lt;span class="cp"&gt;&lt;/span&gt;
+    &lt;span class="p"&gt;);&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;game_state_string&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="p"&gt;};&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Whether it is a &lt;em&gt;.txt&lt;/em&gt; file or a &lt;em&gt;.h&lt;/em&gt; file, the &lt;strong&gt;include&lt;/strong&gt; directive from C preprocessor will work exactly the same: it will copy the content of the file at its location. Here I am copying the ascii-game-state-raw-string-literal into a variable named &lt;strong&gt;game_state_string&lt;/strong&gt;. &lt;/p&gt;
+&lt;p&gt;Note that this header file &lt;a href="https://github.com/Jiwan/meta_crush_saga/blob/master/loop_inputs.hpp"&gt;loop_inputs.hpp&lt;/a&gt; also exposes the keyboard inputs for the current frame / compilation. Unlike the game state, the keyboard state is fairly small and can be easily received as a preprocessor definition.&lt;/p&gt;
+&lt;h3&gt;Compile time computation of the new state:&lt;/h3&gt;
+&lt;p&gt;&lt;img width=50% height=50% src="//jguegant.github.io/blogs/tech/images/compile-time-computation-new-state.png"/&gt;&lt;/p&gt;
+&lt;p&gt;Now that we have gathered enough data, we can compute a new state. And finally, we reach the point where we have to write a &lt;a href="https://github.com/Jiwan/meta_crush_saga/blob/master/main.cpp"&gt;main.cpp file&lt;/a&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;// main.cpp&lt;/span&gt;
+&lt;span class="cp"&gt;#include&lt;/span&gt; &lt;span class="cpf"&gt;&amp;quot;loop_inputs.hpp&amp;quot; // Get all the data necessary for our computation.&lt;/span&gt;&lt;span class="cp"&gt;&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Start: compile-time computation.&lt;/span&gt;
+
+&lt;span class="k"&gt;constexpr&lt;/span&gt; &lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="n"&gt;current_state&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;parse_game_state&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;get_game_state_string&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;// Parse the game state into a convenient object.&lt;/span&gt;
+
+&lt;span class="k"&gt;constexpr&lt;/span&gt; &lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="n"&gt;new_state&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;game_engine&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;current_state&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="c1"&gt;// Feed the engine with the parsed state,&lt;/span&gt;
+    &lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;update&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;keyboard_input&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;                          &lt;span class="c1"&gt;// Update the engine to obtain a new state.&lt;/span&gt;
+
+
+&lt;span class="k"&gt;constexpr&lt;/span&gt; &lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="n"&gt;array&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;print_game_state&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;new_state&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;// Convert the new state into a std::array&amp;lt;char&amp;gt; representation.&lt;/span&gt;
+
+&lt;span class="c1"&gt;// End: compile-time computation.&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Runtime: just render the state.&lt;/span&gt;
+&lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="kt"&gt;char&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="nl"&gt;c&lt;/span&gt; &lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;array&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;  &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;cout&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;c&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Strangely, this C++ code does not look too convoluted for what it does. Most of this code is run during the compilation phase and yet follows traditional OOP and procedural paradigms. Only the rendering, the last line, is an impediment to a pure compile-time computation. By sprinkling a bit of &lt;strong&gt;constexpr&lt;/strong&gt; where it should, you can have pretty elegant meta-programming in C++17 as we will see later-on. I find it fascinating the freedom C++ gives us when it comes to mix runtime and compile-time execution.&lt;/p&gt;
+&lt;p&gt;You will also notice that this code only execute one frame, there is no &lt;strong&gt;game-loop&lt;/strong&gt; in here. Let's solve that issue!&lt;/p&gt;
+&lt;h3&gt;Gluing things together:&lt;/h3&gt;
+&lt;p&gt;&lt;img width=50% height=50% src="//jguegant.github.io/blogs/tech/images/gluing-things-together.png"/&gt;&lt;/p&gt;
+&lt;p&gt;If you are revulsed by my &lt;strong&gt;C++&lt;/strong&gt; tricks, I wish you do not mind to contemplate my &lt;strong&gt;Bash&lt;/strong&gt; skills. Indeed, my &lt;strong&gt;game loop&lt;/strong&gt; is nothing more than a &lt;a href="https://github.com/Jiwan/meta_crush_saga/blob/master/meta_crush_saga.sh"&gt;bash script&lt;/a&gt; executing repeatidly some compilations.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;# It is a loop! No wait, it is a game loop!!!&lt;/span&gt;
+&lt;span class="k"&gt;while&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="k"&gt;do&lt;/span&gt; :
+    &lt;span class="c1"&gt;# Start a compilation step using G++&lt;/span&gt;
+    g++ -o renderer main.cpp -DKEYBOARD_INPUT&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;&lt;span class="nv"&gt;$keypressed&lt;/span&gt;&lt;span class="s2"&gt;&amp;quot;&lt;/span&gt;
+
+    &lt;span class="nv"&gt;keypressed&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;get_key_pressed&lt;span class="o"&gt;()&lt;/span&gt;
+
+    &lt;span class="c1"&gt;# Clean the screen.&lt;/span&gt;
+    clear
+
+    &lt;span class="c1"&gt;# Obtain the rendering&lt;/span&gt;
+    &lt;span class="nv"&gt;current_state&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="k"&gt;$(&lt;/span&gt;./renderer&lt;span class="k"&gt;)&lt;/span&gt;
+    &lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="nv"&gt;$current_state&lt;/span&gt; &lt;span class="c1"&gt;# Show the rendering to the player&lt;/span&gt;
+
+    &lt;span class="c1"&gt;# Place the rendering into a current_state.txt file and wrap it into a raw string literal.&lt;/span&gt;
+    &lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;R\&amp;quot;(&amp;quot;&lt;/span&gt; &amp;gt; current_state.txt
+    &lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="nv"&gt;$current_state&lt;/span&gt; &amp;gt;&amp;gt; current_state.txt
+    &lt;span class="nb"&gt;echo&lt;/span&gt; &lt;span class="s2"&gt;&amp;quot;)\&amp;quot;&amp;quot;&lt;/span&gt; &amp;gt;&amp;gt; current_state.txt
+&lt;span class="k"&gt;done&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;I actually struggled a bit to get the keyboard inputs from the console. I initially wanted to receive the inputs in parallel of the compilation. After lots trial and error, I got something working-ish using the &lt;code&gt;read&lt;/code&gt; &lt;strong&gt;Bash&lt;/strong&gt; command. I would never dare to duel a &lt;strong&gt;Bash&lt;/strong&gt; wizard, that language is way too maleficent!&lt;/p&gt;
+&lt;p&gt;Now let's agree, I had to resort to use another language to handle my game loop. Although, technically, nothing would prevent me to write that part of the code in C++. It also does not cancel the fact that 90% of the logic of my game is done within this &lt;strong&gt;g++&lt;/strong&gt; compilation command, which is pretty awesome!&lt;/p&gt;
+&lt;h3&gt;A bit of gameplay to soften your eyes:&lt;/h3&gt;
+&lt;p&gt;Now that you have suffered your way into my explanations on the game's architecture, here comes a bit of eye candy:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Meta Crush Saga in action" src="//jguegant.github.io/blogs/tech/images/meta-crush-saga.gif"&gt;&lt;/p&gt;
+&lt;p&gt;This pixelated gif is a record of me playing &lt;strong&gt;Meta Crush Saga&lt;/strong&gt;. As you can see, the game runs smoothly enough to make it playable in real-time. It is clearly not attractive enough to be able to stream it on Twitch and become the new Pewdiepie, but hey... it works!
+One of the funny aspect of having a &lt;strong&gt;game state&lt;/strong&gt; stored as a &lt;em&gt;.txt&lt;/em&gt; is the ability to cheat or test edge-cases really easily.&lt;/p&gt;
+&lt;p&gt;Now that I sketched the architecture, we will dive a bit more in the C++17 features used within that project. I will not focus on the game logic, as it is very specific to a Match-3, but will instead discuss subjects of C++ that be could applied in other projects too.&lt;/p&gt;
+&lt;h2&gt;My C++17 learnings:&lt;/h2&gt;
+&lt;p&gt;&lt;img width=25% height=25% style="float: left;" src="//jguegant.github.io/blogs/tech/images/spoiled-kids.png"/&gt;&lt;/p&gt;
+&lt;p&gt;Unlike C++14 which mainly contained minor fixes, the new C++17 standard has a lot to offer. There were hopes that some long-overdue features would land this time (modules, coroutines, concepts...) and... well... they did not ; which disappointed quite a few of us. But after the mourning, we discovered a myriad of small unexpected gems that made their way through.&lt;/p&gt;
+&lt;p&gt;I would dare to say that all the meta-programming kids were spoiled this year! Few minor tweaks and additions in language now permit you to write code very similar weither it is running during compilation or afterwards during runtime.&lt;/p&gt;
+&lt;div style="clear: both;"&gt;&lt;/div&gt;
+
+&lt;h3&gt;Constepxr all the things:&lt;/h3&gt;
+&lt;p&gt;As Ben Deane and Jason Turner foretold in their &lt;a href="https://www.youtube.com/watch?v=PJwd4JLYJJY"&gt;C++14 talk&lt;/a&gt;, 
+C++ is quickly improving value-computations at compile-time using the almighty &lt;a href="http://en.cppreference.com/w/cpp/language/constexpr"&gt;constexpr&lt;/a&gt; keyword. By placing this keyword in the appropriate places you can hint to your compiler that an expression is constant and &lt;strong&gt;could&lt;/strong&gt; be directly evaluated at compile-time. In &lt;strong&gt;C++11&lt;/strong&gt; you could already write such code:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;constexpr&lt;/span&gt; &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="nf"&gt;factorial&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="c1"&gt;// Combining a function with constexpr make it potentially evaluable at compile-time.&lt;/span&gt;
+&lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="o"&gt;?&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt; &lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;factorial&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;));&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;factorial&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;// Call to a constexpr function.&lt;/span&gt;
+&lt;span class="c1"&gt;// Can be replace by a good compiler by:&lt;/span&gt;
+&lt;span class="c1"&gt;// int i = 120;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;While powerful, &lt;strong&gt;constexpr&lt;/strong&gt; had quite a lot of restrictions on its usage and made it cumbersome to write expressive code in this way.
+&lt;strong&gt;C++14&lt;/strong&gt; relaxed a lot &lt;strong&gt;constexpr&lt;/strong&gt; and felt much more natural to use. Our previous factorial function could be rewritten this way:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;constexpr&lt;/span&gt; &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="nf"&gt;factorial&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;=&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;n&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;factorial&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;n&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Indeed, &lt;strong&gt;C++14&lt;/strong&gt; lifted the rule stipulating that a &lt;strong&gt;constexpr function&lt;/strong&gt; must only consist of one return statement, which forced us to use the &lt;a href="https://en.wikipedia.org/wiki/%3F:"&gt;ternary operator&lt;/a&gt; as a basic building block. Now &lt;strong&gt;C++17&lt;/strong&gt; brought even more placements for the &lt;strong&gt;constexpr&lt;/strong&gt; keyword that we can explore!&lt;/p&gt;
+&lt;h4&gt;Compile-time branching:&lt;/h4&gt;
+&lt;p&gt;Did you ever end-up in a situation where you wish that you could have different behavior according to the template parameter you are manipulating? Let's say that you wanted a generic &lt;code&gt;serialize&lt;/code&gt; function that would call &lt;code&gt;.serialize()&lt;/code&gt; if your object provides one, otherwise fall back on calling &lt;code&gt;to_string&lt;/code&gt; on it. As explained in more details in this &lt;a href="//jguegant.github.io/blogs/tech/sfinae-introduction.html"&gt;post about SFINAE&lt;/a&gt; you would very likely write such a lovely alien code:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;template&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;enable_if_t&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;has_serialize_v&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; 
+&lt;span class="n"&gt;serialize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;obj&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;obj&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;serialize&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="k"&gt;template&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;enable_if_t&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;!&lt;/span&gt;&lt;span class="n"&gt;has_serialize_v&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; 
+&lt;span class="n"&gt;serialize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;obj&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;to_string&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;obj&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;In your dreams you may be able to rewrite that awkward &lt;strong&gt;SFINAE trick&lt;/strong&gt; into such a magestic piece of code in &lt;strong&gt;C++14&lt;/strong&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;// has_serialize is a constexpr function that test the of serialize on a object.&lt;/span&gt;
+&lt;span class="c1"&gt;// See my post on SFINAE to understand how to write such a function. &lt;/span&gt;
+&lt;span class="k"&gt;template&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="k"&gt;constexpr&lt;/span&gt; &lt;span class="kt"&gt;bool&lt;/span&gt; &lt;span class="n"&gt;has_serialize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="cm"&gt;/*t*/&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+&lt;span class="k"&gt;template&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt; &lt;span class="n"&gt;serialize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;obj&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="c1"&gt;// We know that constexpr can be placed before functions.&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;has_serialize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;obj&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;obj&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;serialize&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="k"&gt;else&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;to_string&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;obj&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Sadly, as soon as you wake-up and start writing &lt;strong&gt;C++14&lt;/strong&gt; for real, your compiler will vomit you a displeasant message regarding the call &lt;code&gt;serialize(42);&lt;/code&gt;. It will explain that the object &lt;code&gt;obj&lt;/code&gt; of type &lt;code&gt;int&lt;/code&gt; does not have a &lt;code&gt;serialize()&lt;/code&gt; member function. As much as you hate it, your compiler is right! Given the current code, it will always try to compile both of the branches &lt;code&gt;return obj.serialize();&lt;/code&gt; and 
+&lt;code&gt;return std::to_string(obj);&lt;/code&gt;. For an &lt;code&gt;int&lt;/code&gt;, the branch &lt;code&gt;return obj.serialize();&lt;/code&gt; might well be some dead-code since &lt;code&gt;has_serialize(obj)&lt;/code&gt; will always return &lt;code&gt;false&lt;/code&gt;, but your compiler will still need to compile-it.&lt;/p&gt;
+&lt;p&gt;As you may expect, &lt;strong&gt;C++17&lt;/strong&gt; save us from such an embarassing situation by introducing the possibility to add &lt;strong&gt;constexpr&lt;/strong&gt; after an if statement to "force" a compile-time branching and discard the unused statements:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;// has_serialize...&lt;/span&gt;
+&lt;span class="c1"&gt;// ...&lt;/span&gt;
+
+&lt;span class="k"&gt;template&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt; &lt;span class="n"&gt;serialize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;obj&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="k"&gt;constexpr&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;has_serialize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;obj&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="c1"&gt;// Now we can place constexpr on the &amp;#39;if&amp;#39; directly.&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;obj&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;serialize&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt; &lt;span class="c1"&gt;// This branch will be discarded and therefore not compiled if obj is an int.&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="k"&gt;else&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;to_string&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;obj&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;&lt;span class="n"&gt;branch&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;img width=25% height=25% src="//jguegant.github.io/blogs/tech/images/constexpr-all-the-things.png"/&gt;&lt;/p&gt;
+&lt;p&gt;This is clearly a huge improvement compared to the &lt;strong&gt;SFINAE trick&lt;/strong&gt; we had to employ until now. After that, you will start to get the same addiction as Ben and Jason which consists in constexpr everything, everywhere at anytime. Alas, there is still one place where the &lt;strong&gt;constexpr&lt;/strong&gt; would well fit in but cannot be done yet: constexpr parameters.&lt;/p&gt;
+&lt;h4&gt;Constexpr parameters:&lt;/h4&gt;
+&lt;p&gt;If you are assiduous, you may have noticed a strange pattern in one my previous code sample. I am talking about the loop inputs:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;// loop_inputs.hpp&lt;/span&gt;
+
+&lt;span class="k"&gt;constexpr&lt;/span&gt; &lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="n"&gt;get_game_state_string&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[]()&lt;/span&gt; &lt;span class="k"&gt;constexpr&lt;/span&gt; &lt;span class="c1"&gt;// Why?&lt;/span&gt;
+&lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="n"&gt;game_state_string&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;constexpr_string&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+        &lt;span class="c1"&gt;// Include the raw string literal into a variable&lt;/span&gt;
+        &lt;span class="cp"&gt;#include&lt;/span&gt; &lt;span class="cpf"&gt;&amp;quot;current_state.txt&amp;quot;&lt;/span&gt;&lt;span class="cp"&gt;&lt;/span&gt;
+    &lt;span class="p"&gt;);&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;game_state_string&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="p"&gt;};&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Why is the variable &lt;strong&gt;game_state_string&lt;/strong&gt; encapsulated into a constexpr lambda? Why not making it a &lt;strong&gt;constexpr global variable&lt;/strong&gt;?&lt;/p&gt;
+&lt;p&gt;Well, I wanted to pass this variable and its content deep down to some functions. For instance, my &lt;strong&gt;parse_board&lt;/strong&gt; needed to be fed with it and used it in some constant expressions:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;constexpr&lt;/span&gt; &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="nf"&gt;parse_board_size&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="kt"&gt;char&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;game_state_string&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+&lt;span class="k"&gt;constexpr&lt;/span&gt; &lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="nf"&gt;parse_board&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="kt"&gt;char&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;game_state_string&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;array&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;GemType&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;parse_board_size&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;game_state_string&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;board&lt;/span&gt;&lt;span class="p"&gt;{};&lt;/span&gt;
+    &lt;span class="c1"&gt;//                                       ^ ‘game_state_string’ is not a constant expression&lt;/span&gt;
+    &lt;span class="c1"&gt;// ...  &lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="n"&gt;parse_board&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;“&lt;/span&gt;&lt;span class="p"&gt;...&lt;/span&gt;&lt;span class="n"&gt;something&lt;/span&gt;&lt;span class="p"&gt;...&lt;/span&gt;&lt;span class="err"&gt;”&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;If you are doing it this way, your grumpy compiler will complain that the parameter &lt;strong&gt;game_state_string&lt;/strong&gt; is not a constant expression. When I am building my array of Gems, I need to compute its fixed capacity directly (you cannot use vectors at compile-time as it requires to allocate) and pass it as a value-template-argument to &lt;strong&gt;std::array&lt;/strong&gt;. The expression &lt;strong&gt;parse_board_size(game_state_string)&lt;/strong&gt; therefore needs to be a constant expression. While &lt;strong&gt;parse_board_size&lt;/strong&gt; is clearly marked as &lt;strong&gt;constexpr&lt;/strong&gt;, but &lt;strong&gt;game_state_string&lt;/strong&gt; is not AND cannot be! Two rules are annoying us in this case:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Arguments of a constexpr function are not constexpr!&lt;/li&gt;
+&lt;li&gt;And you cannot add constexpr in front of them!&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;It boils down to the fact that &lt;strong&gt;constexpr functions&lt;/strong&gt; MUST be usable for both runtime or compile-time computations. Allowing &lt;strong&gt;constexpr parameters&lt;/strong&gt; would discard the possibility to use them at runtime.&lt;/p&gt;
+&lt;p&gt;&lt;center&gt;&lt;img width=25% height=25% src="//jguegant.github.io/blogs/tech/images/facepalm.jpg"/&gt;&lt;/center&gt;&lt;/p&gt;
+&lt;p&gt;Thanksfully, there is a way to mitigate that issue. Instead of accepting the value as a normal function parameter, you can encapsulate that value into a type and pass that type as a template parameter:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;template&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;GameStringType&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="k"&gt;constexpr&lt;/span&gt; &lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="n"&gt;parse_board&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;GameStringType&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;array&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;CellType&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;parse_board_size&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;GameStringType&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;board&lt;/span&gt;&lt;span class="p"&gt;{};&lt;/span&gt;
+    &lt;span class="c1"&gt;// ...&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="k"&gt;struct&lt;/span&gt; &lt;span class="n"&gt;GameString&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;static&lt;/span&gt; &lt;span class="k"&gt;constexpr&lt;/span&gt; &lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;...something...&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;};&lt;/span&gt;
+
+&lt;span class="n"&gt;parse_board&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;GameString&lt;/span&gt;&lt;span class="p"&gt;{});&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;In this code sample, I am creating a struct type &lt;strong&gt;GameString&lt;/strong&gt; which has a static constexpr member function &lt;strong&gt;value()&lt;/strong&gt; that returns the string literal I want to pass to &lt;strong&gt;parse_board&lt;/strong&gt;. In &lt;strong&gt;parse_board&lt;/strong&gt; I receive this type through the template parameter &lt;strong&gt;GameStringType&lt;/strong&gt; thanks to template argument deduction rules. Having &lt;strong&gt;GameStringType&lt;/strong&gt;, I can simply call the static member function &lt;strong&gt;value()&lt;/strong&gt; whenever I want to get the string literal, even in locations where constant expressions are necessary since &lt;strong&gt;value()&lt;/strong&gt; is constexpr. &lt;/p&gt;
+&lt;p&gt;We succeeded to encapsulate our literal to somehow pass it to &lt;strong&gt;parse_board&lt;/strong&gt; in a constexpr way. Now, it gets very annoying to have to define a new type everytime you want to send a new literal to &lt;strong&gt;parse_board&lt;/strong&gt;: "...something1...", "...something2...". To solve that issue in &lt;strong&gt;C++11&lt;/strong&gt;, you can rely on some ugly macros and few indirection using an anonymous union and a lambda. Mikael Park has a nice explanation on this topic in &lt;a href="https://mpark.github.io/programming/2017/05/26/constexpr-function-parameters/"&gt;one of his post&lt;/a&gt;. &lt;/p&gt;
+&lt;p&gt;We can do even better in &lt;strong&gt;C++17&lt;/strong&gt;. If you list our current requirements to pass our string literal, we need:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;A generated function&lt;/li&gt;
+&lt;li&gt;Which is constexpr&lt;/li&gt;
+&lt;li&gt;With a unique or anonymous name&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;This requirements should ring a bell to you. What we need is a &lt;strong&gt;constexpr lambda&lt;/strong&gt;. And &lt;strong&gt;C++17&lt;/strong&gt; rightfully added the possibility to use the &lt;strong&gt;constexpr&lt;/strong&gt; keyword on a lambda. We could rewrite the code sample in such a way:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;template&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;LambdaType&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="k"&gt;constexpr&lt;/span&gt; &lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="n"&gt;parse_board&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;LambdaType&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;get_game_state_string&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;array&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;CellType&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;parse_board_size&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;get_game_state_string&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;board&lt;/span&gt;&lt;span class="p"&gt;{};&lt;/span&gt;
+    &lt;span class="c1"&gt;//                                       ^ Allowed to call a constexpr lambda in this context.&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="n"&gt;parse_board&lt;/span&gt;&lt;span class="p"&gt;([]()&lt;/span&gt; &lt;span class="k"&gt;constexpr&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="err"&gt;“&lt;/span&gt;&lt;span class="p"&gt;...&lt;/span&gt;&lt;span class="n"&gt;something&lt;/span&gt;&lt;span class="p"&gt;...&lt;/span&gt;&lt;span class="err"&gt;”&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="p"&gt;});&lt;/span&gt;
+&lt;span class="c1"&gt;//                ^ Make our lambda constexpr.&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Believe me, this feels already much neater than the previous &lt;strong&gt;C++11&lt;/strong&gt; hackery using macros. I discovered this awesome trick thanks to &lt;strong&gt;Björn Fahller&lt;/strong&gt;, a member of the C++ meetup group I participate in. You can read more about this trick on his &lt;a href="http://playfulprogramming.blogspot.se/2016/08/strings-as-types-with-c17-constexpr.html"&gt;blog&lt;/a&gt;. Note also that the &lt;strong&gt;constexpr&lt;/strong&gt; keyword is actually not necessary in this case: all the &lt;strong&gt;lambdas&lt;/strong&gt; with the capacity to be &lt;strong&gt;constexpr&lt;/strong&gt; will be by default. Having an explicit &lt;strong&gt;constexpr&lt;/strong&gt; in the signature just makes it easier to catch mistakes.&lt;/p&gt;
+&lt;p&gt;Now you should understand why I was forced to use a &lt;strong&gt;constexpr&lt;/strong&gt; lambda to pass down the string representing my game state. Have a look at this lambda and one question should arise again. What is this &lt;strong&gt;constexpr_string&lt;/strong&gt; type I also use to wrap the string literal?&lt;/p&gt;
+&lt;h5&gt;&lt;strong&gt;constexpr_string&lt;/strong&gt; and &lt;strong&gt;constexpr_string_view&lt;/strong&gt;:&lt;/h5&gt;
+&lt;p&gt;When you are dealing with strings, you do not want to deal with them the C way. All these pesky algorithms iterating in a raw manner and checking null ending should be forbidden! The alternative offered by &lt;strong&gt;C++&lt;/strong&gt; is the almighty &lt;strong&gt;std::string&lt;/strong&gt; and &lt;strong&gt;STL algorithms&lt;/strong&gt;. Sadly, &lt;strong&gt;std::string&lt;/strong&gt; may have to allocate on the heap (even wit Small String Optimization) to store their content. One or two standards from now we may benefit from &lt;strong&gt;constexpr new/delete&lt;/strong&gt; or being able to pass &lt;strong&gt;constexpr allocators&lt;/strong&gt; to &lt;strong&gt;std::string&lt;/strong&gt;, but for now we have to find another solution.&lt;/p&gt;
+&lt;p&gt;My approach was to write a &lt;strong&gt;constexpr_string&lt;/strong&gt; class which has a fixed capacity. This capacity is passed as a value template parameter. Here is a short overview of my class:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;template&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="kt"&gt;size_t&lt;/span&gt; &lt;span class="n"&gt;N&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="c1"&gt;// N is the capacity of my string.&lt;/span&gt;
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;constexpr_string&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;span class="k"&gt;private&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;array&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="kt"&gt;char&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;N&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;data_&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="c1"&gt;// Reserve N chars to store anything.  &lt;/span&gt;
+    &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="kt"&gt;size_t&lt;/span&gt; &lt;span class="n"&gt;size_&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;         &lt;span class="c1"&gt;// The actual size of the string.&lt;/span&gt;
+&lt;span class="k"&gt;public&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+    &lt;span class="k"&gt;constexpr&lt;/span&gt; &lt;span class="n"&gt;constexpr_string&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="kt"&gt;char&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;)[&lt;/span&gt;&lt;span class="n"&gt;N&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;data_&lt;/span&gt;&lt;span class="p"&gt;{},&lt;/span&gt; &lt;span class="n"&gt;size_&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;N&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="c1"&gt;// copy a into data_   }&lt;/span&gt;
+    &lt;span class="c1"&gt;// ...&lt;/span&gt;
+    &lt;span class="k"&gt;constexpr&lt;/span&gt; &lt;span class="n"&gt;iterator&lt;/span&gt; &lt;span class="n"&gt;begin&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;  &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;data_&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;   &lt;span class="p"&gt;}&lt;/span&gt;       &lt;span class="c1"&gt;// Points at the beggining of the storage.&lt;/span&gt;
+    &lt;span class="k"&gt;constexpr&lt;/span&gt; &lt;span class="n"&gt;iterator&lt;/span&gt; &lt;span class="n"&gt;end&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;  &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;data_&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;size_&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;   &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="c1"&gt;// Points at the end of the stored string.&lt;/span&gt;
+    &lt;span class="c1"&gt;// ...&lt;/span&gt;
+&lt;span class="p"&gt;};&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;My &lt;a href="https://github.com/Jiwan/meta_crush_saga/blob/master/constexpr_string.hpp"&gt;constexpr_string&lt;/a&gt; class tries to mimic as closely as possible the interface of &lt;strong&gt;std::string&lt;/strong&gt; (for the operations that I needed): you can query the &lt;strong&gt;begin and end iterators&lt;/strong&gt;, retrive the &lt;strong&gt;size&lt;/strong&gt;, get access to &lt;strong&gt;data&lt;/strong&gt;, &lt;strong&gt;erase&lt;/strong&gt; part of it, get a substring using &lt;strong&gt;substr&lt;/strong&gt;, etc. It makes it very straightforward to transform a piece of code from &lt;strong&gt;std::string&lt;/strong&gt; to &lt;strong&gt;constexpr_string&lt;/strong&gt;. You may wonder what happens when you want to do use operations that would normally requires an allocation in &lt;strong&gt;std::string&lt;/strong&gt;. In such cases, I was forced to transform them into &lt;strong&gt;immutable operations&lt;/strong&gt; that would create new instance of &lt;strong&gt;constexpr_string&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;Let's have a look at the &lt;strong&gt;append&lt;/strong&gt; operation:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;template&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="kt"&gt;size_t&lt;/span&gt; &lt;span class="n"&gt;N&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="c1"&gt;// N is the capacity of my string.&lt;/span&gt;
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;constexpr_string&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="c1"&gt;// ...&lt;/span&gt;
+    &lt;span class="k"&gt;template&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="kt"&gt;size_t&lt;/span&gt; &lt;span class="n"&gt;M&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="c1"&gt;// M the capacity of the other string.&lt;/span&gt;
+    &lt;span class="k"&gt;constexpr&lt;/span&gt; &lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="n"&gt;append&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="n"&gt;constexpr_string&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;M&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;other&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="p"&gt;{&lt;/span&gt;
+
+        &lt;span class="n"&gt;constexpr_string&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;N&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;M&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;output&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;size&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;other&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;size&lt;/span&gt;&lt;span class="p"&gt;());&lt;/span&gt;
+        &lt;span class="c1"&gt;//                 ^ Enough capacity for both. ^ Copy the first string into the output.&lt;/span&gt;
+
+        &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="kt"&gt;size_t&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;other&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;size&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt; &lt;span class="o"&gt;++&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+            &lt;span class="n"&gt;output&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;size&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;other&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;i&lt;/span&gt;&lt;span class="p"&gt;];&lt;/span&gt;
+            &lt;span class="o"&gt;^&lt;/span&gt; &lt;span class="n"&gt;Copy&lt;/span&gt; &lt;span class="n"&gt;the&lt;/span&gt; &lt;span class="n"&gt;second&lt;/span&gt; &lt;span class="n"&gt;string&lt;/span&gt; &lt;span class="n"&gt;into&lt;/span&gt; &lt;span class="n"&gt;the&lt;/span&gt; &lt;span class="n"&gt;output&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;
+        &lt;span class="p"&gt;}&lt;/span&gt;
+
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;output&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; 
+    &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="c1"&gt;// ...&lt;/span&gt;
+&lt;span class="p"&gt;};&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;img width=25% height=25% style="float:right;" src="//jguegant.github.io/blogs/tech/images/einstein.jpg"/&gt;&lt;/p&gt;
+&lt;p&gt;No needs to have a Fields Medal to assume that if we have a string of size &lt;strong&gt;N&lt;/strong&gt; and a string or size &lt;strong&gt;M&lt;/strong&gt;, a string of size &lt;strong&gt;N + M&lt;/strong&gt; should be enough to store the concatenation. You may waste a bit of "compile-time storage" since both of your strings may not use their full capacity, but that is a fairly small price to pay for a lot of convenience. I, obviously, also wrote the counterpart of &lt;strong&gt;std::string_view&lt;/strong&gt; which I named &lt;a href="https://github.com/Jiwan/meta_crush_saga/blob/master/constexpr_string_view.hpp"&gt;constexpr_string_view&lt;/a&gt;.&lt;/p&gt;
+&lt;div style="clear: both;"&gt;&lt;/div&gt;
+
+&lt;p&gt;Having these two classes, I was ready to write elegant code to parse my &lt;strong&gt;game state&lt;/strong&gt;. Think about something like that:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;constexpr&lt;/span&gt; &lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="n"&gt;game_state&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;constexpr_string&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="err"&gt;“&lt;/span&gt;&lt;span class="p"&gt;...&lt;/span&gt;&lt;span class="n"&gt;something&lt;/span&gt;&lt;span class="p"&gt;...&lt;/span&gt;&lt;span class="err"&gt;”&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Let&amp;#39;s find the first blue gem occurence within my string:&lt;/span&gt;
+&lt;span class="k"&gt;constexpr&lt;/span&gt; &lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="n"&gt;blue_gem&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;find_if&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;game_state&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;begin&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; &lt;span class="n"&gt;game_state&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;end&lt;/span&gt;&lt;span class="p"&gt;(),&lt;/span&gt; 
+    &lt;span class="p"&gt;[](&lt;/span&gt;&lt;span class="kt"&gt;char&lt;/span&gt; &lt;span class="n"&gt;c&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="k"&gt;constexpr&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="k"&gt;return&lt;/span&gt;  &lt;span class="n"&gt;c&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="err"&gt;‘&lt;/span&gt;&lt;span class="n"&gt;B&lt;/span&gt;&lt;span class="err"&gt;’&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;It was fairly simple to iterate over the gems on my board - speaking of which, did you notice another &lt;strong&gt;C++17&lt;/strong&gt; gem in that code sample?&lt;/p&gt;
+&lt;p&gt;Yes! I did not have to explicitely specify the capacity of my &lt;strong&gt;constexpr_string&lt;/strong&gt; when constructing it. In the past, you had to explicitely specify the arguments of a class template when using it. To avoid this pain, we would provide &lt;em&gt;make_xxx&lt;/em&gt; functions since parameters of function templates could be deduced. Have a look on how &lt;a href="http://en.cppreference.com/w/cpp/language/class_template_argument_deduction"&gt;class template argument deduction&lt;/a&gt; is changing our life for the better:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;template&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;N&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="k"&gt;struct&lt;/span&gt; &lt;span class="n"&gt;constexpr_string&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;constexpr_string&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="kt"&gt;char&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;)[&lt;/span&gt;&lt;span class="n"&gt;N&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt; &lt;span class="p"&gt;{}&lt;/span&gt;
+    &lt;span class="c1"&gt;// ..&lt;/span&gt;
+&lt;span class="p"&gt;};&lt;/span&gt;
+
+&lt;span class="c1"&gt;// **** Pre C++17 ****&lt;/span&gt;
+&lt;span class="k"&gt;template&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;N&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="n"&gt;constexpr_string&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;N&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;make_constexpr_string&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="kt"&gt;char&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;)[&lt;/span&gt;&lt;span class="n"&gt;N&lt;/span&gt;&lt;span class="p"&gt;])&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="c1"&gt;// Provide a function template to deduce N           ^ right here&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;constexpr_string&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;N&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+    &lt;span class="c1"&gt;//                      ^ Forward the parameter to the class template.&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="n"&gt;test2&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;make_constexpr_string&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;blablabla&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="c1"&gt;//                  ^ use our function template to for the deduction.&lt;/span&gt;
+&lt;span class="n"&gt;constexpr_string&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="mi"&gt;7&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;test&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;blabla&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="c1"&gt;//               ^ or feed the argument directly and pray that it was the good one.&lt;/span&gt;
+
+
+&lt;span class="c1"&gt;// **** With C++17 ****&lt;/span&gt;
+&lt;span class="n"&gt;constexpr_string&lt;/span&gt; &lt;span class="nf"&gt;test&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;blabla&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="c1"&gt;//           ^ Really smmoth to use, the argument is deduced.&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;In some tricky situations, you may still need to help your compiler to deduce correctly your arguments. If you encouter such an issue, have a look at &lt;a href="http://en.cppreference.com/w/cpp/language/class_template_argument_deduction#User-defined_deduction_guides"&gt;user-defined deduction guides&lt;/a&gt;.&lt;/p&gt;
+&lt;h4&gt;Free food from the STL:&lt;/h4&gt;
+&lt;p&gt;Alright, you can always rewrite things by yourself. But did the committee members kindly cooked something for us in the standard library?&lt;/p&gt;
+&lt;h5&gt;New utility types:&lt;/h5&gt;
+&lt;p&gt;&lt;strong&gt;C++17&lt;/strong&gt; introduced &lt;a href="http://en.cppreference.com/w/cpp/utility/variant"&gt;std::variant&lt;/a&gt; and &lt;a href="http://en.cppreference.com/w/cpp/utility/optional"&gt;std::optional&lt;/a&gt; to the common vocabulary types, with &lt;strong&gt;constexpr&lt;/strong&gt; in mind. While the former one is really interesting since it permits you to express type-safe unions, the implementation provided in the &lt;strong&gt;libstdc++&lt;/strong&gt; library with &lt;strong&gt;GCC 7.2&lt;/strong&gt; had issues when used in constant expressions. Therefore, I gave up the idea to introduce &lt;strong&gt;std::variant&lt;/strong&gt; in my code and solely utilized &lt;strong&gt;std::optional&lt;/strong&gt;.&lt;/p&gt;
+&lt;p&gt;Given a type &lt;strong&gt;T&lt;/strong&gt;, &lt;strong&gt;std::optional&lt;/strong&gt; allow you to create a new type &lt;strong&gt;std::optional&lt;T&gt;&lt;/strong&gt; which may either hold a value of type &lt;strong&gt;T&lt;/strong&gt; or nothing. It is pretty similar to &lt;a href="https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/nullable-types/"&gt;nullable value types&lt;/a&gt; in &lt;strong&gt;C#&lt;/strong&gt;.
+Let's consider a &lt;strong&gt;find_in_board&lt;/strong&gt; function that return the position of the first item in the board that validate a predicate. You may not have such an item in the board at all. To handle such a situation, the position type must be optional:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;template&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Predicate&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="k"&gt;constexpr&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;optional&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;pair&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="kt"&gt;int&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;find_in_board&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;GameBoard&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;g&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;Predicate&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;p&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="nl"&gt;item&lt;/span&gt; &lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;g&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;items&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;p&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;};&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="c1"&gt;// Return by value if we find such an item.&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;nullopt&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="c1"&gt;// Return the empty state otherwise.&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="n"&gt;item&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;find_in_board&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;g&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;[](&lt;/span&gt;&lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="k"&gt;auto&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="nb"&gt;true&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="p"&gt;});&lt;/span&gt;
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;  &lt;span class="c1"&gt;// Test if the optional is empty or not.&lt;/span&gt;
+    &lt;span class="n"&gt;do_something&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;item&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;// Can safely use the optional by &amp;#39;deferencing&amp;#39; with &amp;#39;*&amp;#39;.&lt;/span&gt;
+    &lt;span class="cm"&gt;/* ... */&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Previously, you would have recourse to either &lt;strong&gt;pointer semantics&lt;/strong&gt; or add an "empty state" directly into your position type or return a boolean and take an &lt;strong&gt;out parameter&lt;/strong&gt;. Let's face it, it was pretty clumsy!&lt;/p&gt;
+&lt;p&gt;Some already existing types also received a &lt;strong&gt;constexpr&lt;/strong&gt; lifting: &lt;a href="http://en.cppreference.com/w/cpp/utility/tuple"&gt;tuple&lt;/a&gt; and &lt;a href="http://en.cppreference.com/w/cpp/utility/pair"&gt;pair&lt;/a&gt;. I will not explain their usage as a lot have been already written on these two, but I will share you one of my disapointment. The committee added to the standard a &lt;strong&gt;syntactic sugar&lt;/strong&gt; to extract the values hold by a &lt;strong&gt;tuple&lt;/strong&gt; or &lt;strong&gt;pair&lt;/strong&gt;. Called &lt;a href="http://en.cppreference.com/w/cpp/language/structured_binding"&gt;structured binding&lt;/a&gt;, this new kind of declaration uses brackets to define in which variables you would like to store the exploded &lt;strong&gt;tuple&lt;/strong&gt; or &lt;strong&gt;pair&lt;/strong&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;pair&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="kt"&gt;int&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="mi"&gt;42&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1337&lt;/span&gt;&lt;span class="p"&gt;};&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;span class="c1"&gt;// x = 42 and y = 1337.&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Really clever! It is just a pity that the committee members [could not, would not, did not have the time, forgot, enjoyed not] to make it &lt;strong&gt;constexpr&lt;/strong&gt; friendly. I would have expected something along the way:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;constexpr&lt;/span&gt; &lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt; &lt;span class="c1"&gt;// OR&lt;/span&gt;
+&lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="k"&gt;constexpr&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;We now have fancy containers and utilities, how can we manipulate them easily?&lt;/p&gt;
+&lt;h5&gt;Algorithms:&lt;/h5&gt;
+&lt;p&gt;Upgrading a container to a handle &lt;strong&gt;constexpr&lt;/strong&gt; is a rather tedious work. Comparatively, bringing &lt;strong&gt;constexpr&lt;/strong&gt; to &lt;strong&gt;non-modifying algorithms&lt;/strong&gt; seems rather straightforward. But strangely enough, &lt;strong&gt;C++17&lt;/strong&gt; did not see any progress in that domain, it is actually coming in &lt;strong&gt;C++20&lt;/strong&gt;. For instance, the supreme &lt;a href="http://en.cppreference.com/w/cpp/algorithm/find"&gt;std::find&lt;/a&gt; algorithms did not receive its &lt;strong&gt;constexpr&lt;/strong&gt; signature.&lt;/p&gt;
+&lt;p&gt;Worry not (or "Qu'à cela ne tienne" in French)! As explained by Ben and Jason, you can easily turn an algorithm in &lt;strong&gt;constexpr&lt;/strong&gt; by simply copying a current implementation (checkout for copyrights though) ; cppreference being a good fit. Ladies and gentlemen, I present you a &lt;strong&gt;constexpr std::find&lt;/strong&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;template&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;InputIt&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="k"&gt;constexpr&lt;/span&gt; &lt;span class="n"&gt;InputIt&lt;/span&gt; &lt;span class="n"&gt;find&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;InputIt&lt;/span&gt; &lt;span class="n"&gt;first&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;InputIt&lt;/span&gt; &lt;span class="n"&gt;last&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+&lt;span class="c1"&gt;// ^ TADAMMMM!!! I added constexpr here.&lt;/span&gt;
+&lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="p"&gt;(;&lt;/span&gt; &lt;span class="n"&gt;first&lt;/span&gt; &lt;span class="o"&gt;!=&lt;/span&gt; &lt;span class="n"&gt;last&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="o"&gt;++&lt;/span&gt;&lt;span class="n"&gt;first&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;first&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="n"&gt;value&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+            &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;first&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;last&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Thanks to: http://en.cppreference.com/w/cpp/algorithm/find&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;I already hear optimisation affionados screaming on their chair! Yes, just adding &lt;strong&gt;constexpr&lt;/strong&gt; in front of a code sample gently provided by &lt;strong&gt;cppreference&lt;/strong&gt; may not give you the perfect &lt;strong&gt;runtime performances&lt;/strong&gt;. But if we really had to polish this algorithm it would be for &lt;strong&gt;compile-time performances&lt;/strong&gt;. Keeping things simple usually give the best results when it comes to speed of &lt;strong&gt;compilation&lt;/strong&gt; from what I observed.&lt;/p&gt;
+&lt;h3&gt;Performance &amp;amp; bugs:&lt;/h3&gt;
+&lt;p&gt;Every triple A games must put efforts in these topics, right?&lt;/p&gt;
+&lt;h4&gt;Performance:&lt;/h4&gt;
+&lt;p&gt;When I achieved a first half-workingish version of &lt;strong&gt;Meta Crush Saga&lt;/strong&gt; things ran rather smoothly. It actually reached a bit more than &lt;strong&gt;3 FPS&lt;/strong&gt; (Frame Per Second) on my old laptop with an i5 clocked at 1.80GHz. As in any project, I quickly found my previously written code unsavoury and started to rewrite the parsing of my game state using &lt;strong&gt;constexpr_string&lt;/strong&gt; and standard algorithms. Although it made my code much more maintenable it also had a severe impact on the performance ; &lt;strong&gt;0.5 FPS&lt;/strong&gt; was the new ceiling. &lt;/p&gt;
+&lt;p&gt;&lt;center&gt;&lt;img width=35% height=35% src="//jguegant.github.io/blogs/tech/images/performance-rating.png"/&gt;&lt;/center&gt;&lt;/p&gt;
+&lt;p&gt;Unlike the old C++ adage, "zero-head abstractions" did not apply to &lt;strong&gt;compile-time computations&lt;/strong&gt;. Which really makes sense if you see your compiler as an interpreter of some "compile-time code". There is still room to improve for the various compilers, but also for us writers of such code. Here is a non-exhaustive list of few observations and tips, maybe specific to GCC, that I figured out:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;C arrays&lt;/strong&gt; performed significantly better than &lt;strong&gt;std::array&lt;/strong&gt;. &lt;strong&gt;std::array&lt;/strong&gt; is a bit of modern C++ cosmetic over a &lt;strong&gt;C-style array&lt;/strong&gt; and one must pay a certain price to use it in such circumstances. &lt;/li&gt;
+&lt;li&gt;It felt like &lt;strong&gt;recursive functions&lt;/strong&gt; had the advantage (speed-wise) over writing &lt;strong&gt;functions with loops&lt;/strong&gt;. It could well be that writing recursive algorithms forces you to tackle your problems in another way, which behaves better. To put in my two penny worth, I believe that the cost of compile-time calls might be smaller than executing a complicated function body especially that compilers (and their implementors) have been exposed to decades of abusive recursions we used for our own template-metaprogramming ends. &lt;/li&gt;
+&lt;li&gt;Copying data around is also quite expensive, notably if you are dealing with value types. If I wanted to futher optimise my game, I would mainly focus on that problem.&lt;/li&gt;
+&lt;li&gt;I only &lt;s&gt;ab&lt;/s&gt;used one of my CPU core to do the job. Having only one compilation unit restricted me to spawn only one instance of GCC at a time. I am not quite sure if you could parallelise my compilutation.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h4&gt;Bugs:&lt;/h4&gt;
+&lt;p&gt;&lt;img width=20% height=20% style="float: left;" src="//jguegant.github.io/blogs/tech/images/no-bugs.png"/&gt;
+More than once, my compiler regurgitated terrible compilation errors, my code logic being flawed. But how could I find where the bug was located? Without &lt;strong&gt;debugger&lt;/strong&gt; and &lt;strong&gt;printf&lt;/strong&gt;, things get complicated. If your metaphoric programming beard is not up to your knees (both my metaphoric and physical one did not reach the expectations), you may not have the motivation to use &lt;a href="https://github.com/mikael-s-persson/templight"&gt;templight&lt;/a&gt; nor to debug your compiler.&lt;/p&gt;
+&lt;p&gt;Your first friend will be &lt;a href="http://en.cppreference.com/w/cpp/language/static_assert"&gt;static_assert&lt;/a&gt;, which gives you the possibility to test the value of a compile-time boolean. Your second friend will be a macro to turn on and off &lt;strong&gt;constexpr&lt;/strong&gt; wherever possible:
+&lt;div style="clear: both;"&gt;&lt;/div&gt;&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="cp"&gt;#define CONSTEXPR constexpr  &lt;/span&gt;&lt;span class="c1"&gt;// compile-time No debug possible&lt;/span&gt;
+
+&lt;span class="c1"&gt;// OR&lt;/span&gt;
+
+&lt;span class="cp"&gt;#define CONSTEXPR           &lt;/span&gt;&lt;span class="c1"&gt;// Debug at runtime&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;By using this macro, you can force the logic to execute at runtime and therefore attach a debugger to it.&lt;/p&gt;
+&lt;h2&gt;Meta Crush Saga II - Looking for a pure compile-time experience:&lt;/h2&gt;
+&lt;p&gt;Clearly, &lt;strong&gt;Meta Crush Saga&lt;/strong&gt; will not win &lt;a href="https://en.wikipedia.org/wiki/The_Game_Awards"&gt;The Game Awards&lt;/a&gt; this year. It has some great potential, but the experience is not fully &lt;strong&gt;compile-time&lt;/strong&gt; YET, which may be a showstopper for hardcore gamers... I cannot get rid-of the bash script, unless someone add &lt;strong&gt;keyboard inputs&lt;/strong&gt; and impure logic during the compilation-phase (pure madness!). But I believe, that one day, I could entirely bypass the &lt;strong&gt;renderer&lt;/strong&gt; executable and print my &lt;strong&gt;game state&lt;/strong&gt; at &lt;strong&gt;compile-time&lt;/strong&gt;:&lt;/p&gt;
+&lt;p&gt;&lt;img alt="Life cycle of a fully compile-time game" src="//jguegant.github.io/blogs/tech/images/life-cycle-fully-compile-time-game.png"&gt;&lt;/p&gt;
+&lt;p&gt;A crazy fellow pseudo-named &lt;strong&gt;saarraz&lt;/strong&gt;, &lt;a href="https://github.com/saarraz/static-print"&gt;extended GCC&lt;/a&gt; to add a &lt;strong&gt;static_print&lt;/strong&gt; statement to the language. This statement would take a few constant expressions or string literals and output them during the compilation. I would be glad if such tool would be added to the standard, or at least extend &lt;strong&gt;static_assert&lt;/strong&gt; to accept constant expressions.&lt;/p&gt;
+&lt;p&gt;Meanwhile, there might be a &lt;strong&gt;C++17&lt;/strong&gt; way to obtain that result. Compilers already ouput two things, &lt;strong&gt;errors&lt;/strong&gt; and &lt;strong&gt;warnings&lt;/strong&gt;! If we could somehow control or bend a &lt;strong&gt;warning&lt;/strong&gt; to our needs, we may already have a decent output. I tried few solutions, notably the &lt;a href="http://en.cppreference.com/w/cpp/language/attributes"&gt;deprecated attribute&lt;/a&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;template&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="kt"&gt;char&lt;/span&gt;&lt;span class="p"&gt;...&lt;/span&gt; &lt;span class="n"&gt;words&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="k"&gt;struct&lt;/span&gt; &lt;span class="n"&gt;useless&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="p"&gt;[[&lt;/span&gt;&lt;span class="n"&gt;deprecated&lt;/span&gt;&lt;span class="p"&gt;]]&lt;/span&gt; &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="n"&gt;call&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{}&lt;/span&gt; &lt;span class="c1"&gt;// Will trigger a warning.&lt;/span&gt;
+&lt;span class="p"&gt;};&lt;/span&gt;
+
+&lt;span class="k"&gt;template&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="kt"&gt;char&lt;/span&gt;&lt;span class="p"&gt;...&lt;/span&gt; &lt;span class="n"&gt;words&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="n"&gt;output_as_warning&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="n"&gt;useless&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;words&lt;/span&gt;&lt;span class="p"&gt;...&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;().&lt;/span&gt;&lt;span class="n"&gt;call&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="n"&gt;output_as_warning&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="err"&gt;’&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="err"&gt;’&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="err"&gt;‘&lt;/span&gt;&lt;span class="n"&gt;b&lt;/span&gt;&lt;span class="err"&gt;’&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="err"&gt;‘&lt;/span&gt;&lt;span class="n"&gt;c&lt;/span&gt;&lt;span class="err"&gt;’&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+
+&lt;span class="c1"&gt;// warning: &amp;#39;void useless&amp;lt;words&amp;gt;::call() [with char ...words = {&amp;#39;a&amp;#39;, &amp;#39;b&amp;#39;, &amp;#39;c&amp;#39;}]&amp;#39; is deprecated &lt;/span&gt;
+&lt;span class="c1"&gt;// [-Wdeprecated-declarations]&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;While the output is clearly there and parsable, it is unfortunately not playable! If by sheer luck, you are part of the secret-community-of-c++-programmers-that-can-output-things-during-compilation, I would be glad to recruit you in my team to create the perfect &lt;strong&gt;Meta Crush Saga II&lt;/strong&gt;!&lt;/p&gt;
+&lt;h2&gt;Conclusion:&lt;/h2&gt;
+&lt;p&gt;I am done selling you my &lt;s&gt;scam&lt;/s&gt; game. Hopefully you found this post ludic and learned things along the reading. If you find any mistake or think of any potential improvement, please to do not hesitate to reach me.&lt;/p&gt;
+&lt;p&gt;I would like to thanks the &lt;strong&gt;SwedenCpp team&lt;/strong&gt; for letting me having my talk on this project during one of their event. And I particularly would like to express my gratitude to &lt;a href="https://www.linkedin.com/in/alexandre-gordeev/"&gt;Alexandre Gourdeev&lt;/a&gt; who helped me improve &lt;strong&gt;Meta Crush Saga&lt;/strong&gt; in quite a few significant aspects.&lt;/p&gt;</content><category term="C++17"></category><category term="TMP"></category><category term="meta programming"></category><category term="constexpr"></category></entry><entry><title>Trip report - Meeting C++ 2017</title><link href="//jguegant.github.io/blogs/tech/trip-report-meetingcpp-2017.html" rel="alternate"></link><published>2017-11-16T23:09:00+01:00</published><updated>2017-11-16T23:09:00+01:00</updated><author><name>Jean Guegant</name></author><id>tag:jguegant.github.io,2017-11-16:/blogs/tech/trip-report-meetingcpp-2017.html</id><summary type="html">&lt;p&gt;Finally, after years of watching youtube videos on that topic, I made it to my first &lt;strong&gt;C++&lt;/strong&gt; international conference!
 Thanks to my current employer &lt;a href="https://discover.king.com/about/"&gt;King&lt;/a&gt;, I went last week to &lt;a href="http://meetingcpp.com/"&gt;Meeting C++&lt;/a&gt; in &lt;strong&gt;Berlin&lt;/strong&gt;, which is, as far as I know, the biggest &lt;strong&gt;C++&lt;/strong&gt; event in Europe. I really enjoyed …&lt;/p&gt;</summary><content type="html">&lt;p&gt;Finally, after years of watching youtube videos on that topic, I made it to my first &lt;strong&gt;C++&lt;/strong&gt; international conference!
 Thanks to my current employer &lt;a href="https://discover.king.com/about/"&gt;King&lt;/a&gt;, I went last week to &lt;a href="http://meetingcpp.com/"&gt;Meeting C++&lt;/a&gt; in &lt;strong&gt;Berlin&lt;/strong&gt;, which is, as far as I know, the biggest &lt;strong&gt;C++&lt;/strong&gt; event in Europe. I really enjoyed my time there with few hundred other fellow &lt;strong&gt;C++&lt;/strong&gt; enthusiasts. In this post, I will try to relate how I experienced the event and dress a list of the must-watch talks.&lt;/p&gt;
 &lt;h1&gt;About meeting C++:&lt;/h1&gt;

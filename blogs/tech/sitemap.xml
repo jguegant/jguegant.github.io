@@ -5,28 +5,28 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>//jguegant.github.io/blogs/tech/</loc>
-<lastmod>2018-04-08T00:35:38-00:00</lastmod>
+<lastmod>2018-05-19T23:29:16-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
 <loc>//jguegant.github.io/blogs/tech/archives.html</loc>
-<lastmod>2018-04-08T00:35:38-00:00</lastmod>
+<lastmod>2018-05-19T23:29:16-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
 <loc>//jguegant.github.io/blogs/tech/tags.html</loc>
-<lastmod>2018-04-08T00:35:38-00:00</lastmod>
+<lastmod>2018-05-19T23:29:16-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
 <loc>//jguegant.github.io/blogs/tech/categories.html</loc>
-<lastmod>2018-04-08T00:35:38-00:00</lastmod>
+<lastmod>2018-05-19T23:29:16-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
@@ -43,6 +43,13 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <lastmod>2015-10-13T22:20:00+02:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.5</priority>
+</url>
+
+<url>
+<loc>//jguegant.github.io/blogs/tech/meta-crush-saga.html</loc>
+<lastmod>2018-04-10T14:00:00+02:00</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.6</priority>
 </url>
 
 <url>
@@ -96,7 +103,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>//jguegant.github.io/blogs/tech/category/c.html</loc>
-<lastmod>2017-11-16T23:09:00+00:09</lastmod>
+<lastmod>2018-04-10T14:00:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
@@ -110,14 +117,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>//jguegant.github.io/blogs/tech/tag/tmp.html</loc>
-<lastmod>2015-10-31T14:00:00+00:09</lastmod>
-<changefreq>daily</changefreq>
-<priority>0.6</priority>
-</url>
-
-<url>
-<loc>//jguegant.github.io/blogs/tech/tag/blog.html</loc>
-<lastmod>2015-10-17T21:04:00+00:09</lastmod>
+<lastmod>2018-04-10T14:00:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
@@ -144,8 +144,15 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 </url>
 
 <url>
-<loc>//jguegant.github.io/blogs/tech/tag/meta-programming.html</loc>
-<lastmod>2016-02-01T14:00:00+00:09</lastmod>
+<loc>//jguegant.github.io/blogs/tech/tag/blog.html</loc>
+<lastmod>2015-10-17T21:04:00+00:09</lastmod>
+<changefreq>daily</changefreq>
+<priority>0.6</priority>
+</url>
+
+<url>
+<loc>//jguegant.github.io/blogs/tech/tag/constexpr.html</loc>
+<lastmod>2018-04-10T14:00:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
@@ -153,6 +160,13 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <url>
 <loc>//jguegant.github.io/blogs/tech/tag/blog-c17-c-stockholm.html</loc>
 <lastmod>2017-02-20T21:04:00+00:09</lastmod>
+<changefreq>daily</changefreq>
+<priority>0.6</priority>
+</url>
+
+<url>
+<loc>//jguegant.github.io/blogs/tech/tag/c14.html</loc>
+<lastmod>2016-02-01T14:00:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
@@ -172,6 +186,13 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 </url>
 
 <url>
+<loc>//jguegant.github.io/blogs/tech/tag/c17.html</loc>
+<lastmod>2018-04-10T14:00:00+00:09</lastmod>
+<changefreq>daily</changefreq>
+<priority>0.6</priority>
+</url>
+
+<url>
 <loc>//jguegant.github.io/blogs/tech/tag/event.html</loc>
 <lastmod>2017-11-16T23:09:00+00:09</lastmod>
 <changefreq>daily</changefreq>
@@ -179,15 +200,15 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 </url>
 
 <url>
-<loc>//jguegant.github.io/blogs/tech/tag/c14.html</loc>
-<lastmod>2016-02-01T14:00:00+00:09</lastmod>
+<loc>//jguegant.github.io/blogs/tech/tag/meta-programming.html</loc>
+<lastmod>2018-04-10T14:00:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
 <loc>//jguegant.github.io/blogs/tech/author/jean-guegant.html</loc>
-<lastmod>2018-04-07T21:04:00+00:09</lastmod>
+<lastmod>2018-04-10T14:00:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
