@@ -5,28 +5,28 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>//jguegant.github.io/blogs/tech/</loc>
-<lastmod>2018-05-19T23:29:16-00:00</lastmod>
+<lastmod>2018-05-19T23:32:04-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
 <loc>//jguegant.github.io/blogs/tech/archives.html</loc>
-<lastmod>2018-05-19T23:29:16-00:00</lastmod>
+<lastmod>2018-05-19T23:32:04-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
 <loc>//jguegant.github.io/blogs/tech/tags.html</loc>
-<lastmod>2018-05-19T23:29:16-00:00</lastmod>
+<lastmod>2018-05-19T23:32:04-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
 <loc>//jguegant.github.io/blogs/tech/categories.html</loc>
-<lastmod>2018-05-19T23:29:16-00:00</lastmod>
+<lastmod>2018-05-19T23:32:04-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
@@ -47,7 +47,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>//jguegant.github.io/blogs/tech/meta-crush-saga.html</loc>
-<lastmod>2018-04-10T14:00:00+02:00</lastmod>
+<lastmod>2018-05-19T23:30:00+02:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.6</priority>
 </url>
@@ -103,7 +103,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>//jguegant.github.io/blogs/tech/category/c.html</loc>
-<lastmod>2018-04-10T14:00:00+00:09</lastmod>
+<lastmod>2018-05-19T23:30:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
@@ -117,7 +117,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>//jguegant.github.io/blogs/tech/tag/tmp.html</loc>
-<lastmod>2018-04-10T14:00:00+00:09</lastmod>
+<lastmod>2018-05-19T23:30:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
@@ -152,7 +152,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>//jguegant.github.io/blogs/tech/tag/constexpr.html</loc>
-<lastmod>2018-04-10T14:00:00+00:09</lastmod>
+<lastmod>2018-05-19T23:30:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
@@ -187,7 +187,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>//jguegant.github.io/blogs/tech/tag/c17.html</loc>
-<lastmod>2018-04-10T14:00:00+00:09</lastmod>
+<lastmod>2018-05-19T23:30:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
@@ -201,14 +201,14 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>//jguegant.github.io/blogs/tech/tag/meta-programming.html</loc>
-<lastmod>2018-04-10T14:00:00+00:09</lastmod>
+<lastmod>2018-05-19T23:30:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
 <loc>//jguegant.github.io/blogs/tech/author/jean-guegant.html</loc>
-<lastmod>2018-04-10T14:00:00+00:09</lastmod>
+<lastmod>2018-05-19T23:30:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
