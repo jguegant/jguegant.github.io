@@ -14,7 +14,7 @@
 <meta name="description" content="Trivia: Lately, I have been working on the reincarnation of a class at work: a hash map. While this class had interesting internals (a sort of dense hash map) and performed really well, its interface was not up to standard both literaly and metaphorically. After much of lipstick applied to …" />
 <meta name="keywords" content="C++17, std::map, std::unordered_map.">
 <meta property="og:site_name" content="Jean Guegant's Blog"/>
-<meta property="og:title" content="How to make your maps, try_emplace and unique_ptrs play nicely with each others in C++."/>
+<meta property="og:title" content="How to make your maps, try_emplace and smart pointers play nicely with each others in C++."/>
 <meta property="og:description" content="Trivia: Lately, I have been working on the reincarnation of a class at work: a hash map. While this class had interesting internals (a sort of dense hash map) and performed really well, its interface was not up to standard both literaly and metaphorically. After much of lipstick applied to …"/>
 <meta property="og:locale" content="en_US"/>
 <meta property="og:url" content="//jguegant.github.io/blogs/tech/performing-try-emplace.html"/>
@@ -26,7 +26,7 @@
 <meta property="article:tag" content="C++17"/>
 <meta property="article:tag" content="std::map"/>
 <meta property="article:tag" content="std::unordered_map."/>
-<meta property="og:image" content="//jguegant.github.io/blogs/tech/images/myself.png">  <title>Jean Guegant's Blog &ndash; How to make your maps, try_emplace and unique_ptrs play nicely with each others in C++.</title>
+<meta property="og:image" content="//jguegant.github.io/blogs/tech/images/myself.png">  <title>Jean Guegant's Blog &ndash; How to make your maps, try_emplace and smart pointers play nicely with each others in C++.</title>
 </head>
 <body>
   <aside>
@@ -59,7 +59,7 @@
 
 <article>
   <header>
-    <h1 id="performing-try-emplace">How to make your maps, try_emplace and unique_ptrs play nicely with each others in C++.</h1>
+    <h1 id="performing-try-emplace">How to make your maps, try_emplace and smart pointers play nicely with each others in C++.</h1>
     <p>Posted on Sun 18 November 2018 in <a href="//jguegant.github.io/blogs/tech/category/c.html">C++</a></p>
   </header>
   <div>
@@ -446,8 +446,8 @@ Me and a colleague promised ourselves to look a bit more into this topic. Whethe
 {
   "@context": "http://schema.org",
   "@type": "BlogPosting",
-  "name": "How to make your maps, try_emplace and unique_ptrs play nicely with each others in C++.",
-  "headline": "How to make your maps, try_emplace and unique_ptrs play nicely with each others in C++.",
+  "name": "How to make your maps, try_emplace and smart pointers play nicely with each others in C++.",
+  "headline": "How to make your maps, try_emplace and smart pointers play nicely with each others in C++.",
   "datePublished": "2018-11-18 15:30:00+01:00",
   "dateModified": "2018-11-18 15:35:00+01:00",
   "author": {
