@@ -1,5 +1,340 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Jean Guegant's Blog - C++</title><link href="//jguegant.github.io/blogs/tech/" rel="alternate"></link><link href="//jguegant.github.io/blogs/tech/feeds/c.atom.xml" rel="self"></link><id>//jguegant.github.io/blogs/tech/</id><updated>2018-10-07T23:09:00+02:00</updated><entry><title>Trip report - CppCon 2018</title><link href="//jguegant.github.io/blogs/tech/trip-report-cppcon-2018.html" rel="alternate"></link><published>2018-10-07T23:09:00+02:00</published><updated>2018-10-07T23:09:00+02:00</updated><author><name>Jean Guegant</name></author><id>tag:jguegant.github.io,2018-10-07:/blogs/tech/trip-report-cppcon-2018.html</id><summary type="html">&lt;p&gt;New year, new conference! 
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Jean Guegant's Blog - C++</title><link href="//jguegant.github.io/blogs/tech/" rel="alternate"></link><link href="//jguegant.github.io/blogs/tech/feeds/c.atom.xml" rel="self"></link><id>//jguegant.github.io/blogs/tech/</id><updated>2018-11-18T15:35:00+01:00</updated><entry><title>How to make your maps, try_emplace and unique_ptrs play nicely with each others in C++.</title><link href="//jguegant.github.io/blogs/tech/performing-try-emplace.html" rel="alternate"></link><published>2018-11-18T15:30:00+01:00</published><updated>2018-11-18T15:35:00+01:00</updated><author><name>Jean Guegant</name></author><id>tag:jguegant.github.io,2018-11-18:/blogs/tech/performing-try-emplace.html</id><summary type="html">&lt;h2&gt;Trivia:&lt;/h2&gt;
+&lt;p&gt;Lately, I have been working on the reincarnation of a &lt;strong&gt;class&lt;/strong&gt; at work: a hash map. 
+While this class had interesting internals (a sort of dense hash map) and performed really well, its interface was not up to standard both literaly and metaphorically.
+After much of lipstick applied to …&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Trivia:&lt;/h2&gt;
+&lt;p&gt;Lately, I have been working on the reincarnation of a &lt;strong&gt;class&lt;/strong&gt; at work: a hash map. 
+While this class had interesting internals (a sort of dense hash map) and performed really well, its interface was not up to standard both literaly and metaphorically.
+After much of lipstick applied to it, the &lt;strong&gt;class&lt;/strong&gt; now fully mimic the interface of the beloved &lt;a href="https://en.cppreference.com/w/cpp/container/unordered_map"&gt;std::unordered_map&lt;/a&gt; from the standard library.
+A close look on &lt;code&gt;std::unordered_map&lt;/code&gt; and its sister &lt;a href="https://en.cppreference.com/w/cpp/container/map"&gt;std::map&lt;/a&gt; reveals few interesting design choices.
+Combining this interface with some smart pointer types can present some challenges to squeeze performance out of your maps.
+We will explore these challenges in this blog post, and try to figure out some solutions.&lt;/p&gt;
+&lt;p&gt;Disclaimer: C++ being C++, I would not be suprise if 1) I wrote some unacurracies here 2) Some guru could reduce this entire article in a phantasmagoric one liner.&lt;/p&gt;
+&lt;h3&gt;Some peculiar modifier member functions:&lt;/h3&gt;
+&lt;p&gt;Note: This part of the post will serve as a reminder for some of the folks that are not well versed in the &lt;strong&gt;associative containers&lt;/strong&gt; of the standard. If you are confident, you can always jump straight to the dilemma part. &lt;/p&gt;
+&lt;p&gt;&lt;center&gt;&lt;img width=25% height=25% src="//jguegant.github.io/blogs/tech/images/container-ship.png" alt="A container"/&gt;&lt;/center&gt;&lt;/p&gt;
+&lt;h4&gt;insert:&lt;/h4&gt;
+&lt;p&gt;If you observe the interface of the &lt;strong&gt;associative containers&lt;/strong&gt; (like &lt;a href="https://en.cppreference.com/w/cpp/container/map"&gt;std::map&lt;/a&gt; or &lt;a href="https://en.cppreference.com/w/cpp/container/unordered_map"&gt;std::unordered_map&lt;/a&gt;) in the current standard you will notice that there are 6 member functions to map a value to a given key: &lt;code&gt;insert&lt;/code&gt;, &lt;code&gt;insert_or_assign&lt;/code&gt;, &lt;code&gt;emplace&lt;/code&gt;, &lt;code&gt;emplace_hint&lt;/code&gt;, &lt;code&gt;try_emplace&lt;/code&gt; and the &lt;strong&gt;subscript operator&lt;/strong&gt; (operator[]). That number does not include all the overloads for each of these member functions. It is not a wonder that a lot of C++ users will tend to do suboptimal calls to insert values in their &lt;strong&gt;associative containers&lt;/strong&gt;, the choice is not always obvious when you have 6 different functions with slightly different behaviour. &lt;/p&gt;
+&lt;p&gt;Typically, you will often this pattern within a code-base:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;unordered_map&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Check if the key is already in m.&lt;/span&gt;
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;find&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;johannes&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;end&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="c1"&gt;// Often written as m.count(&amp;quot;johannes&amp;quot;) == 0&lt;/span&gt;
+    &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;johannes&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;lucio&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="c1"&gt;// If not insert they key&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Little did your colleague, boss, or tired ego know that such a code will do twice a relatively costly job: checking the existence of the key in the map.
+Indeed, in the case of a &lt;code&gt;std::unordered_map&lt;/code&gt;, the key &lt;code&gt;"johannes"&lt;/code&gt; will be hashed twice: in &lt;code&gt;find&lt;/code&gt; and in the &lt;code&gt;operator[]&lt;/code&gt;. In both member functions, the &lt;code&gt;std::unoredered_map&lt;/code&gt; has to know in which bucket the key will fall into. Worst! If you are having collisions between your keys, checking the existence of a key may induce up to N comparisons (even your hash function can be drunk sometimes) where N is the amount of stored key-value pairs. Potentially mutiplying these comparisons by two is not something you should desire. Such a situation in &lt;code&gt;std::map&lt;/code&gt; is even worst, this will always bring roughly O(log(N)) comparisons. Comparing two keys may not always be as cheap as it seems and if you add on top of that the cost of jumping through a linked list of nodes, this should be considered harmful.&lt;/p&gt;
+&lt;p&gt;Obviously the answer to this problem is to use &lt;a href="https://en.cppreference.com/w/cpp/container/map/insert"&gt;insert&lt;/a&gt;. &lt;code&gt;insert&lt;/code&gt; as its name implies, will only work if it can insert the key in the &lt;strong&gt;associative container&lt;/strong&gt;, meaning that the insertion will not happen if the same key is already in the map. If you really care to know whether the insertion happend, &lt;code&gt;insert&lt;/code&gt; will return a &lt;code&gt;pair&lt;/code&gt; of an iterator and a boolean that you can query. The iterator points to the newly inserted key-value pair or the already existing one, the boolean indicates whether the insertion happened or not.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;// Use C++17 structured bindings and class template argument deduction (CTAD)&lt;/span&gt;
+&lt;span class="c1"&gt;// See more on my previous post on that topics&lt;/span&gt;
+&lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;it&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;insert&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;pair&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;johannes&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;lucio&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;));&lt;/span&gt; &lt;span class="c1"&gt;// Construct a pair and insert it if needed.&lt;/span&gt;
+&lt;span class="c1"&gt;// Do whatever you want with it and result.&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Here only one check for the existence will be done, that is much better, isn't it?
+Well, while this snippet is shorter and performs better, there is still room for improvement.
+Here we are constructing a &lt;code&gt;pair&lt;/code&gt; out of the map, the same &lt;code&gt;pair&lt;/code&gt; that needs to be created in a node of the &lt;code&gt;map&lt;/code&gt;.
+Internally a call to the &lt;strong&gt;move-constructor&lt;/strong&gt; of the &lt;code&gt;pair&lt;/code&gt; will be done, or way worst a call to the &lt;strong&gt;copy-constructor&lt;/strong&gt; if one of the two types in the &lt;code&gt;pair&lt;/code&gt; cannot be moved.
+Relying on the &lt;strong&gt;move-constructor&lt;/strong&gt; of a &lt;code&gt;pair&lt;/code&gt; to exist AND to be performant is too much of a wishful thinking. &lt;/p&gt;
+&lt;h4&gt;emplace:&lt;/h4&gt;
+&lt;p&gt;Thanksfully, C++11 added on many containers a new member function called &lt;a href="https://en.cppreference.com/w/cpp/container/map/emplace"&gt;emplace&lt;/a&gt;. Given a container of type &lt;code&gt;T&lt;/code&gt;, &lt;code&gt;emplace&lt;/code&gt; will accept the arguments necessary for an in-situ construction of a new instance of &lt;code&gt;T&lt;/code&gt;. Meaning that we can easily improve our insertion in this way: &lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;it&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;emplace&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;johannes&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;lucio&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;// Construct the pair of &amp;quot;johannes&amp;quot;, &amp;quot;lucio&amp;quot; straight into m.&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;I will go slightly against &lt;a href="https://abseil.io/tips/112"&gt;abseil's recommendation&lt;/a&gt; and say that &lt;code&gt;emplace&lt;/code&gt; should be prefered over &lt;code&gt;insert&lt;/code&gt; in &lt;strong&gt;C++11&lt;/strong&gt; for at least all the &lt;strong&gt;associative containers&lt;/strong&gt;. It will perform better (as explained previously) and it also feels more natural (most users think of a key and a value, not a std::pair)! &lt;/p&gt;
+&lt;p&gt;Now &lt;code&gt;emplace&lt;/code&gt; on &lt;strong&gt;associative containers&lt;/strong&gt; has a vicious specification which &lt;a href="https://en.cppreference.com/w/cpp/container/map/emplace"&gt;cppreference gently warns you about&lt;/a&gt;. For some obscure reasons, even if the &lt;strong&gt;emplace operation&lt;/strong&gt; does not succeed since the key already exists, your arguments passed as a &lt;strong&gt;r-value&lt;/strong&gt; may have been moved anyway.
+More vaguely, the standard mandates effects only on whether the insertion will happen or not and the return value:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;Effects: Inserts a value_­type object t constructed with std::forward&amp;lt;Args&amp;gt;(args)... if and only if there is no element in the container with key equivalent to the key of t.
+The bool component of the returned pair is true if and only if the insertion takes place, and the iterator component of the pair points to the element with key equivalent to the key of t.
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This cryptic language-lawyer text does not explain in any way what happens to the arguments in the case of failure. For what we know, they could be sent over smoke signal up to Hong-Kong and inserted into some fortune cookies. Why would we care about that? Well, because that will restrain you to write such code:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;unordered_map&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;unique_ptr&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="n"&gt;my_precious_int&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;make_unique&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;42&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+&lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;it&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;emplace&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;ricky&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;move&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;my_precious_int&lt;/span&gt;&lt;span class="p"&gt;));&lt;/span&gt; &lt;span class="c1"&gt;// We need to move unique pointers.&lt;/span&gt;
+
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;!&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="c1"&gt;// Alright the insertion failed, let&amp;#39;s do something else with my_precious_int.&lt;/span&gt;
+    &lt;span class="n"&gt;do_something_else&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;my_precious_int&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;// Or can we?&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Here &lt;code&gt;my_precious_int&lt;/code&gt; is unusable right after the call to &lt;code&gt;emplace&lt;/code&gt;, it may have been moved-from forever and ever, &lt;strong&gt;EVEN&lt;/strong&gt; if the insertion result is &lt;code&gt;false&lt;/code&gt;.
+Some confused souls will tell you that this is evident, we called &lt;code&gt;std::move&lt;/code&gt;, so it MUST be moved-from. Like the famous cake, &lt;code&gt;std::move&lt;/code&gt; is a lie! It does not move anything, it simply casts objects to &lt;strong&gt;a x-value&lt;/strong&gt; which makes them POTENTIALLY moveable-from (this world would have been better if &lt;code&gt;std::move&lt;/code&gt; was named &lt;code&gt;std::to_xvalue&lt;/code&gt;, &lt;code&gt;std::moveable&lt;/code&gt;, &lt;code&gt;std::to_be_moved&lt;/code&gt;...).&lt;/p&gt;
+&lt;h4&gt;try_emplace:&lt;/h4&gt;
+&lt;p&gt;This unleashed &lt;code&gt;emplace&lt;/code&gt; is a real pain when you are trying to store move-only types in any &lt;strong&gt;associative container&lt;/strong&gt;.
+The standard committee was aware of the issue and fixed it in &lt;strong&gt;C++17&lt;/strong&gt; with another member function called &lt;a href="https://en.cppreference.com/w/cpp/container/map/try_emplace§"&gt;try_emplace&lt;/a&gt;.
+Here are the expected effects:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;Effects: If the map already contains an element whose key is equivalent to k, there is no effect.
+Otherwise inserts an object of type value_type constructed with piecewise_construct, forward_as_tuple(std::move(k)), forward_as_tuple(std::forward&amp;lt;Args&amp;gt;(args)...).
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;It effectively prevents your arguments to be moved-from (as well as being packaged into fortune cookies) in the case of an insertion failure.
+Why wasn't &lt;code&gt;emplace&lt;/code&gt; simply patched?
+If you take a look at the definition of &lt;a href="https://en.cppreference.com/w/cpp/container/map/emplace§"&gt;emplace&lt;/a&gt;, you will understand that it accepts as a key argument any object with a &lt;strong&gt;type compatible&lt;/strong&gt; with your &lt;strong&gt;key type&lt;/strong&gt;.
+Unlike the value argument, the key argument ALWAYS need to be somehow converted to the &lt;strong&gt;key type&lt;/strong&gt; to check for its existence in the map.
+The potential conversion would defeat the "there is no effect" policy. 
+&lt;code&gt;try_emplace&lt;/code&gt; is stricter and only takes a key of type &lt;strong&gt;key type&lt;/strong&gt;, which guarantees that no conversion sequence will be triggered.
+At least &lt;code&gt;try_emplace&lt;/code&gt; can help us to safely rewrite the previous example:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;unordered_map&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;unique_ptr&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="n"&gt;my_precious_int&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;make_unique&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;42&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+&lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;it&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;try_emplace&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;ricky&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;move&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;my_precious_int&lt;/span&gt;&lt;span class="p"&gt;));&lt;/span&gt; &lt;span class="c1"&gt;// We need to move unique pointers.&lt;/span&gt;
+
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;!&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="c1"&gt;// Alright the insertion failed, let&amp;#39;s do something else with my_precious_int.&lt;/span&gt;
+    &lt;span class="n"&gt;do_something_else&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="n"&gt;my_precious_int&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;// It is safe! &lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Hurray! After three corrections in the standard, we can effectively mix associative containers with &lt;code&gt;unique_ptrs&lt;/code&gt; for a maximum of fun and profit!
+Well... no. &lt;strong&gt;C++ being C++&lt;/strong&gt;, it cannot be that easy. There is one last boss to slain.&lt;/p&gt;
+&lt;h3&gt;The last dilemma of a map of unique_ptrs:&lt;/h3&gt;
+&lt;p&gt;&lt;img width=20% height=20% style="float: right;" src="//jguegant.github.io/blogs/tech/images/dilemma.jpg" alt="A container"/&gt;&lt;/p&gt;
+&lt;p&gt;Before I start on this topic, I would like to remind everyone a basic rule: you should try to avoid heap allocations.
+You should always strive to get a &lt;code&gt;std::map&amp;lt;T1, T2&amp;gt;&lt;/code&gt; over a &lt;code&gt;std::map&amp;lt;T1, std::unique_ptr&amp;lt;T2&amp;gt;&amp;gt;&lt;/code&gt;.
+Now that being said, you may have situations where you cannot do otherwise:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;If you need runtime polymorphism. For instance, you may need to store services into a &lt;code&gt;std::map&amp;lt;std::string, std::unique_ptr&amp;lt;service&amp;gt;&amp;gt;&lt;/code&gt; where &lt;code&gt;service&lt;/code&gt; is an interface with multiples concrete implemetations. Although, there are always ways to hide the inheritance as explained by &lt;a href="https://www.youtube.com/watch?v=QGcVXgEVMJg"&gt;Sean Parent&lt;/a&gt;... &lt;/li&gt;
+&lt;li&gt;If your weapon of choice is a map following closely the interface of &lt;code&gt;std::unordered_map&lt;/code&gt; or &lt;code&gt;std::map&lt;/code&gt; minus the stable addressing part of it.
+This is often the case for all the hash map with excellent performance, like &lt;a href="https://github.com/skarupke/flat_hash_map/blob/master/flat_hash_map.hpp"&gt;skarupe's one&lt;/a&gt;.
+Not having stable addressing means that querying the address of a value in the map &lt;code&gt;&amp;amp;map["jeremy"]&lt;/code&gt; might give you different results if you do any modifying operations (insert, erase...) on the map. In such case, having an extra indirection (heap allocation) will bring back stable addressing. &lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Not only dealing with pointers (even smart ones) is often tedious, but it can also ruin the &lt;code&gt;try_emplace&lt;/code&gt; member function of your class.
+You will have to choose between a costly object creation or the dreaded double key lookup I mentioned right at the beggining of this post. 
+Pick your poison!&lt;/p&gt;
+&lt;h4&gt;Uncessary object creation or double key lookup:&lt;/h4&gt;
+&lt;p&gt;Let's keep the idea of a map of services: &lt;code&gt;std::map&amp;lt;std::string, std::unique_ptr&amp;lt;service&amp;gt;&amp;gt;&lt;/code&gt;, and you would like to register a service "file_locator" only if there was none registered earlier.
+Hastily, you may write such code:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;map&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;unique_ptr&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;service&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="c1"&gt;// ...&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Create a file locator that explore a file system on a remote server.&lt;/span&gt;
+&lt;span class="c1"&gt;// remote_file_locator implements the service interface.&lt;/span&gt;
+&lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;it&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;try_emplace&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;file_locator&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;make_unique&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;remote_file_locator&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;8.8.8.8&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;/a_folder/&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;));&lt;/span&gt;
+
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="o"&gt;!&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="c1"&gt;// Print which file_locator is already in there. &lt;/span&gt;
+    &lt;span class="n"&gt;log&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Could not register a remote_file_locator, it has been overridden by: &amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;it&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;second&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;());&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;If the &lt;code&gt;remote_file_locator&lt;/code&gt; is successfully registered, everything is fine!
+But in the other scenario where a &lt;code&gt;file_locator&lt;/code&gt; is already in the map, this code has a huge pessimisation.
+Here your compiler will emit code that allocate enough memory for a &lt;code&gt;remote_file_allocator&lt;/code&gt;, then it will construct it, under any circumstances.
+If allocating can be seen as slow in the C++ world, starting a connection to a server is pure hell when it comes to speed.
+If you are not planning to use the instance of this really costly object, why would you create it in the first place?&lt;/p&gt;
+&lt;p&gt;So shall we revert to the double lookup?&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="n"&gt;it&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;find&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;file_locator&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;it&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;end&lt;/span&gt;&lt;span class="p"&gt;())&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;file_locator&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;make_unique&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;remote_file_locator&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;8.8.8.8&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;/a_folder/&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="k"&gt;else&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;log&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Could not register a remote_file_locator, it has been overridden by: &amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;it&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;second&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;name&lt;/span&gt;&lt;span class="p"&gt;());&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Hell no! I already explained why I discourage you to use such a pattern in the first part of this post.
+You could argue that here we will only pay this double lookup overhead only once, when we try to create the "remote_file_locator".
+Given more time and coffee, I should be able to come up with an architecture where you could do such insertions of unique_ptrs in a loop.
+In any case, C++ is all about not paying in performance for uncessary things. &lt;/p&gt;
+&lt;p&gt;But don't worry, C++ being C++, there surely are ways to get around this impediment.&lt;/p&gt;
+&lt;h4&gt;Two clumsy solutions:&lt;/h4&gt;
+&lt;p&gt;I, personally, could come up with two solutions. If you have a better one, you are welcome to express it in the comments.&lt;/p&gt;
+&lt;p&gt;The first one is actually not so hacky. You can start by trying to emplace an empty &lt;code&gt;unique_ptr&lt;/code&gt;, if the insertion works you can always fix it afterwards with a real allocation:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;// Try to emplace an empty `unique_ptr` first.&lt;/span&gt;
+&lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;it&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;try_emplace&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;file_locator&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="k"&gt;nullptr&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+&lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="c1"&gt;// The insertion happened, now we can safely create our remote_file_locator without wasting any performance. &lt;/span&gt;
+    &lt;span class="n"&gt;it&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;second&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;make_unique&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;remote_file_locator&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;8.8.8.8&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;/a_folder/&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;I somehow dislike this solution. It is not consistent with the usage of &lt;code&gt;try_emplace&lt;/code&gt; on more classic types, which do not require any extra step. 
+It really smells like some kind of two-phases initialisation pattern which are usually frowned upon.
+We are temporarily putting our map into a state where "file_locator" cannot be trusted. What if the actual creation of the &lt;code&gt;remote_file_locator&lt;/code&gt; throws an exception?
+That would leave the map with a empty "file_locator", that's not great.&lt;/p&gt;
+&lt;p&gt;My second solution consists in trying to delay the construction of the &lt;code&gt;remote_file_locator&lt;/code&gt;.
+To do so, I wrote a very simple helper struct that I called &lt;code&gt;lazy_convert_construct&lt;/code&gt;.
+This struct wraps any kind of lambda that acts like factory: the &lt;strong&gt;lambda factory&lt;/strong&gt; returns an instance of a given type, &lt;code&gt;"result_type"&lt;/code&gt;, when called.
+If at any point the struct needs to be converted to &lt;code&gt;result_type&lt;/code&gt;, it will call the internal lambda to generate an instance of &lt;code&gt;result_type&lt;/code&gt;.
+Any code should speaks for itself, so here is the &lt;code&gt;lazy_convert_construct&lt;/code&gt; beast in all its beauty:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;template&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Factory&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="k"&gt;struct&lt;/span&gt; &lt;span class="n"&gt;lazy_convert_construct&lt;/span&gt;
+&lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;using&lt;/span&gt; &lt;span class="n"&gt;result_type&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;invoke_result_t&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;Factory&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="c1"&gt;// Use some traits to check what would be the return type of the lambda if called.&lt;/span&gt;
+
+    &lt;span class="k"&gt;constexpr&lt;/span&gt; &lt;span class="nf"&gt;lazy_convert_construct&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Factory&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;factory&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; 
+        &lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;factory_&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;move&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;factory&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="c1"&gt;// Let&amp;#39;s store the factory for a latter usage.&lt;/span&gt;
+    &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+
+    &lt;span class="c1"&gt;//                                     ↓ Respect the same nowthrow properties as the lambda factory.&lt;/span&gt;
+    &lt;span class="k"&gt;constexpr&lt;/span&gt; &lt;span class="k"&gt;operator&lt;/span&gt; &lt;span class="nf"&gt;result_type&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="k"&gt;noexcept&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;noexcept&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;declval&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;Factory&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;()()))&lt;/span&gt; 
+    &lt;span class="c1"&gt;//        ^ enable       ^ the type this struct can be converted to &lt;/span&gt;
+    &lt;span class="c1"&gt;//          conversion&lt;/span&gt;
+    &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;factory_&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;  &lt;span class="c1"&gt;// Delegate the conversion job to the lambda factory.&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+
+    &lt;span class="n"&gt;Factory&lt;/span&gt; &lt;span class="n"&gt;factory_&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="p"&gt;};&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Example of usage:&lt;/span&gt;
+&lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="n"&gt;l&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;lazy_convert_construct&lt;/span&gt;&lt;span class="p"&gt;([]{&lt;/span&gt; &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="mi"&gt;42&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="p"&gt;});&lt;/span&gt;
+&lt;span class="c1"&gt;//        ^ CTAD again                    ^ Factory lambda that returns an int.&lt;/span&gt;
+&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;l&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="c1"&gt;//      ^ Here l is forced to be converted to an int and will therefore call the lambda to do so.&lt;/span&gt;
+&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;cout&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="c1"&gt;// Prints 42. &lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Note that the lambda will not be called if there is no conversion needed, this makes it having a &lt;a href="https://en.wikipedia.org/wiki/Lazy_evaluation"&gt;lazy evaluation&lt;/a&gt;.
+Note also: after turning all optimisations on, the &lt;code&gt;lazy_convert_construct&lt;/code&gt; entirely disappears and x will be simply initialised by 42 when needed. &lt;/p&gt;
+&lt;p&gt;The next step is to combine this &lt;code&gt;lazy_convert_construct&lt;/code&gt; with &lt;code&gt;try_emplace&lt;/code&gt;, which works like a charm:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;it&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;try_emplace&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;file_locator&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;lazy_convert_construct&lt;/span&gt;&lt;span class="p"&gt;([]{&lt;/span&gt; &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;make_unique&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;remote_file_locator&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;8.8.8.8&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;/a_folder/&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="p"&gt;}));&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;code&gt;lazy_convert_construct&lt;/code&gt; is now able to create a &lt;code&gt;unique_ptr&amp;lt;remote_file_locator&amp;gt;&lt;/code&gt; on-demand. Even with &lt;code&gt;lazy_convert_construct&lt;/code&gt;, &lt;code&gt;try_emplace&lt;/code&gt; will respect its contract: it will not have any side effect on the &lt;code&gt;lazy_convert_construct&lt;/code&gt; object if the key &lt;code&gt;"file_locator"&lt;/code&gt; is already present. Meaning that no conversion will happen if the key already exists.
+This rather elegant solution fixes one of the main drawback of the previous one: it never leaves the map in a state with a &lt;code&gt;file_locator&lt;/code&gt; being null.
+It is also a one liner!&lt;/p&gt;
+&lt;h4&gt;Benchmark results:&lt;/h4&gt;
+&lt;p&gt;Some of you may still be a bit skeptical on the importance of optimising your queries in your associative containers.
+So I wrote a very simple benchmark which explores multiple insertion scenarios on a &lt;code&gt;std::map&amp;lt;std::string, std::unique_ptr&amp;lt;T&amp;gt;&amp;gt;&lt;/code&gt;.
+You can fetch it &lt;a href="https://github.com/Jiwan/benchmarks_map_insertion"&gt;here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Using clang 6.0 on my Linux laptop, I obtain the following results:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;2018-11-18 14:16:17
+Running ./fast_try_emplace
+Run on (8 X 3600 MHz CPU s)
+CPU Caches:
+  L1 Data 32K (x4)
+  L1 Instruction 32K (x4)
+  L2 Unified 256K (x4)
+  L3 Unified 8192K (x1)
+***WARNING*** CPU scaling is enabled, the benchmark real time measurements may be noisy and will incur extra overhead.
+-----------------------------------------------------------------------------
+Benchmark                                      Time           CPU Iterations
+-----------------------------------------------------------------------------
+insertion_double_lookup                      636 ns        638 ns    1085075
+insertion_construct_before_try_emplace       503 ns        506 ns    1387818
+insertion_lazy_convert_try_emplace           503 ns        506 ns    1380488
+
+no_insertion_double_lookup                   107 ns        107 ns    6300180
+no_insertion_construct_before_try_emplace   8642 ns       8641 ns      80478
+no_insertion_lazy_convert_try_emplace         32 ns         32 ns   22393508
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Clearly, a sucessful insertion using the double lookup is more expensive than it should. The cost will change depending on the amount of &lt;strong&gt;key-value pairs&lt;/strong&gt; already in the map.
+For a failed insertion scenario, my &lt;code&gt;lazy_convert_construct&lt;/code&gt; is also faster than the double lookup. I cannot explain why! Internally, &lt;code&gt;find&lt;/code&gt; and &lt;code&gt;try_emplace&lt;/code&gt; should have the same lookup mechanims.
+And of course, creating a costly object and destroying right after is really bad choice. That explains why &lt;code&gt;no_insertion_construct_before_try_emplace&lt;/code&gt;'s record is so damn huge compared to the two others cases (I purposely made the type very costly to create for the no insertion cases).&lt;/p&gt;
+&lt;p&gt;GCC offers similar results, without the mysterious advantage of the &lt;code&gt;try_emplace&lt;/code&gt; + &lt;code&gt;lazy_convert_construct&lt;/code&gt; over the double lookup in a no insertion scenario.&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;2018-11-18 14:17:53
+Running ./fast_try_emplace
+Run on (8 X 3600 MHz CPU s)
+CPU Caches:
+  L1 Data 32K (x4)
+  L1 Instruction 32K (x4)
+  L2 Unified 256K (x4)
+  L3 Unified 8192K (x1)
+***WARNING*** CPU scaling is enabled, the benchmark real time measurements may be noisy and will incur extra overhead.
+-----------------------------------------------------------------------------
+Benchmark                                      Time           CPU Iterations
+-----------------------------------------------------------------------------
+insertion_double_lookup                      547 ns        543 ns    1310711
+insertion_construct_before_try_emplace       493 ns        496 ns    1394343
+insertion_lazy_convert_try_emplace           495 ns        500 ns    1000000
+
+no_insertion_double_lookup                    44 ns         44 ns   15787599
+no_insertion_construct_before_try_emplace   8659 ns       8658 ns      78869
+no_insertion_lazy_convert_try_emplace         44 ns         44 ns   15895884
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Now we can proudly claim that we solved all the insertion issues (at least those that I am aware of).
+But somehow it still feels like something is off with the smart pointer types of the standard library.
+Are we missing something here?&lt;/p&gt;
+&lt;h4&gt;An in_place constructor:&lt;/h4&gt;
+&lt;p&gt;Warning: here you will enter the somehow controversial and imaginary part of my post. I am not claiming that this is the direction &lt;strong&gt;C++&lt;/strong&gt; should take on these issues, but merely raising my questions on that topic. &lt;/p&gt;
+&lt;p&gt;Indeed, &lt;code&gt;unique_ptr&lt;/code&gt; and its other smart pointers counsins (&lt;code&gt;shared_ptr&lt;/code&gt;...)  are rather special types.
+On one hand you could see them as simple RAII wrappers that take care of a basic resource: a pointer. 
+On the other hand, you could, &lt;strong&gt;very arguably&lt;/strong&gt; (&amp;lt;== note this bold statement), see them as some funky &lt;strong&gt;value wrappers&lt;/strong&gt; with a very special storage (one that implies pointer semantics). &lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Value wrappers&lt;/strong&gt; are types that enhance the property of another type(s). The most recent ones in the standard are: &lt;a href="https://en.cppreference.com/w/cpp/utility/optional"&gt;std::optional&lt;/a&gt;, &lt;a href="https://en.cppreference.com/w/cpp/utility/variant"&gt;std::variant&lt;/a&gt; and &lt;a href="https://en.cppreference.com/w/cpp/utility/any"&gt;std::any&lt;/a&gt;. 
+As expected, all of these new &lt;strong&gt;value wrappers&lt;/strong&gt; have constructors that accepts an instance of the type they are wrapping:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;struct&lt;/span&gt; &lt;span class="n"&gt;A&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;A&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;args1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;vector&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;args2&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="cm"&gt;/* do some with the args */&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;};&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Move construct the newly created A into o.&lt;/span&gt;
+&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;optional&lt;/span&gt; &lt;span class="n"&gt;o&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;A&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="mi"&gt;42&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;vector&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="mi"&gt;42&lt;/span&gt;&lt;span class="p"&gt;}});&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;While such constructors might be sufficient for most of the usages of your &lt;strong&gt;value wrappers&lt;/strong&gt;, sometimes you really want to avoid any move or copy constructors.
+The standard committee was proactive and provided another set of constructors to build the wrapped value &lt;strong&gt;in-place&lt;/strong&gt;.
+In order to disambiguate with the usual constructors, these new constructors take as a first argument a &lt;a href="https://www.fluentcpp.com/2018/04/27/tag-dispatching/"&gt;tag type&lt;/a&gt;: &lt;a href="https://en.cppreference.com/w/cpp/utility/in_place"&gt;std::in_place&lt;/a&gt; or &lt;a href="https://en.cppreference.com/w/cpp/utility/in_place"&gt;std::in_place_type&lt;/a&gt;. Here is how &lt;code&gt;std::in_place&lt;/code&gt; works with &lt;code&gt;std::optional&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;//            ↓ No CTAD            ↓ The arguments needed for constructing a new instance of A.&lt;/span&gt;
+&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;optional&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;A&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;o&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;in_place&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;42&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;vector&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="mi"&gt;42&lt;/span&gt;&lt;span class="p"&gt;});&lt;/span&gt;
+&lt;span class="c1"&gt;//                   ^ dispatch to in place constructor.&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;With such a constructor, we can safely assume that the wrapped instance of &lt;code&gt;A&lt;/code&gt; was built directly in its storage place.
+Of course, you can also use this constructor if you are dealing with &lt;code&gt;map::try_emplace&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;map&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;optional&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;A&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;try_emplace&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;bruno&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;in_place&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;42&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;vector&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="mi"&gt;42&lt;/span&gt;&lt;span class="p"&gt;});&lt;/span&gt;
+&lt;span class="c1"&gt;//                           ^ Will construct the wrapped A deep down in the map.&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;At this point, if you are following my anology between &lt;code&gt;std::unique_ptr&lt;/code&gt; and &lt;strong&gt;value wrappers&lt;/strong&gt;, you could start to question yourself on why we could not get a similar set of constructors for our smart pointers. Maybe something similar to this:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;unique_ptr&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;service&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;allocate_in_place&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;remote_file_locator&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;42&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;vector&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="mi"&gt;42&lt;/span&gt;&lt;span class="p"&gt;}};&lt;/span&gt;
+&lt;span class="c1"&gt;//                          ^ tag                   ^ concret instance   ^ following args.&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;I intentionally chose a different &lt;strong&gt;tag type&lt;/strong&gt; than &lt;code&gt;std::in_place&lt;/code&gt; for two reasons:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;This constructor is doing more than constructing in place, it does allocate. The user should be informed.  &lt;/li&gt;
+&lt;li&gt;In a similar fashion to &lt;a href="https://en.cppreference.com/w/cpp/utility/in_place"&gt;std::in_place_type &lt;/a&gt;, we somehow need to encode the concret type we want to instantiate.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;With such a constructor in the standard for &lt;code&gt;unique_ptr&lt;/code&gt;, our issue with &lt;code&gt;try_emplace&lt;/code&gt; would become trivial to solve. Just call it!&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;it&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;result&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;m&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;try_emplace&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;file_locator&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;allocate_in_place&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;remote_file_locator&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;8.8.8.8&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;/a_folder/&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The constructor of &lt;code&gt;unique_ptr&lt;/code&gt; that accept the tag &lt;code&gt;allocate_in_place&lt;/code&gt; would be called only if only the key "file_locator" is not in there.
+No overhead, simple syntax,  you could not ask for more!&lt;/p&gt;
+&lt;p&gt;As a side effect,  my guess is that we could also fully deprecate the usage of &lt;code&gt;make_unique&lt;/code&gt; and &lt;code&gt;make_shared&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;// Before:&lt;/span&gt;
+&lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;make_shared&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;something&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;michel&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;christian&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="c1"&gt;// After&lt;/span&gt;
+&lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;shared_ptr&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;allocate_in_place&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;something&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;michel&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;christian&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt; 
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Obviously the syntax is far from being &lt;strong&gt;terse&lt;/strong&gt;. The invented feature also does not take in consideration the &lt;strong&gt;allocator arguments&lt;/strong&gt; you could receive in a smart pointer.
+Me and a colleague promised ourselves to look a bit more into this topic. Whether we will formulate a proposal or just have some afterthoughts, be sure that I will let you informed on that in a further post! &lt;/p&gt;
+&lt;h3&gt;Conclusion:&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;If you are inserting a new pair into an &lt;strong&gt;associative container&lt;/strong&gt; consider using &lt;code&gt;try_emplace&lt;/code&gt; first.&lt;/li&gt;
+&lt;li&gt;If you cannot use &lt;strong&gt;C++17&lt;/strong&gt;, prefer to use &lt;code&gt;emplace&lt;/code&gt; over &lt;code&gt;insert&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;If you are cannot use &lt;strong&gt;C++11&lt;/strong&gt;, I feel sorry for you!&lt;/li&gt;
+&lt;li&gt;You can borrow my &lt;code&gt;lazy_convert_construct&lt;/code&gt; if you are dealing with smart pointers and &lt;code&gt;try_emplace&lt;/code&gt;, to get a blazzing fast insertion.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;A special thanks to my colleague Yo Anes with whom I had a lot of fun discussing this specific topic.&lt;/p&gt;</content><category term="C++17"></category><category term="std::map"></category><category term="std::unordered_map."></category></entry><entry><title>Trip report - CppCon 2018</title><link href="//jguegant.github.io/blogs/tech/trip-report-cppcon-2018.html" rel="alternate"></link><published>2018-10-07T23:09:00+02:00</published><updated>2018-10-07T23:09:00+02:00</updated><author><name>Jean Guegant</name></author><id>tag:jguegant.github.io,2018-10-07:/blogs/tech/trip-report-cppcon-2018.html</id><summary type="html">&lt;p&gt;New year, new conference! 
 This time, my employer, &lt;a href="https://discover.king.com/about/"&gt;King&lt;/a&gt;, helped me to organize a first pilgrimage to &lt;a href="https://cppcon.org/"&gt;CppCon&lt;/a&gt; for me and another colleague.
 You cannot fathom how enthusiastic I was to finally making it there!
 Although I might be a bit late on the "trip-report-race", I think that it is …&lt;/p&gt;</summary><content type="html">&lt;p&gt;New year, new conference! 
