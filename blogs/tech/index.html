@@ -231,7 +231,7 @@ Any code should speaks for itself, so here is the <code>lazy_convert_construct</
 <div class="highlight"><pre><span></span><span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">Factory</span><span class="o">&gt;</span>
 <span class="k">struct</span> <span class="n">lazy_convert_construct</span>
 <span class="p">{</span>
-    <span class="k">using</span> <span class="n">result_type</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">invoke_result_t</span><span class="o">&lt;</span><span class="n">Factory</span><span class="o">&gt;</span><span class="p">;</span> <span class="c1">// Use some traits to check what would be the return type of the lambda if called.</span>
+    <span class="k">using</span> <span class="n">result_type</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">invoke_result_t</span><span class="o">&lt;</span><span class="k">const</span> <span class="n">Factory</span><span class="o">&amp;&gt;</span><span class="p">;</span> <span class="c1">// Use some traits to check what would be the return type of the lambda if called.</span>
 
     <span class="k">constexpr</span> <span class="nf">lazy_convert_construct</span><span class="p">(</span><span class="n">Factory</span><span class="o">&amp;&amp;</span> <span class="n">factory</span><span class="p">)</span> 
         <span class="o">:</span> <span class="n">factory_</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">factory</span><span class="p">))</span> <span class="c1">// Let&#39;s store the factory for a latter usage.</span>
@@ -239,7 +239,7 @@ Any code should speaks for itself, so here is the <code>lazy_convert_construct</
     <span class="p">}</span>
 
     <span class="c1">//                                     ↓ Respect the same nowthrow properties as the lambda factory.</span>
-    <span class="k">constexpr</span> <span class="k">operator</span> <span class="nf">result_type</span><span class="p">()</span> <span class="k">const</span> <span class="k">noexcept</span><span class="p">(</span><span class="k">noexcept</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">declval</span><span class="o">&lt;</span><span class="n">Factory</span><span class="o">&gt;</span><span class="p">()()))</span> 
+    <span class="k">constexpr</span> <span class="k">operator</span> <span class="nf">result_type</span><span class="p">()</span> <span class="k">const</span> <span class="k">noexcept</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">is_nothrow_invocable_v</span><span class="o">&lt;</span><span class="k">const</span> <span class="n">Factory</span><span class="o">&amp;&gt;</span><span class="p">)</span> 
     <span class="c1">//        ^ enable       ^ the type this struct can be converted to </span>
     <span class="c1">//          conversion</span>
     <span class="p">{</span>
