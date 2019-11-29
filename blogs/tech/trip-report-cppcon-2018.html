@@ -128,12 +128,12 @@ Take a look at this very simple piece of code:</p>
 
 
 <p>Your never-satisfied compiler will refuse to compile it with the following error message:</p>
-<div class="highlight"><pre><span></span>&lt;source&gt;: In instantiation of &#39;void foo(T&amp;&amp;) [with T = A&amp;]&#39;:
-&lt;source&gt;:10:8:   required from &#39;void bar(T&amp;&amp;) [with T = A&amp;]&#39;
-&lt;source&gt;:17:10:   required from here
-&lt;source&gt;:5:7: error: &#39;struct A&#39; has no member named &#39;print&#39;
-     t.print();
-     ~~^~~~~
+<div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="k">source</span><span class="o">&gt;</span><span class="p">:</span> <span class="k">In</span> <span class="n">instantiation</span> <span class="k">of</span> <span class="s1">&#39;void foo(T&amp;&amp;) [with T = A&amp;]&#39;</span><span class="p">:</span>
+<span class="o">&lt;</span><span class="k">source</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">10</span><span class="p">:</span><span class="mi">8</span><span class="p">:</span>   <span class="n">required</span> <span class="k">from</span> <span class="s1">&#39;void bar(T&amp;&amp;) [with T = A&amp;]&#39;</span>
+<span class="o">&lt;</span><span class="k">source</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">17</span><span class="p">:</span><span class="mi">10</span><span class="p">:</span>   <span class="n">required</span> <span class="k">from</span> <span class="n">here</span>
+<span class="o">&lt;</span><span class="k">source</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">5</span><span class="p">:</span><span class="mi">7</span><span class="p">:</span> <span class="n">error</span><span class="p">:</span> <span class="s1">&#39;struct A&#39;</span> <span class="n">has</span> <span class="k">no</span> <span class="n">member</span> <span class="n">named</span> <span class="s1">&#39;print&#39;</span>
+     <span class="n">t</span><span class="p">.</span><span class="n">print</span><span class="p">();</span>
+     <span class="o">~~^~~~~</span>
 </pre></div>
 
 
@@ -161,17 +161,17 @@ Moreover, by looking at the signature of <strong>bar</strong>, nothing tells you
 
 
 <p>Which would give us the following much more accurate error message:</p>
-<div class="highlight"><pre><span></span>&lt;source&gt;:19:10: error: cannot call function &#39;void bar(T&amp;&amp;) [with T = A&amp;]&#39;
-     bar(a);
-          ^
-&lt;source&gt;:11:6: note:   constraints not satisfied
- void bar(T&amp;&amp; t) {
-      ^~~
-&lt;source&gt;:1:33: note: within &#39;template&lt;class T&gt; concept const bool IsPrintable&lt;T&gt; [with T = A&amp;]&#39;
- template &lt;class T&gt; concept bool IsPrintable = requires (T a) {
-                                 ^~~~~~~~~~~
-&lt;source&gt;:1:33: note:     with &#39;A&amp; a&#39;
-&lt;source&gt;:1:33: note: the required expression &#39;a.print()&#39; would be ill-formed
+<div class="highlight"><pre><span></span><span class="o">&lt;</span><span class="k">source</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">19</span><span class="p">:</span><span class="mi">10</span><span class="p">:</span> <span class="n">error</span><span class="p">:</span> <span class="n">cannot</span> <span class="k">call</span> <span class="k">function</span> <span class="s1">&#39;void bar(T&amp;&amp;) [with T = A&amp;]&#39;</span>
+     <span class="n">bar</span><span class="p">(</span><span class="n">a</span><span class="p">);</span>
+          <span class="o">^</span>
+<span class="o">&lt;</span><span class="k">source</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">11</span><span class="p">:</span><span class="mi">6</span><span class="p">:</span> <span class="n">note</span><span class="p">:</span>   <span class="k">constraints</span> <span class="k">not</span> <span class="n">satisfied</span>
+ <span class="n">void</span> <span class="n">bar</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;&amp;</span> <span class="n">t</span><span class="p">)</span> <span class="err">{</span>
+      <span class="o">^~~</span>
+<span class="o">&lt;</span><span class="k">source</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">1</span><span class="p">:</span><span class="mi">33</span><span class="p">:</span> <span class="n">note</span><span class="p">:</span> <span class="n">within</span> <span class="s1">&#39;template&lt;class T&gt; concept const bool IsPrintable&lt;T&gt; [with T = A&amp;]&#39;</span>
+ <span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">concept</span> <span class="n">bool</span> <span class="n">IsPrintable</span> <span class="o">=</span> <span class="n">requires</span> <span class="p">(</span><span class="n">T</span> <span class="n">a</span><span class="p">)</span> <span class="err">{</span>
+                                 <span class="o">^~~~~~~~~~~</span>
+<span class="o">&lt;</span><span class="k">source</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">1</span><span class="p">:</span><span class="mi">33</span><span class="p">:</span> <span class="n">note</span><span class="p">:</span>     <span class="k">with</span> <span class="s1">&#39;A&amp; a&#39;</span>
+<span class="o">&lt;</span><span class="k">source</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">1</span><span class="p">:</span><span class="mi">33</span><span class="p">:</span> <span class="n">note</span><span class="p">:</span> <span class="n">the</span> <span class="n">required</span> <span class="n">expression</span> <span class="s1">&#39;a.print()&#39;</span> <span class="n">would</span> <span class="n">be</span> <span class="n">ill</span><span class="o">-</span><span class="n">formed</span>
 </pre></div>
 
 
@@ -205,25 +205,25 @@ So here I was, ready to learn more about these mystical beasts!</p>
 <p><strong>Allocators</strong> in C++ are rather infamous for their over-engineered interface, which is not useful 99.42% of the time. This even forced the committee to come-up, in <strong>C++17</strong>, with a lighter interface called <a href="https://youtu.be/v3dz-AKOVL8">PMR</a>. But this time, the good old full-blown interface found a very clever usage in Bob's hands. Indeed, <a href="https://en.cppreference.com/w/cpp/memory/allocator_traits">std::allocator_traits</a> has a nice type property <strong>pointer</strong>. Which means that the Standard offers a nice <a href="https://quuxplusone.github.io/blog/2018/03/19/customization-points-for-functions/">customization point</a> to switch normal pointers <strong>T*</strong> for a given allocator to a type that acts like a pointer would. These wanna-be pointers are what you call <strong>fancy pointers</strong>. Somehow, you can think of <strong>fancy pointers</strong> as more generalized concept of <a href="https://en.wikipedia.org/wiki/Smart_pointer">smart pointers</a>.   </p>
 <p>Now let's say that you would like to serialise to / deserialise from binary a container-like object (vector, list...) with a bunch of <a href="https://msdn.microsoft.com/en-us/library/mt767760.aspx?f=255&amp;MSPPError=-2147217396">trivial objects</a> inside and send it through a network. Providing that you are targeting one and only one architecture, which is often the case for servers, you may be able to use <a href="https://en.cppreference.com/w/cpp/string/byte/memcpy">std::memcpy</a> to transfer the representation of this container into a <strong>char*</strong> buffer. Then, the whole buffer can be wired to another machine. At the endpoint, to deserialise the container from that buffer you can re-use <strong>std::memcpy</strong> to copy back the binary representation into a container (<a href="https://www.reddit.com/r/cpp/comments/5fk3wn/undefined_behavior_with_reinterpret_cast/">note that you cannot rely reinterpret_cast in C++ for that purpose</a>...). This will work smoothly as long as none of the stored PODs have pointers as members referencing each others! Pointers are usually not valid as soon as you cross the boundary of a process or a machine. This huge drawback can be avoided by introducing <strong>fancy pointers</strong> to your code-base. </p>
 <p>As an example on how to fix that issue, Bob brings <strong>offset_ptr</strong> to the table, which permits to express some reference between two elements using their distance from each others:</p>
-<div class="highlight"><pre><span></span>struct obj
-{
-    value_type v;
-    offset_ptr&lt;value_type&gt; p; // optional
-}; 
+<div class="highlight"><pre><span></span><span class="n">struct</span> <span class="n">obj</span>
+<span class="err">{</span>
+    <span class="n">value_type</span> <span class="n">v</span><span class="p">;</span>
+    <span class="n">offset_ptr</span><span class="o">&lt;</span><span class="n">value_type</span><span class="o">&gt;</span> <span class="n">p</span><span class="p">;</span> <span class="o">//</span> <span class="n">optional</span>
+<span class="err">}</span><span class="p">;</span> 
 
-Example of the layout of a container of objs:
+<span class="n">Example</span> <span class="k">of</span> <span class="n">the</span> <span class="n">layout</span> <span class="k">of</span> <span class="n">a</span> <span class="n">container</span> <span class="k">of</span> <span class="n">objs</span><span class="p">:</span>
 
-                               -2
-                +-----------------------------+
-                |        1                    |
-                |     +-----+                 |
- +--------------v-----------v--------------------------------+
- |  v  |  p  |  v  |  p  |  v  |  p  |  V  |  p  |  v  |  p  |
- +-----------------------------------------------------------+
-          |                             ^
-          |                             |
-          +-----------------------------+
-                       3
+                               <span class="o">-</span><span class="mi">2</span>
+                <span class="o">+</span><span class="c1">-----------------------------+</span>
+                <span class="o">|</span>        <span class="mi">1</span>                    <span class="o">|</span>
+                <span class="o">|</span>     <span class="o">+</span><span class="c1">-----+                 |</span>
+ <span class="o">+</span><span class="c1">--------------v-----------v--------------------------------+</span>
+ <span class="o">|</span>  <span class="n">v</span>  <span class="o">|</span>  <span class="n">p</span>  <span class="o">|</span>  <span class="n">v</span>  <span class="o">|</span>  <span class="n">p</span>  <span class="o">|</span>  <span class="n">v</span>  <span class="o">|</span>  <span class="n">p</span>  <span class="o">|</span>  <span class="n">V</span>  <span class="o">|</span>  <span class="n">p</span>  <span class="o">|</span>  <span class="n">v</span>  <span class="o">|</span>  <span class="n">p</span>  <span class="o">|</span>
+ <span class="o">+</span><span class="c1">-----------------------------------------------------------+</span>
+          <span class="o">|</span>                             <span class="o">^</span>
+          <span class="o">|</span>                             <span class="o">|</span>
+          <span class="o">+</span><span class="c1">-----------------------------+</span>
+                       <span class="mi">3</span>
 </pre></div>
 
 

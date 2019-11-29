@@ -1,5 +1,302 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Jean Guegant's Blog - C++</title><link href="//jguegant.github.io/blogs/tech/" rel="alternate"></link><link href="//jguegant.github.io/blogs/tech/feeds/c.atom.xml" rel="self"></link><id>//jguegant.github.io/blogs/tech/</id><updated>2018-11-18T15:35:00+01:00</updated><entry><title>How to make your maps, try_emplace and smart pointers play nicely with each others in C++17.</title><link href="//jguegant.github.io/blogs/tech/performing-try-emplace.html" rel="alternate"></link><published>2018-11-18T15:30:00+01:00</published><updated>2018-11-18T15:35:00+01:00</updated><author><name>Jean Guegant</name></author><id>tag:jguegant.github.io,2018-11-18:/blogs/tech/performing-try-emplace.html</id><summary type="html">&lt;h2&gt;Trivia:&lt;/h2&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Jean Guegant's Blog - C++</title><link href="//jguegant.github.io/blogs/tech/" rel="alternate"></link><link href="//jguegant.github.io/blogs/tech/feeds/c.atom.xml" rel="self"></link><id>//jguegant.github.io/blogs/tech/</id><updated>2019-11-19T23:09:00+01:00</updated><subtitle>Software Engineer - C++, security, game development and random thoughts.</subtitle><entry><title>Trip report - Meeting C++ 2019</title><link href="//jguegant.github.io/blogs/tech/trip-report-meetingcpp-2019.html" rel="alternate"></link><published>2019-11-18T23:09:00+01:00</published><updated>2019-11-19T23:09:00+01:00</updated><author><name>Jean Guegant</name></author><id>tag:jguegant.github.io,2019-11-18:/blogs/tech/trip-report-meetingcpp-2019.html</id><summary type="html">&lt;p&gt;Time to go back to the roots!
+Me and a few colleagues have been travelling across the old continent to attend the renowned &lt;a href="https://meetingcpp.com/"&gt;Meeting C++&lt;/a&gt; conference in Berlin.&lt;br&gt;
+Fully backed by our employer, &lt;a href="https://discover.king.com/about/"&gt;King&lt;/a&gt;, we were able to enjoy a yearly dose of C++ talks at an excellent venue.
+I …&lt;/p&gt;</summary><content type="html">&lt;p&gt;Time to go back to the roots!
+Me and a few colleagues have been travelling across the old continent to attend the renowned &lt;a href="https://meetingcpp.com/"&gt;Meeting C++&lt;/a&gt; conference in Berlin.&lt;br&gt;
+Fully backed by our employer, &lt;a href="https://discover.king.com/about/"&gt;King&lt;/a&gt;, we were able to enjoy a yearly dose of C++ talks at an excellent venue.
+I was thrilled at the idea of retrying the "German C++ experience" and my expectation were once again met! 
+&lt;strong&gt;C++20&lt;/strong&gt; being right at the corner, I also had in mind to prioritise talks on this topic as much as possible.&lt;/p&gt;
+&lt;p&gt;As the tradition goes, I will relate a bit my experience of the event and dress-up a list of the talks I would highly suggest to search for! &lt;/p&gt;
+&lt;p&gt;&lt;center&gt;&lt;img width=50% height=50% src="//jguegant.github.io/blogs/tech/images/berlin-night.jpg"/&gt;&lt;/center&gt;&lt;/p&gt;
+&lt;h1&gt;A tour of Meeting (2019):&lt;/h1&gt;
+&lt;p&gt;I did a decent &lt;a href="//jguegant.github.io/blogs/tech/trip-report-meetingcpp-2017.html"&gt;introduction of the event two years ago&lt;/a&gt; and most of it stand true.
+Rather than doing another summary, I will compare and contrast my experience at &lt;strong&gt;Meeting C++&lt;/strong&gt; with the one I had last year at &lt;strong&gt;Cppcon&lt;/strong&gt;. &lt;/p&gt;
+&lt;h2&gt;The venue:&lt;/h2&gt;
+&lt;p&gt;When it comes to the facilities of the venue, I found the rooms in the Andels Hotel to have unequal quality.
+While the two big rooms on the lower floors are excellent, the upper floor ones are really long and narrow. 
+If the nature made you of a short stature or you don't have the best eyesight (or both like me), you will have a hard time following some of the slides.
+I cannot remember having any issue with that at &lt;strong&gt;CppCon&lt;/strong&gt;. Having a rooms with inclined rows helps a lot!&lt;/p&gt;
+&lt;p&gt;Probably to avoid having crammed rooms and irritating noises, &lt;strong&gt;Meeting C++&lt;/strong&gt; also has this concept of closing doors of the tracks as soon as the talk starts and not letting annoying enter. I am not quite convinced by this idea, it extremely frustrating to not be able to move to another talk if the current one is not to your taste. &lt;/p&gt;
+&lt;h2&gt;The German cuisine:&lt;/h2&gt;
+&lt;p&gt;Being French, a detail often comes to my mind... the food provided during the event!
+Unlike &lt;strong&gt;CppCon&lt;/strong&gt;, this event offers catering all day long, and tasty one mind you. 
+Obviously you cannot expect conference meals to deserve a &lt;a href="https://en.wikipedia.org/wiki/Michelin"&gt;Michelin stars's&lt;/a&gt;, but there was plenty and with a lot of variety. Is that a must-do for a conference? Probably not, but it is both really convenient and it also brings a LOT of interactions between members of the community. People will tend to have more casual conversations if they are dinning in the same place rather than going out. From what I can recall, &lt;strong&gt;CppCon&lt;/strong&gt; provided snacks here and there, but nothing worth remembering.&lt;/p&gt;
+&lt;h2&gt;The talks:&lt;/h2&gt;
+&lt;p&gt;Last but not least, the speakers! On one hand, &lt;strong&gt;Meeting C++&lt;/strong&gt; has more diversity: the speakers are coming from all around Europe and you may discover a lot of new names and some hidden gems that didn't/wouldn't make it to &lt;strong&gt;CppCon&lt;/strong&gt; - not everyone is willing or can afford to travel to the USA. On the other hand, the amount of C++ committee members and famous speakers per square kilometre felt higher at &lt;strong&gt;CppCon&lt;/strong&gt; which probably made the talks of a slightly better quality overall.&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Meeting C++&lt;/strong&gt; offers you the possibility to go to four different tracks for a given time slot.
+It is enough choices that you will always find a talk to your liking.
+The talks are also explicitly tagged with a level of experience required to enjoy them: beginner to advanced.
+Once again, going only to talks with topics that you like is often not the best strategy to fully enjoy this conference.
+It can be very rewarding to go out of your comfort zone and try a talk not a single word on its title make sense to you. 
+Likewise, do not underestimate the quality of beginner talks. You may learn more than you would expect!&lt;/p&gt;
+&lt;p&gt;I have had a first hand, albeit short, experience on what it takes to be a speaker at such an event.
+I gave a lightning talk highly inspired on the &lt;a href="//jguegant.github.io/blogs/tech/trip-report-meetingcpp-2017.html"&gt;performing try emplace post&lt;/a&gt; I did at the beginning of this year.
+While it went rather smoothly (if not for a small technical issue with my slides), I felt intimidated when I went on stage in front of maybe 300 people (best-guess estimation). &lt;/p&gt;
+&lt;p&gt;&lt;center&gt;&lt;img width=50% height=50% src="//jguegant.github.io/blogs/tech/images/my-lightning-talk-meeting-cpp-2019.jpg"/&gt;&lt;/center&gt;&lt;/p&gt;
+&lt;p&gt;You can find a pdf version of the slides right &lt;a href="//jguegant.github.io/blogs/tech/images/associative-containers-the-art-of-inserting-gracefully.pdf"&gt;here&lt;/a&gt; and maybe a YouTube record of that talk will pop at one point on the &lt;a href="https://www.youtube.com/user/MeetingCPP"&gt;Meeting C++ channel&lt;/a&gt;.
+It was interesting to see that the &lt;strong&gt;lightning talks&lt;/strong&gt; were a lot more formal than at &lt;strong&gt;CppCon&lt;/strong&gt; where jokes and bad-puns are a constant.
+I believe that the lightning talks format was changed recently at &lt;strong&gt;Meeting C++&lt;/strong&gt;: it used to be its own dedicated track on a full afternoon, and it became a more casual evening event. We, the lightning speakers, were also informed a bit late on where, when and how should the talks happen.&lt;/p&gt;
+&lt;p&gt;Doing a presentation on an innovative topic, interesting and understandable by all requires a lot of upfront work.
+Having to do it in a foreign language, for one hour, in front of a rather massive crowd is even more demanding.
+I am still amazed by what all these speakers gave us during these three days! &lt;/p&gt;
+&lt;h1&gt;The chief's suggestions of the year:&lt;/h1&gt;
+&lt;p&gt;Here comes again the menu of the talks I particularly enjoyed. The legend follow the usual rules:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;💀 : The difficulty of the talk (💀: Beginner friendly, 💀💀: Intermediate, 💀💀💀: High exposure to C++'s dark corners)&lt;/li&gt;
+&lt;li&gt;★ : My interest for the talk (★: Good talk, ★★: Tasty talk, ★★★: Legendary talk)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;No need to say that I will not spoil everything in the talks, but I will simply try to give an idea of what the talk was about. If the talk seems to be of your taste, I highly encourage you to watch the video record of it or the slides. 
+ If your talk or a talk that you liked very much is not part of this menu, do not feel too disenchanted about it.
+ I had to curate this list to a few talks or I would have to write an entire novel.
+ Feel free to post your opinion about the talks in the comment section.&lt;/p&gt;
+&lt;h3&gt;[Keynote] Design Rationale for &lt;chrono&gt; - Howard Hinnant - 💀💀★★:&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Slides: &lt;a href="https://meetingcpp.com/mcpp/slides/2019/Hinnant.pdf"&gt;link&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Video: &lt;a href=""&gt;coming soon&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;The &lt;strong&gt;Howard Hinnant&lt;/strong&gt;, himself, came to present his new-born baby: the support of dates, calendars and time-zones in the &lt;a href="https://en.cppreference.com/w/cpp/chrono"&gt;chrono header&lt;/a&gt;. 
+For those out-of-the-loop, &lt;a href="https://howardhinnant.github.io/HowardHinnant.html"&gt;Howard Hinnant&lt;/a&gt; has been a massive contributor to what C++ is nowadays.
+He is known for bringing &lt;strong&gt;move semantics&lt;/strong&gt; to the language, introducing &lt;code&gt;std::unique_ptr&lt;/code&gt;, being lead author of &lt;strong&gt;libc++&lt;/strong&gt;... a myriad of things... and the notion of time in the standard through the header &lt;code&gt;&amp;lt;chrono&amp;gt;&lt;/code&gt;. It should not come as surprise that Howard is also the man being the dates and calendars coming to the new C++ standard. &lt;/p&gt;
+&lt;p&gt;Howard's talk was very educating on this addition to &lt;strong&gt;C++20&lt;/strong&gt;. Within two hours, I had a fairly good overview of what we will get and more importantly an answer to why &lt;strong&gt;chrono&lt;/strong&gt; is so verbose.
+Here is the gist of what we will have:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://en.cppreference.com/w/cpp/chrono/time_point"&gt;std::chrono::time_point&lt;/a&gt; (already in C++11) get a specialized alias &lt;code&gt;sys_days&lt;/code&gt; equal to &lt;code&gt;std::chrono::time_point&amp;lt;std::chrono::system_clock, std::chrono::days&amp;gt;&lt;/code&gt;. In other word &lt;code&gt;sys_days&lt;/code&gt; represent a time point using the system clock and expressed in days. This &lt;code&gt;sys_days&lt;/code&gt; can be thought as an integer representing a value in days.&lt;/li&gt;
+&lt;li&gt;We can convert this &lt;code&gt;sys_days&lt;/code&gt; time point into a &lt;a href="https://en.cppreference.com/w/cpp/chrono/year_month_day"&gt;year_month_day&lt;/a&gt; representation and vice-versa.
+This is the same representation of that time point but in a much more human-friendly way: it uses the Gregorian calendar to express that point in time. 
+A time point in the Gregorian calendar is made of three parts: a year, a month and a day of the month.
+The new standard offers lots of arithmetic operators, conversion operators, helpers structs... to manipulate these parts easily.&lt;/li&gt;
+&lt;li&gt;A new type, with a self-explanatory name, &lt;a href="https://en.cppreference.com/w/cpp/chrono/time_zone"&gt;std::chrono::time_zone&lt;/a&gt; has been introduced.
+If you combine a &lt;code&gt;sys_days&lt;/code&gt; with a &lt;code&gt;time_zone&lt;/code&gt;, you obtain a &lt;code&gt;zoned_time&lt;/code&gt;. &lt;code&gt;zoned_time&lt;/code&gt; handles conversion from one &lt;code&gt;time_zone&lt;/code&gt; to another for you.
+It is highly convenient! &lt;/li&gt;
+&lt;li&gt;Finally, almost all the types in the &lt;code&gt;&amp;lt;chrono&amp;gt;&lt;/code&gt; header have conversion facilities to and from strings. It even works with the new &lt;a href="https://en.cppreference.com/w/cpp/utility/format"&gt;std::format&lt;/a&gt; library. &lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Equipped with this extended &lt;code&gt;&amp;lt;chrono&amp;gt;&lt;/code&gt; header, you can easily write such things:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;for&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="n"&gt;d&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;January&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;9&lt;/span&gt;&lt;span class="o"&gt;/&lt;/span&gt;&lt;span class="mi"&gt;2019&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;year&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt; &lt;span class="mi"&gt;2020&lt;/span&gt;&lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="n"&gt;d&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;sys_days&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="n"&gt;weeks&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;})&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;zoned_time&lt;/span&gt; &lt;span class="n"&gt;london&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;Europe/London&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;local_days&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="n"&gt;d&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="o"&gt;+&lt;/span&gt; &lt;span class="mi"&gt;18&lt;/span&gt;&lt;span class="n"&gt;h&lt;/span&gt;&lt;span class="p"&gt;};&lt;/span&gt;    
+    &lt;span class="n"&gt;cout&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;london&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="sc"&gt;&amp;#39;\n&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;    
+    &lt;span class="n"&gt;cout&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;zoned_time&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;America/New_York&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;london&lt;/span&gt;&lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;&lt;/span&gt;&lt;span class="se"&gt;\n\n&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;In this example, we are displaying the time in "New York" every two weeks, starting from the 9th of January, for the year 2019, when it is 18.00 in "London".
+As Howard pointed out, this is far from being trivial to do by hand: both the UK and USA have different daylight savings rules.&lt;/p&gt;
+&lt;p&gt;Some people may complain of the &lt;strong&gt;verbosity&lt;/strong&gt;. Firstly, I find the code very readable even without prior knowledge of this new part of &lt;code&gt;&amp;lt;chrono&amp;gt;&lt;/code&gt;
+Second, &lt;strong&gt;safety&lt;/strong&gt; was a key-point in Howard's design. At multiple time, he gave us example on how his design prevents wrongdoings at compile-time. 
+For instance: what is a time difference? Can this be considered a date? Can &lt;code&gt;2 hours&lt;/code&gt; be translated to a date in a calendar? Probably not! &lt;/p&gt;
+&lt;p&gt;I am quite eager to get this part of C++20! &lt;/p&gt;
+&lt;h3&gt;[Talk] 10 techniques to understand existing code - Jonathan Boccara - 💀★★★:&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Slides: &lt;a href="https://meetingcpp.com/mcpp/slides/2019/understand_code.pdf"&gt;link&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Video: &lt;a href=""&gt;coming soon&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;strong&gt;Jonathan Boccara&lt;/strong&gt;, known for his awesome blog &lt;a href="https://www.fluentcpp.com/"&gt;fluentcpp.com&lt;/a&gt;, is always a safe bet when it comes to C++ talks.
+You should not necessarily expect learning bleeding-edge techniques with Jonathan, but he is extremely talented at putting words on things!&lt;/p&gt;
+&lt;p&gt;This time, he was presenting us his favourite approaches to code you have never seen before. Especially, when it comes to intricate code-bases.
+My favourite analogy was the &lt;strong&gt;stronghold&lt;/strong&gt; one: start your exploration of the code from a place (a function, a routine...) that is crucial in the code-base and that you can easily understand. Like a &lt;strong&gt;fog of war&lt;/strong&gt; in a video-game, the rest of the code is unknown to you at first. But slowly, you can explore the rest of the map/code-base by sending minions/yourself into the callers or the callees related to that function. One strategy to know where to "expand your territory for a maximum of profit" is by looking at &lt;strong&gt;call stacks&lt;/strong&gt;: by jumping in the frames above the current function, this can give you an idea of what is the critical path of your program.&lt;/p&gt;
+&lt;p&gt;Here is an awesome representation, from Jonathan, of &lt;strong&gt;call stacks&lt;/strong&gt; in a video-game universe:&lt;/p&gt;
+&lt;p&gt;&lt;center&gt;&lt;img width=50% height=50% src="//jguegant.github.io/blogs/tech/images/call-stack-fog-of-war.png"/&gt;&lt;/center&gt;&lt;/p&gt;
+&lt;p&gt;Not only this applies to decipher a code-base, but it is also a very efficient technique in &lt;strong&gt;reverse engineering&lt;/strong&gt;.
+When trying to reverse a native application, it is often quite rewarding to put a breakpoint on the system calls: these are your strongholds.
+Without source-code, you have very little places where you know what the assembly you are reading does.
+System calls are well documented and exposed, so it is naturally a good place to start.&lt;/p&gt;
+&lt;p&gt;I believe that I am already applying most of these techniques on a daily-basis.
+But if I had to explain to a junior programmer what programming on a large code-base is all about, 
+I would probably recommend that person to have a look at this talk.&lt;/p&gt;
+&lt;h3&gt;[Talk] Testing Legacy Code - Fuzzing for Better Input Data - Tina Ulbrich, Niel Waldren - 💀💀★★★:&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Slides: &lt;a href="https://meetingcpp.com/mcpp/slides/2019/Testing%20Legacy%20Code%20-%20Fuzzing%20for%20Better%20Input%20Data.pdf"&gt;link&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Video: &lt;a href=""&gt;coming soon&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;During such conferences, you may end-up for various reasons (entering the wrong door, following someone, not getting on time to a room...) into a talk that you did not expect on your schedule. Sometimes, you may regret your unfortunate choice as much as &lt;code&gt;std::vector&amp;lt;bool&amp;gt;&lt;/code&gt; being in the standard, but it can also turn out into your favour: you may discover one of the best presentation of that day. This is exactly what happened to me with the talk from &lt;strong&gt;Tina Ulbrich&lt;/strong&gt; and &lt;strong&gt;Niel Waldren&lt;/strong&gt; about &lt;a href="https://en.wikipedia.org/wiki/Fuzzing"&gt;fuzzing&lt;/a&gt; and unit-testing.&lt;/p&gt;
+&lt;p&gt;Usually, &lt;strong&gt;fuzzing&lt;/strong&gt; consists in feeding an application or part of an application with pseudo-random data to explore as much code-path as possible.
+The end-goal is to find code-paths that lead to crashes or bugs which can be exploit for malicious purposes.&lt;br&gt;
+Once an exploit found, the fuzzer will often try to reduce the "buggy input" to a minimal set to clearly isolate the corner case.&lt;/p&gt;
+&lt;p&gt;I have heard about fuzzing for a while, but I never had the opportunity to use it myself.
+This technique is really appealing if you are working in the security business or if your application is critical part of system.
+If you are developing an application a bit less demanding on the stability, like video-games, fuzzing is not necessarily the number one priority.
+&lt;strong&gt;Tina&lt;/strong&gt; and &lt;strong&gt;Niel&lt;/strong&gt; twisted the usage of fuzzing to find exploits to improve the test-coverage of their library.
+They used &lt;a href="https://llvm.org/docs/LibFuzzer.html"&gt;libFuzzer&lt;/a&gt; which is, from what I understand, a LLVM library that combine &lt;a href="https://clang.llvm.org/docs/SanitizerCoverage.html"&gt;LLVM's code coverage tool - SanitizerCoverage&lt;/a&gt; with a fuzzer engine like &lt;a href="http://lcamtuf.coredump.cx/afl/"&gt;AFL&lt;/a&gt;.
+&lt;strong&gt;libFuzzer&lt;/strong&gt; will try to maximize the code-coverage with the minimum input data.
+This is really appealing for all projects relying on unit-tests. &lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;Tina&lt;/strong&gt; and &lt;strong&gt;Niel&lt;/strong&gt; did a step by step explanation on how to use &lt;strong&gt;libFuzzer&lt;/strong&gt; and what are its benefits:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;How to tweak the random data you receive to valid parameters.&lt;/li&gt;
+&lt;li&gt;How to reuse the best input data corpus to write new unit-tests for your application.&lt;/li&gt;
+&lt;li&gt;Why you can use this to detect very subtle changes in your API's behaviour. Changes that you would not necessarily catch with usual unit-tests.&lt;/li&gt;
+&lt;li&gt;A lot more...&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;I will have a second watch of their talk as soon as their video is available on the conference's Youtube channel.
+It was a very innovative topic to me!&lt;/p&gt;
+&lt;h3&gt;[Talk] Modules - The Beginner's Guide - Daniela Engert - 💀💀★★:&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Slides: &lt;a href="https://meetingcpp.com/mcpp/slides/2019/modules-the-beginners-guide-meetingcpp2019.pdf"&gt;link&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Video: &lt;a href=""&gt;coming soon&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Out of the three major language features coming to C++20 (concepts, coroutines and modules), I was the least familiar with &lt;strong&gt;modules&lt;/strong&gt;.
+The committee is often very active on the standard until the last months before the release of a version. 
+While I had a rough idea of module were about in C++, I did not bother to learn about the syntax and the exact implementation.
+You never know if the feature you read about in a white paper while look any different in the actual standard!
+So, I was very grateful that &lt;a href="https://github.com/DanielaE"&gt;Daniela Engert&lt;/a&gt; came up with that talk right before 2020.
+Being so close to the standard release, the module part was unlikely to change too much! &lt;/p&gt;
+&lt;p&gt;So what are modules in a few words?
+Traditionally, a C++ code-base is separated into multiple &lt;strong&gt;compilation units&lt;/strong&gt; which are in most case your &lt;code&gt;.cpp&lt;/code&gt; files.
+These compilation units are &lt;strong&gt;compiled&lt;/strong&gt; separately and &lt;strong&gt;combined&lt;/strong&gt; by the &lt;strong&gt;linker&lt;/strong&gt;.
+If you want to share functions or objects between two compilation units, you must have a &lt;strong&gt;common interface&lt;/strong&gt; for them: one or more &lt;strong&gt;header files&lt;/strong&gt; (.h/.hpp) that declare what is available.
+The problem is that header files are:&lt;/p&gt;
+&lt;p&gt;1) Shared in a very primitive way. The &lt;code&gt;#include&lt;/code&gt; directive is doing dumb copy-paste of the header content into your cpp file.
+2) Often full of complicated content for the compiler and not just few declarations. In those, you can have macros, templates, inline functions, include of includes... &lt;/p&gt;
+&lt;p&gt;This result in your compiler doing a lot of unnecessary work parsing these headers for all the compilation units. 
+Wouldn't it be better if compilation units themselves could expose directly what they provide instead of using these hackish headers?
+This is exactly what modules try to solve!&lt;/p&gt;
+&lt;p&gt;So writing a very basic module becomes as simple as writing a &lt;code&gt;.cpp&lt;/code&gt; file with few annotations to expose what we want:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;export&lt;/span&gt; &lt;span class="n"&gt;module&lt;/span&gt; &lt;span class="n"&gt;my&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;module&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="c1"&gt;// This is the name of our module&lt;/span&gt;
+&lt;span class="k"&gt;export&lt;/span&gt; &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;e&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;42&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="c1"&gt;// Expose a variable.&lt;/span&gt;
+
+&lt;span class="k"&gt;export&lt;/span&gt; &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="nf"&gt;bar&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; 
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;e&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;// Expose a function.&lt;/span&gt;
+
+&lt;span class="p"&gt;}&lt;/span&gt; 
+
+&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="nf"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;){&lt;/span&gt; &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="c1"&gt;// No export keyword == no exposition.&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;When compiling this &lt;code&gt;.cpp&lt;/code&gt; file, this will create two others files: an object file that contains binary code (OBJ) and a file for interfacing with that module called Binary Module Interface. Unlike a header file, the BMI file and its associated OBJ file can have a highly &lt;strong&gt;optimized representation&lt;/strong&gt; of what is available in the module. &lt;/p&gt;
+&lt;p&gt;As a user of a module into another compilation unit, you will pass this BMI file as parameter to your compiler and write an import statement:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;import&lt;/span&gt; &lt;span class="n"&gt;module&lt;/span&gt; &lt;span class="n"&gt;my&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;module&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="c1"&gt;// Ask the compiler to use that module in here.&lt;/span&gt;
+
+&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="nf"&gt;main&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;  
+    &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;cout&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;bar&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt; &lt;span class="c1"&gt;// This is using bar from the other module.&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;And voilà! These are the new C++ module in all their glory.
+Except that it gets quite a lot more complicated when you are mixing old header includes, namespaces, special support for standard headers...
+&lt;strong&gt;Daniela&lt;/strong&gt; was really good at explaining all these quirks that you may encounter in the rough transition that will happen from headers to modules.&lt;/p&gt;
+&lt;p&gt;As for performance, she observed an improvement from 1546 milliseconds to 62 milliseconds when using a library as a module on a huge-scale project at work. 
+This give a lot of hope on what modules will offer to us when available on all major compilers!&lt;/p&gt;
+&lt;h3&gt;[Talk] C++20 The small things - Timur Doumler - 💀★★:&lt;/h3&gt;
+&lt;ul&gt;
+&lt;li&gt;Slides: &lt;a href="https://meetingcpp.com/mcpp/slides/2019/talk.pdf"&gt;link&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;Video: &lt;a href="https://www.youtube.com/watch?v=Xb6u8BrfHjw"&gt;cppcon link&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;You probably have heard of the major features coming to C++20: concepts, coroutines and modules. And you would think that this is enough on your C++ plate for a few years.
+Well, even without these three features, C++20 still has plenty to offer. This is what &lt;a href="https://twitter.com/timur_audio"&gt;Timur Doumler&lt;/a&gt; demonstrated to us for one hour!   &lt;/p&gt;
+&lt;p&gt;Amongst a plethora of small improvements, here are my favourite so far:&lt;/p&gt;
+&lt;h4&gt;Designated initialisers&lt;/h4&gt;
+&lt;p&gt;Let's imagine that you have a &lt;code&gt;struct&lt;/code&gt; with quite a few members in it. Now let's pretend that we want to initialize this structure with a few variables using the &lt;a href="https://en.cppreference.com/w/cpp/language/aggregate_initialization"&gt;aggregate initilization from C++11&lt;/a&gt;.
+What are the chances that you assign the correct members from the first try? &lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;struct&lt;/span&gt; &lt;span class="n"&gt;my_struct&lt;/span&gt; 
+&lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;a1&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;a2&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;b2&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;b3&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;c&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="c1"&gt;// ...&lt;/span&gt;
+&lt;span class="p"&gt;};&lt;/span&gt;
+
+&lt;span class="n"&gt;my_struct&lt;/span&gt; &lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="mi"&gt;42&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;43&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1337&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;54&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="cm"&gt;/*...*/&lt;/span&gt;&lt;span class="p"&gt;};&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;I tell you, the chances are low. You will have to double-check the &lt;code&gt;struct&lt;/code&gt; definition more than once to order things accurately!
+So what if you could specify which member you designate? This is where C++20 comes to save the day:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;my_struct&lt;/span&gt; &lt;span class="n"&gt;s&lt;/span&gt;&lt;span class="p"&gt;{.&lt;/span&gt;&lt;span class="n"&gt;a1&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;42&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;b&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;43&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;a2&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;1337&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;b2&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="mi"&gt;54&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="cm"&gt;/*...*/&lt;/span&gt;&lt;span class="p"&gt;};&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;I can hear YOU the C programmer, this has been in C99 for a while...
+And you will also point with your smug face that you must respect the order (by appearance in the definition) of the members when using C++'s designated initializers unlike C.
+It happens that C++ has much more complicated rules of evaluation than C. Allowing for random order of assignment could be troublesome.
+What this is feature is about is 1) &lt;strong&gt;safety&lt;/strong&gt; 2) a nice way to get &lt;strong&gt;auto-completion&lt;/strong&gt; from your IDE on what member you need to fill in.&lt;/p&gt;
+&lt;h4&gt;Improved lambdas&lt;/h4&gt;
+&lt;p&gt;If you want to capture a &lt;strong&gt;parameter pack&lt;/strong&gt; within a lambda before C++20, you will have to be &lt;a href="https://stackoverflow.com/questions/47496358/c-lambdas-how-to-capture-variadic-parameter-pack-from-the-upper-scope"&gt;extremely creative&lt;/a&gt;. This is even more frustrating that lambdas are great to combine with templates.
+This very tedious task becomes trivial in C++20:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;template&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;class&lt;/span&gt;&lt;span class="p"&gt;...&lt;/span&gt; &lt;span class="n"&gt;Args&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="n"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Args&lt;/span&gt;&lt;span class="p"&gt;...&lt;/span&gt; &lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; 
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;[...&lt;/span&gt;&lt;span class="n"&gt;args&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;move&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;)]()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; 
+        &lt;span class="c1"&gt;// Do whatever you want with args...&lt;/span&gt;
+    &lt;span class="p"&gt;};&lt;/span&gt; 
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;std::mindblowing()! Sprinkling a bit of &lt;code&gt;...&lt;/code&gt; where it should... works as expected!&lt;/p&gt;
+&lt;p&gt;Lambdas become, in C++20, allowed in a &lt;strong&gt;unevaluated contexts&lt;/strong&gt;. What are unevaluated contexts? Whenever you have an expression within a &lt;code&gt;sizeof(...)&lt;/code&gt; or &lt;code&gt;decltype&lt;/code&gt;.
+Is that something you would frequently do? Actually yes. Whenever you want a custom deleter for your &lt;code&gt;std::unique_ptr&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="c1"&gt;// Before C++20:&lt;/span&gt;
+&lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="n"&gt;custom_deleter&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;[](&lt;/span&gt;&lt;span class="n"&gt;handle&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;h&lt;/span&gt;&lt;span class="p"&gt;){&lt;/span&gt; &lt;span class="cm"&gt;/* Do something with h. */&lt;/span&gt; &lt;span class="n"&gt;release&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;h&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="p"&gt;};&lt;/span&gt; 
+&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;unique_ptr&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;handle&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="k"&gt;decltype&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;custom_deleter&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;p&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Becomes a one liner:&lt;/span&gt;
+&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;unique_ptr&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;handle&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="k"&gt;decltype&lt;/span&gt;&lt;span class="p"&gt;([](&lt;/span&gt;&lt;span class="n"&gt;handle&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;h&lt;/span&gt;&lt;span class="p"&gt;){&lt;/span&gt; &lt;span class="cm"&gt;/* Do something with h. */&lt;/span&gt; &lt;span class="n"&gt;release&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;h&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="p"&gt;})&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;p&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;strong&gt;Timur&lt;/strong&gt; came up with other examples like having a custom comparison template parameter for &lt;code&gt;std::set&lt;/code&gt;.&lt;/p&gt;
+&lt;h4&gt;Extended Non-Type Template Parameter (NTTP)&lt;/h4&gt;
+&lt;p&gt;If you are a &lt;strong&gt;template meta-programming&lt;/strong&gt; (TMP) enthusiast like me, this will be a game changer!
+Right now, the standard only allow integer-like (integer, enumeration, pointers...) and types as template parameter. This is highly restrictive and frustrating at times.
+When pushing template meta-programming to its limit, you will often want to manipulate strings. Right now you will need to decompose your string into &lt;code&gt;char&lt;/code&gt; that you pass as template arguments.&lt;/p&gt;
+&lt;p&gt;For instance, these bits of code would never work in &lt;strong&gt;C++17&lt;/strong&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="k"&gt;struct&lt;/span&gt; &lt;span class="n"&gt;vec2&lt;/span&gt; 
+&lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="p"&gt;};&lt;/span&gt;
+
+&lt;span class="k"&gt;template&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;T&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;vec2&lt;/span&gt; &lt;span class="n"&gt;V&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="c1"&gt;// error: vec2 - illegal type for non-type template parameter  &lt;/span&gt;
+&lt;span class="k"&gt;struct&lt;/span&gt; &lt;span class="n"&gt;my_struct&lt;/span&gt; 
+&lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;array&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;array&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;V&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;V&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;bla&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="p"&gt;};&lt;/span&gt;
+
+
+&lt;span class="k"&gt;template&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt; &lt;span class="n"&gt;InitValue&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="c1"&gt;// error: std::string - illegal type for non-type template parameter  &lt;/span&gt;
+&lt;span class="k"&gt;struct&lt;/span&gt; &lt;span class="n"&gt;my_struct2&lt;/span&gt;
+&lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt; &lt;span class="n"&gt;s&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;InitValue&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;  
+&lt;span class="p"&gt;};&lt;/span&gt;
+&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Good news! This restrictions have been lifted as long as your &lt;strong&gt;non-type template parameter&lt;/strong&gt;'s type (I know the usage of "type" twice here is confusing):&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;1) Has a comparison operator available (&lt;code&gt;operator==&lt;/code&gt;) at compile time: it is &lt;strong&gt;constexpr&lt;/strong&gt;.
+The goal is that the compiler should be able to check if two template instantiations are the same by checking if all template parameters are equal. &lt;/li&gt;
+&lt;li&gt;2) Can be constructed at compile-time: its construction can be done in a constexpr context.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;h3&gt;[Talk] Compile Time Regular Expressions with Deterministic Finite Automaton - Hana Dusíková - 💀💀💀★:&lt;/h3&gt;
+&lt;p&gt;Speaking of template meta-programming, NTTP and strings, &lt;a href="https://twitter.com/hankadusikova"&gt;Hana Dusíková&lt;/a&gt; improved her &lt;a href="https://github.com/hanickadot/compile-time-regular-expressions"&gt;compile-time regular expression&lt;/a&gt; library. 
+At last year's &lt;strong&gt;CppCon&lt;/strong&gt;, Hana impressed the crowd with her library: it exploited template meta-programming in C++17 to its maximum to generate a regex parser at compile-time from a string literal. 
+This makes her library ridiculously fast compared to &lt;code&gt;std::regex&lt;/code&gt;, which works at runtime. Surprisingly, the library does not affect compilation at all. 
+In fact, it improves a lot the compilation time compared to &lt;code&gt;std::regex&lt;/code&gt;! Does this implies that there is such a thing as "Zero-cost Abstractions"? Maybe...&lt;/p&gt;
+&lt;p&gt;I have to admit that I was part of the people who missed the chance to see her talk live when I could have...
+So this year, I took my revenge and went to her follow-up talk.
+Using some of the C++20 template features, Hana succeeded to make a new regexp engine using a &lt;a href="https://en.wikipedia.org/wiki/Deterministic_finite_automaton"&gt;Deterministic Finite Automaton&lt;/a&gt;. Do not ask me to summarise properly what I have witnessed during this talk, it was... complicated!
+But it is also fascinating, it combines a hefty does of meta-programming with language theory: that's a lot of mental stimulation.&lt;/p&gt;
+&lt;p&gt;If that sounds fun to you, I would probably suggest to watch her &lt;a href="https://www.youtube.com/watch?v=QM3W36COnE4"&gt;initial talk&lt;/a&gt; and come back to this one afterwards.&lt;/p&gt;
+&lt;h3&gt;[Other]:&lt;/h3&gt;
+&lt;p&gt;There are a lot of other talks that would be worth using your &lt;strong&gt;Google-Fu&lt;/strong&gt; to find them:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Using C++20's Three-way Comparison &amp;lt;=&amp;gt; - Jonathan Müller&lt;/li&gt;
+&lt;li&gt;Oh No! More Modern CMake - Deniz Bahadir&lt;/li&gt;
+&lt;li&gt;C++20 Coroutines - Milosz Warzecha  &lt;/li&gt;
+&lt;li&gt;And many more...&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;You will surely find the &lt;strong&gt;lightning talks&lt;/strong&gt; on the &lt;a href="https://www.youtube.com/user/MeetingCPP/videos"&gt;Meeting C++'s Youtube Channel&lt;/a&gt; at one point.
+These short talks are like snack foods, they vary a lot in their content and quality and don't take long to process. &lt;/p&gt;
+&lt;h1&gt;Conclusion:&lt;/h1&gt;
+&lt;p&gt;This was another very fruitful event for the &lt;strong&gt;C++&lt;/strong&gt; community. I am glad that our beloved C++ language receive so much attention by its users and the committee. 
+It will be interesting to see how long it will take for the major compiler to be fully C++20 compliant: this &lt;strong&gt;release is massive&lt;/strong&gt;!
+I was slightly overwhelmed by the amount of new features.&lt;br&gt;
+I am also wondering how much of the newly acquired C++20 knowledge will stay true once the standard is released.
+I guess that I will have to check that by going to another C++ event next year ;) &lt;/p&gt;</content><category term="C++"></category><category term="event"></category><category term="meetingcpp"></category></entry><entry><title>How to make your maps, try_emplace and smart pointers play nicely with each others in C++17.</title><link href="//jguegant.github.io/blogs/tech/performing-try-emplace.html" rel="alternate"></link><published>2018-11-18T15:30:00+01:00</published><updated>2018-11-18T15:35:00+01:00</updated><author><name>Jean Guegant</name></author><id>tag:jguegant.github.io,2018-11-18:/blogs/tech/performing-try-emplace.html</id><summary type="html">&lt;h2&gt;Trivia:&lt;/h2&gt;
 &lt;p&gt;Lately, I have been working on the reincarnation of a &lt;strong&gt;class&lt;/strong&gt; at work: a hash map. 
 While this class had interesting internals (a sort of dense hash map) and performed really well, its interface was not up to standard both literally and metaphorically.
 After much of lipstick applied to …&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Trivia:&lt;/h2&gt;
@@ -402,12 +699,12 @@ Take a look at this very simple piece of code:&lt;/p&gt;
 
 
 &lt;p&gt;Your never-satisfied compiler will refuse to compile it with the following error message:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;lt;source&amp;gt;: In instantiation of &amp;#39;void foo(T&amp;amp;&amp;amp;) [with T = A&amp;amp;]&amp;#39;:
-&amp;lt;source&amp;gt;:10:8:   required from &amp;#39;void bar(T&amp;amp;&amp;amp;) [with T = A&amp;amp;]&amp;#39;
-&amp;lt;source&amp;gt;:17:10:   required from here
-&amp;lt;source&amp;gt;:5:7: error: &amp;#39;struct A&amp;#39; has no member named &amp;#39;print&amp;#39;
-     t.print();
-     ~~^~~~~
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;source&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="k"&gt;In&lt;/span&gt; &lt;span class="n"&gt;instantiation&lt;/span&gt; &lt;span class="k"&gt;of&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;void foo(T&amp;amp;&amp;amp;) [with T = A&amp;amp;]&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;source&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;   &lt;span class="n"&gt;required&lt;/span&gt; &lt;span class="k"&gt;from&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;void bar(T&amp;amp;&amp;amp;) [with T = A&amp;amp;]&amp;#39;&lt;/span&gt;
+&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;source&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;17&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;   &lt;span class="n"&gt;required&lt;/span&gt; &lt;span class="k"&gt;from&lt;/span&gt; &lt;span class="n"&gt;here&lt;/span&gt;
+&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;source&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;7&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;struct A&amp;#39;&lt;/span&gt; &lt;span class="n"&gt;has&lt;/span&gt; &lt;span class="k"&gt;no&lt;/span&gt; &lt;span class="n"&gt;member&lt;/span&gt; &lt;span class="n"&gt;named&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;print&amp;#39;&lt;/span&gt;
+     &lt;span class="n"&gt;t&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;print&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+     &lt;span class="o"&gt;~~^~~~~&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -435,17 +732,17 @@ Moreover, by looking at the signature of &lt;strong&gt;bar&lt;/strong&gt;, nothi
 
 
 &lt;p&gt;Which would give us the following much more accurate error message:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&amp;lt;source&amp;gt;:19:10: error: cannot call function &amp;#39;void bar(T&amp;amp;&amp;amp;) [with T = A&amp;amp;]&amp;#39;
-     bar(a);
-          ^
-&amp;lt;source&amp;gt;:11:6: note:   constraints not satisfied
- void bar(T&amp;amp;&amp;amp; t) {
-      ^~~
-&amp;lt;source&amp;gt;:1:33: note: within &amp;#39;template&amp;lt;class T&amp;gt; concept const bool IsPrintable&amp;lt;T&amp;gt; [with T = A&amp;amp;]&amp;#39;
- template &amp;lt;class T&amp;gt; concept bool IsPrintable = requires (T a) {
-                                 ^~~~~~~~~~~
-&amp;lt;source&amp;gt;:1:33: note:     with &amp;#39;A&amp;amp; a&amp;#39;
-&amp;lt;source&amp;gt;:1:33: note: the required expression &amp;#39;a.print()&amp;#39; would be ill-formed
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;source&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;19&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;cannot&lt;/span&gt; &lt;span class="k"&gt;call&lt;/span&gt; &lt;span class="k"&gt;function&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;void bar(T&amp;amp;&amp;amp;) [with T = A&amp;amp;]&amp;#39;&lt;/span&gt;
+     &lt;span class="n"&gt;bar&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+          &lt;span class="o"&gt;^&lt;/span&gt;
+&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;source&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;11&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;6&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;note&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;   &lt;span class="k"&gt;constraints&lt;/span&gt; &lt;span class="k"&gt;not&lt;/span&gt; &lt;span class="n"&gt;satisfied&lt;/span&gt;
+ &lt;span class="n"&gt;void&lt;/span&gt; &lt;span class="n"&gt;bar&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;t&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="err"&gt;{&lt;/span&gt;
+      &lt;span class="o"&gt;^~~&lt;/span&gt;
+&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;source&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;33&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;note&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;within&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;template&amp;lt;class T&amp;gt; concept const bool IsPrintable&amp;lt;T&amp;gt; [with T = A&amp;amp;]&amp;#39;&lt;/span&gt;
+ &lt;span class="k"&gt;template&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;concept&lt;/span&gt; &lt;span class="n"&gt;bool&lt;/span&gt; &lt;span class="n"&gt;IsPrintable&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;requires&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="err"&gt;{&lt;/span&gt;
+                                 &lt;span class="o"&gt;^~~~~~~~~~~&lt;/span&gt;
+&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;source&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;33&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;note&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;     &lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;A&amp;amp; a&amp;#39;&lt;/span&gt;
+&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;source&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;33&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;note&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;the&lt;/span&gt; &lt;span class="n"&gt;required&lt;/span&gt; &lt;span class="n"&gt;expression&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;a.print()&amp;#39;&lt;/span&gt; &lt;span class="n"&gt;would&lt;/span&gt; &lt;span class="n"&gt;be&lt;/span&gt; &lt;span class="n"&gt;ill&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;formed&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -479,25 +776,25 @@ So here I was, ready to learn more about these mystical beasts!&lt;/p&gt;
 &lt;p&gt;&lt;strong&gt;Allocators&lt;/strong&gt; in C++ are rather infamous for their over-engineered interface, which is not useful 99.42% of the time. This even forced the committee to come-up, in &lt;strong&gt;C++17&lt;/strong&gt;, with a lighter interface called &lt;a href="https://youtu.be/v3dz-AKOVL8"&gt;PMR&lt;/a&gt;. But this time, the good old full-blown interface found a very clever usage in Bob's hands. Indeed, &lt;a href="https://en.cppreference.com/w/cpp/memory/allocator_traits"&gt;std::allocator_traits&lt;/a&gt; has a nice type property &lt;strong&gt;pointer&lt;/strong&gt;. Which means that the Standard offers a nice &lt;a href="https://quuxplusone.github.io/blog/2018/03/19/customization-points-for-functions/"&gt;customization point&lt;/a&gt; to switch normal pointers &lt;strong&gt;T*&lt;/strong&gt; for a given allocator to a type that acts like a pointer would. These wanna-be pointers are what you call &lt;strong&gt;fancy pointers&lt;/strong&gt;. Somehow, you can think of &lt;strong&gt;fancy pointers&lt;/strong&gt; as more generalized concept of &lt;a href="https://en.wikipedia.org/wiki/Smart_pointer"&gt;smart pointers&lt;/a&gt;.   &lt;/p&gt;
 &lt;p&gt;Now let's say that you would like to serialise to / deserialise from binary a container-like object (vector, list...) with a bunch of &lt;a href="https://msdn.microsoft.com/en-us/library/mt767760.aspx?f=255&amp;amp;MSPPError=-2147217396"&gt;trivial objects&lt;/a&gt; inside and send it through a network. Providing that you are targeting one and only one architecture, which is often the case for servers, you may be able to use &lt;a href="https://en.cppreference.com/w/cpp/string/byte/memcpy"&gt;std::memcpy&lt;/a&gt; to transfer the representation of this container into a &lt;strong&gt;char*&lt;/strong&gt; buffer. Then, the whole buffer can be wired to another machine. At the endpoint, to deserialise the container from that buffer you can re-use &lt;strong&gt;std::memcpy&lt;/strong&gt; to copy back the binary representation into a container (&lt;a href="https://www.reddit.com/r/cpp/comments/5fk3wn/undefined_behavior_with_reinterpret_cast/"&gt;note that you cannot rely reinterpret_cast in C++ for that purpose&lt;/a&gt;...). This will work smoothly as long as none of the stored PODs have pointers as members referencing each others! Pointers are usually not valid as soon as you cross the boundary of a process or a machine. This huge drawback can be avoided by introducing &lt;strong&gt;fancy pointers&lt;/strong&gt; to your code-base. &lt;/p&gt;
 &lt;p&gt;As an example on how to fix that issue, Bob brings &lt;strong&gt;offset_ptr&lt;/strong&gt; to the table, which permits to express some reference between two elements using their distance from each others:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;struct obj
-{
-    value_type v;
-    offset_ptr&amp;lt;value_type&amp;gt; p; // optional
-}; 
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;span class="n"&gt;struct&lt;/span&gt; &lt;span class="n"&gt;obj&lt;/span&gt;
+&lt;span class="err"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;value_type&lt;/span&gt; &lt;span class="n"&gt;v&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="n"&gt;offset_ptr&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;value_type&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;p&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="o"&gt;//&lt;/span&gt; &lt;span class="n"&gt;optional&lt;/span&gt;
+&lt;span class="err"&gt;}&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; 
 
-Example of the layout of a container of objs:
+&lt;span class="n"&gt;Example&lt;/span&gt; &lt;span class="k"&gt;of&lt;/span&gt; &lt;span class="n"&gt;the&lt;/span&gt; &lt;span class="n"&gt;layout&lt;/span&gt; &lt;span class="k"&gt;of&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="n"&gt;container&lt;/span&gt; &lt;span class="k"&gt;of&lt;/span&gt; &lt;span class="n"&gt;objs&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
 
-                               -2
-                +-----------------------------+
-                |        1                    |
-                |     +-----+                 |
- +--------------v-----------v--------------------------------+
- |  v  |  p  |  v  |  p  |  v  |  p  |  V  |  p  |  v  |  p  |
- +-----------------------------------------------------------+
-          |                             ^
-          |                             |
-          +-----------------------------+
-                       3
+                               &lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="mi"&gt;2&lt;/span&gt;
+                &lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="c1"&gt;-----------------------------+&lt;/span&gt;
+                &lt;span class="o"&gt;|&lt;/span&gt;        &lt;span class="mi"&gt;1&lt;/span&gt;                    &lt;span class="o"&gt;|&lt;/span&gt;
+                &lt;span class="o"&gt;|&lt;/span&gt;     &lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="c1"&gt;-----+                 |&lt;/span&gt;
+ &lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="c1"&gt;--------------v-----------v--------------------------------+&lt;/span&gt;
+ &lt;span class="o"&gt;|&lt;/span&gt;  &lt;span class="n"&gt;v&lt;/span&gt;  &lt;span class="o"&gt;|&lt;/span&gt;  &lt;span class="n"&gt;p&lt;/span&gt;  &lt;span class="o"&gt;|&lt;/span&gt;  &lt;span class="n"&gt;v&lt;/span&gt;  &lt;span class="o"&gt;|&lt;/span&gt;  &lt;span class="n"&gt;p&lt;/span&gt;  &lt;span class="o"&gt;|&lt;/span&gt;  &lt;span class="n"&gt;v&lt;/span&gt;  &lt;span class="o"&gt;|&lt;/span&gt;  &lt;span class="n"&gt;p&lt;/span&gt;  &lt;span class="o"&gt;|&lt;/span&gt;  &lt;span class="n"&gt;V&lt;/span&gt;  &lt;span class="o"&gt;|&lt;/span&gt;  &lt;span class="n"&gt;p&lt;/span&gt;  &lt;span class="o"&gt;|&lt;/span&gt;  &lt;span class="n"&gt;v&lt;/span&gt;  &lt;span class="o"&gt;|&lt;/span&gt;  &lt;span class="n"&gt;p&lt;/span&gt;  &lt;span class="o"&gt;|&lt;/span&gt;
+ &lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="c1"&gt;-----------------------------------------------------------+&lt;/span&gt;
+          &lt;span class="o"&gt;|&lt;/span&gt;                             &lt;span class="o"&gt;^&lt;/span&gt;
+          &lt;span class="o"&gt;|&lt;/span&gt;                             &lt;span class="o"&gt;|&lt;/span&gt;
+          &lt;span class="o"&gt;+&lt;/span&gt;&lt;span class="c1"&gt;-----------------------------+&lt;/span&gt;
+                       &lt;span class="mi"&gt;3&lt;/span&gt;
 &lt;/pre&gt;&lt;/div&gt;
 
 
@@ -2685,7 +2982,7 @@ Once again, let's explore the new features, and use them to build something wond
 &lt;p&gt;It works as long as the type is easily "guessable" by the compiler. We are coding in C++ after all, not OCaml! &lt;/p&gt;
 &lt;h6&gt;A feature for functional lovers:&lt;/h6&gt;
 &lt;p&gt;&lt;strong&gt;C++11&lt;/strong&gt; introduced &lt;a href="http://en.cppreference.com/w/cpp/language/lambda"&gt;lambdas&lt;/a&gt;. A lambda has the following syntax: &lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;[capture-list](params) -&amp;gt; non-mandatory-return-type { ...body... }
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;[&lt;span class="nv"&gt;capture&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="nv"&gt;list&lt;/span&gt;]&lt;span class="ss"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;params&lt;/span&gt;&lt;span class="ss"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="nv"&gt;non&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="nv"&gt;mandatory&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="k"&gt;return&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="nv"&gt;type&lt;/span&gt; { ...&lt;span class="nv"&gt;body&lt;/span&gt;... }
 &lt;/pre&gt;&lt;/div&gt;
 
 
