@@ -5,28 +5,28 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>//jguegant.github.io/blogs/tech/</loc>
-<lastmod>2019-11-29T22:12:38-00:00</lastmod>
+<lastmod>2019-11-29T22:14:50-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
 <loc>//jguegant.github.io/blogs/tech/archives.html</loc>
-<lastmod>2019-11-29T22:12:38-00:00</lastmod>
+<lastmod>2019-11-29T22:14:50-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
 <loc>//jguegant.github.io/blogs/tech/tags.html</loc>
-<lastmod>2019-11-29T22:12:38-00:00</lastmod>
+<lastmod>2019-11-29T22:14:50-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
 <loc>//jguegant.github.io/blogs/tech/categories.html</loc>
-<lastmod>2019-11-29T22:12:38-00:00</lastmod>
+<lastmod>2019-11-29T22:14:50-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
@@ -47,7 +47,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>//jguegant.github.io/blogs/tech/trip-report-meetingcpp-2019.html</loc>
-<lastmod>2019-11-19T23:09:00+01:00</lastmod>
+<lastmod>2019-11-29T22:30:00+01:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.6</priority>
 </url>
@@ -124,7 +124,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>//jguegant.github.io/blogs/tech/category/c.html</loc>
-<lastmod>2019-11-19T23:09:00+00:09</lastmod>
+<lastmod>2019-11-29T22:30:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
@@ -145,7 +145,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>//jguegant.github.io/blogs/tech/tag/c.html</loc>
-<lastmod>2019-11-19T23:09:00+00:09</lastmod>
+<lastmod>2019-11-29T22:30:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
@@ -166,7 +166,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>//jguegant.github.io/blogs/tech/tag/meetingcpp.html</loc>
-<lastmod>2019-11-19T23:09:00+00:09</lastmod>
+<lastmod>2019-11-29T22:30:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
@@ -236,7 +236,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>//jguegant.github.io/blogs/tech/tag/event.html</loc>
-<lastmod>2019-11-19T23:09:00+00:09</lastmod>
+<lastmod>2019-11-29T22:30:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
@@ -250,7 +250,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>//jguegant.github.io/blogs/tech/author/jean-guegant.html</loc>
-<lastmod>2019-11-19T23:09:00+00:09</lastmod>
+<lastmod>2019-11-29T22:30:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
