@@ -148,7 +148,7 @@ If you want to share functions or objects between two compilation units, you mus
 The problem is that header files are:&lt;/p&gt;
 &lt;p&gt;1) Shared in a very primitive way. The &lt;code&gt;#include&lt;/code&gt; directive is doing dumb copy-paste of the header content into your cpp file.
 2) Often full of complicated content for the compiler and not just few declarations. In those, you can have macros, templates, inline functions, include of includes... &lt;/p&gt;
-&lt;p&gt;This result in your compiler doing a lot of unnecessary work parsing these headers for all the compilation units. 
+&lt;p&gt;This results in your compiler doing a lot of unnecessary work parsing these headers for all the compilation units. 
 Wouldn't it be better if compilation units themselves could expose directly what they provide instead of using these hackish headers?
 This is exactly what modules try to solve!&lt;/p&gt;
 &lt;p&gt;So writing a very basic module becomes as simple as writing a &lt;code&gt;.cpp&lt;/code&gt; file with few annotations to expose what we want:&lt;/p&gt;
@@ -178,7 +178,7 @@ This is exactly what modules try to solve!&lt;/p&gt;
 Except that it gets quite a lot more complicated when you are mixing old header includes, namespaces, special support for standard headers...
 &lt;strong&gt;Daniela&lt;/strong&gt; was really good at explaining all these quirks that you may encounter in the rough transition that will happen from headers to modules.&lt;/p&gt;
 &lt;p&gt;As for performance, she observed an improvement from 1546 milliseconds to 62 milliseconds when using a library as a module on a huge-scale project at work. 
-This give a lot of hope on what modules will offer to us when available on all major compilers!&lt;/p&gt;
+This gives a lot of hope on what modules will offer to us when available on all major compilers!&lt;/p&gt;
 &lt;h3&gt;[Talk] C++20 The small things - Timur Doumler - 💀★★:&lt;/h3&gt;
 &lt;ul&gt;
 &lt;li&gt;Slides: &lt;a href="https://meetingcpp.com/mcpp/slides/2019/talk.pdf"&gt;link&lt;/a&gt;&lt;/li&gt;
@@ -266,7 +266,7 @@ When pushing template meta-programming to its limit, you will often want to mani
 &lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;p&gt;Good news! This restrictions have been lifted as long as your &lt;strong&gt;non-type template parameter&lt;/strong&gt;'s type (I know the usage of "type" twice here is confusing):&lt;/p&gt;
+&lt;p&gt;Good news! These restrictions have been lifted as long as your &lt;strong&gt;non-type template parameter&lt;/strong&gt;'s type (I know the usage of "type" twice here is confusing):&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;1) Has a comparison operator available (&lt;code&gt;operator==&lt;/code&gt;) at compile time: it is &lt;strong&gt;constexpr&lt;/strong&gt;.
 The goal is that the compiler should be able to check if two template instantiations are the same by checking if all template parameters are equal. &lt;/li&gt;

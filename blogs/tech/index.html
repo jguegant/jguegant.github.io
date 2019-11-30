@@ -206,7 +206,7 @@ If you want to share functions or objects between two compilation units, you mus
 The problem is that header files are:</p>
 <p>1) Shared in a very primitive way. The <code>#include</code> directive is doing dumb copy-paste of the header content into your cpp file.
 2) Often full of complicated content for the compiler and not just few declarations. In those, you can have macros, templates, inline functions, include of includes... </p>
-<p>This result in your compiler doing a lot of unnecessary work parsing these headers for all the compilation units. 
+<p>This results in your compiler doing a lot of unnecessary work parsing these headers for all the compilation units. 
 Wouldn't it be better if compilation units themselves could expose directly what they provide instead of using these hackish headers?
 This is exactly what modules try to solve!</p>
 <p>So writing a very basic module becomes as simple as writing a <code>.cpp</code> file with few annotations to expose what we want:</p>
@@ -236,7 +236,7 @@ This is exactly what modules try to solve!</p>
 Except that it gets quite a lot more complicated when you are mixing old header includes, namespaces, special support for standard headers...
 <strong>Daniela</strong> was really good at explaining all these quirks that you may encounter in the rough transition that will happen from headers to modules.</p>
 <p>As for performance, she observed an improvement from 1546 milliseconds to 62 milliseconds when using a library as a module on a huge-scale project at work. 
-This give a lot of hope on what modules will offer to us when available on all major compilers!</p>
+This gives a lot of hope on what modules will offer to us when available on all major compilers!</p>
 <h3>[Talk] C++20 The small things - Timur Doumler - 💀★★:</h3>
 <ul>
 <li>Slides: <a href="https://meetingcpp.com/mcpp/slides/2019/talk.pdf">link</a></li>
@@ -324,7 +324,7 @@ When pushing template meta-programming to its limit, you will often want to mani
 </pre></div>
 
 
-<p>Good news! This restrictions have been lifted as long as your <strong>non-type template parameter</strong>'s type (I know the usage of "type" twice here is confusing):</p>
+<p>Good news! These restrictions have been lifted as long as your <strong>non-type template parameter</strong>'s type (I know the usage of "type" twice here is confusing):</p>
 <ul>
 <li>1) Has a comparison operator available (<code>operator==</code>) at compile time: it is <strong>constexpr</strong>.
 The goal is that the compiler should be able to check if two template instantiations are the same by checking if all template parameters are equal. </li>
