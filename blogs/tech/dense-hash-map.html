@@ -1,0 +1,389 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="HandheldFriendly" content="True" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="robots" content="index, follow" />
+
+  <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro|Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="//jguegant.github.io/blogs/tech/theme/stylesheet/style.min.css">
+
+
+  <link rel="stylesheet" type="text/css" href="//jguegant.github.io/blogs/tech/theme/pygments/monokai.min.css">
+  <link rel="stylesheet" type="text/css" href="//jguegant.github.io/blogs/tech/theme/font-awesome/css/fontawesome.css">
+  <link rel="stylesheet" type="text/css" href="//jguegant.github.io/blogs/tech/theme/font-awesome/css/brands.css">
+  <link rel="stylesheet" type="text/css" href="//jguegant.github.io/blogs/tech/theme/font-awesome/css/solid.css">
+
+
+    <link href="//jguegant.github.io/blogs/tech/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Jean Guegant's Blog Atom">
+
+
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-68827527-1', 'auto');
+  ga('send', 'pageview');
+</script>
+<!-- End Google Analytics -->
+
+<meta name="author" content="Jean Guegant" />
+<meta name="description" content="This post is part of a planned series of posts: Part 1 - Beating std::unordered_map (Current) Part 2 - Structuring our code (Coming Soon) Part 3 - ... (Coming Soon) Part 1 - Beating std::unordered_map Trivia: If C++ had an equivalent in the video game world, it would be similar to Dark Souls …" />
+<meta name="keywords" content="C++17, hash map, unordered_map.">
+
+
+<meta property="og:site_name" content="Jean Guegant's Blog"/>
+<meta property="og:title" content="Making a STL-compatible hash map from scratch."/>
+<meta property="og:description" content="This post is part of a planned series of posts: Part 1 - Beating std::unordered_map (Current) Part 2 - Structuring our code (Coming Soon) Part 3 - ... (Coming Soon) Part 1 - Beating std::unordered_map Trivia: If C++ had an equivalent in the video game world, it would be similar to Dark Souls …"/>
+<meta property="og:locale" content="en_US"/>
+<meta property="og:url" content="//jguegant.github.io/blogs/tech/dense-hash-map.html"/>
+<meta property="og:type" content="article"/>
+<meta property="article:published_time" content="2020-04-06 17:40:00+02:00"/>
+<meta property="article:modified_time" content="2020-04-06 17:40:00+02:00"/>
+<meta property="article:author" content="//jguegant.github.io/blogs/tech/author/jean-guegant.html">
+<meta property="article:section" content="C++"/>
+<meta property="article:tag" content="C++17"/>
+<meta property="article:tag" content="hash map"/>
+<meta property="article:tag" content="unordered_map."/>
+<meta property="og:image" content="//jguegant.github.io/blogs/tech/images/myself.png">
+
+  <title>Jean Guegant's Blog &ndash; Making a STL-compatible hash map from scratch.</title>
+
+</head>
+<body>
+  <aside>
+    <div>
+      <a href="//jguegant.github.io/blogs/tech">
+        <img src="//jguegant.github.io/blogs/tech/images/myself.png" alt="Jean Guegant" title="Jean Guegant">
+      </a>
+      <h1><a href="//jguegant.github.io/blogs/tech">Jean Guegant</a></h1>
+
+<p>Software Engineer - C++, security, game development and random thoughts.</p>      <nav>
+        <ul class="list">
+
+            <li><a target="_blank" href="//jguegant.github.io/blogs/tech/pages/about.html#about">About</a></li>
+            <li><a target="_blank" href="//jguegant.github.io/blogs/tech/pages/contact.html#contact">Contact</a></li>
+
+        </ul>
+      </nav>
+
+      <ul class="social">
+          <li>
+            <a  class="sc-linkedin" href="https://se.linkedin.com/in/jguegant" target="_blank">
+            <i class="fab fa-linkedin">
+            </i>
+          </a></li>
+          <li>
+            <a  class="sc-github" href="https://github.com/Jiwan" target="_blank">
+            <i class="fab fa-github">
+            </i>
+          </a></li>
+      </ul>
+    </div>
+
+
+  </aside>
+  <main>
+
+    <nav>
+      <a href="//jguegant.github.io/blogs/tech">    Home
+</a>
+
+      <a href="//jguegant.github.io/blogs/tech/archives.html">Archives</a>
+      <a href="//jguegant.github.io/blogs/tech/categories.html">Categories</a>
+      <a href="//jguegant.github.io/blogs/tech/tags.html">Tags</a>
+
+      <a href="//jguegant.github.io/blogs/tech/feeds/all.atom.xml">    Atom
+</a>
+
+    </nav>
+
+<article class="single">
+  <header>
+      
+    <h1 id="dense-hash-map">Making a STL-compatible hash map from scratch.</h1>
+    <p>
+          Posted on Mon 06 April 2020 in <a href="//jguegant.github.io/blogs/tech/category/c.html">C++</a>
+
+
+    </p>
+  </header>
+
+
+  <div>
+    <p>This post is part of a planned series of posts:</p>
+<ul>
+<li>Part 1 - Beating std::unordered_map (Current)</li>
+<li>Part 2 - Structuring our code (Coming Soon)</li>
+<li>Part 3 - ... (Coming Soon)</li>
+</ul>
+<h1>Part 1 - Beating std::unordered_map</h1>
+<h2>Trivia:</h2>
+<p>If C++ had an equivalent in the video game world, it would be similar to Dark Souls: a dark, violent, punishing game.
+Yet, the emotion you get after successfully assimilating all the moves required to overcome a challenge is absolutely impossible to replicate.
+You are able to reproduce a sort of dance to defeat any boss in your way.
+Speaking of which... what could be the final boss of C++?
+According to <a href="https://twitter.com/stephantlavavej">Stephan T. Lavavej (STL)</a> this would be the <a href="https://cppcon2019.sched.com/event/Sft8/floating-point-charconv-making-your-code-10x-faster-with-c17s-final-boss">Floating-Point charconv of the C++17's standard</a>.
+While I wouldn't be able to beat this boss by myself anytime soon, I can tackle a tiny boss: making a standard-compatible (but not necessarily standard-compliant) container from scratch.
+I would like to share with you how to beat this kind of smaller bosses by yourself!</p>
+<p><center><img width=35% height=35% src="//jguegant.github.io/blogs/tech/images/dark-souls.webp" alt="Dark Souls"/></center></p>
+<p>We will build a <code>unordered_map</code> together, with all the arcane beasts that come along: iterators, allocators, type traits... and we will survive it.</p>
+<p>I encourage you to read this post as an introduction to the wonderful world of hash maps and the ways of the standard. You can find the code for the hash-map I am describing thorough this series of posts <a href="https://github.com/Jiwan/dense_hash_map">right here</a>.
+Hopefully when you are done reading this series, you will be ready to explore a bit more what the talented people in the C++ community have produced recently.</p>
+<p>Disclaimer: there are lots of extremely talented people (abseil team with their Swiss Tables, Malte Skarupke's flat hash map...) 
+that have been researching for years how to make the quintessence of an associative container.
+While the one I am presenting here has a really decent performance (more so than the standard ones at least), it is not bleeding-edge.
+On the other hand, its design is fairly simple to explain and easy to maintain.</p>
+<h2>Freeing ourselves from the standard constraints:</h2>
+<p>Implementing a standard associative container like <code>std::unordered_map</code> wouldn't be satisfying enough.
+We have to do better! Let's make a faster one! </p>
+<p>The standard library (and its ancestor the STL) is almost as old as me.
+You would think that the people working on an implementation of it (libc++, libstdc++...) would have had enough to polish it until there is no room to improvement.
+So how could we beat them in their own domain? Well... we are going to cheat... but in a good way.
+The standard library is made to be used by the commoners.
+The noble ladies and gentlemen in the standard committee stated some constraints to protect us from killing ourselves while using their <code>std::unordered_map</code>. 
+May this over-protective behaviour be damned! We know better!</p>
+<h3>Breaking stable addressing</h3>
+<p>The standard implicitly mandates <strong>stable addressing</strong> for any implementation of <code>std::unordered_map</code>.
+<strong>Stable addressing</strong> means that the insertion or deletion of a <strong>key/value pair</strong> in a <code>std::unordered_map</code> should not affect the memory location of other <strong>key/value</strong> pairs in the same <code>std::unordered_map</code>. More precisely, the standard does not mention, in the <a href="https://eel.is/c++draft/unord.map.modifiers">Effects</a> sections of std::unordered_map's modifiers, anything about reference, pointer or iterator invalidation.</p>
+<p>This forces any standard implementation of <code>std::unordered_map</code> to use linked-list for the buckets of pairs rather than contiguous memory.
+<code>std::unordered_map</code> should look roughly like this in memory:</p>
+<p><center><img width=50% height=50% src="//jguegant.github.io/blogs/tech/images/unordered_map_layout.png" alt="unordered_map layout"/></center></p>
+<p>As you can see, the <strong>entries</strong> are stored in a giant <strong>linked-list</strong>. Each of the <strong>buckets</strong> are themselves <strong>sub-parts</strong> of the linked-list.
+Here each colors represent different buckets of key/value pairs.
+When a <strong>key/value pair</strong> is <strong>inserted</strong>, the <strong>key</strong> is somehow <strong>hashed</strong> and adjusted (usually using modulo on the amount of buckets) to find which bucket it belongs to, and the key/value pair gets inserted into that bucket. 
+Here, the <strong>key1</strong> and <strong>key2</strong> somehow ended-up belonging to the <strong>bucket 1</strong>.
+Whereas the <strong>key3</strong> belongs to the <strong>bucket 5</strong>.<br>
+When doing a lookup using a key, the key is hashed and adjusted to find the bucket it should belong to.
+The bucket of the key is <strong>iterated</strong> until the key is found or the end of the bucket is reached (meaning no key is in the map). 
+Finally, the buckets are linked between each others to be able to do a traversal of all the key/value pairs within the <code>std::unordered_map</code>.</p>
+<p>This memory layout is <strong>really bad</strong> for your CPU!
+Each of the nodes of the linked-list(s) could be spread across memory and that would play against all the caches of your CPU.
+Traversing buckets made of a linked-list is slow, but you could pray that your hash function save you by spreading keys as much as possible and therefore have tiny buckets.
+But even the most brilliant hash function will not help you with a common use-case of an associative container: iterating through all the key/value pairs.
+Each dereference of the pointer to the next node will be a huge drag on your CPU.
+On the other hand, since each node are separately allocated, they can stay wherever they are in memory even if others are added or removed, which provides <strong>stable addressing</strong>.</p>
+<p>So what could we obtain if we were to free ourselves from <strong>stable addressing</strong>?
+Well, we could wrap our buckets into contiguous memory like so:</p>
+<p><center><img width=50% height=50% src="//jguegant.github.io/blogs/tech/images/dense_hash_map_layout.png" alt="dense_hash_map layout"/></center></p>
+<p>Here we are still keeping a linked-list for each buckets, but all the nodes are stored in a vector, therefore one after each others in memory.
+Let's call this a <strong>dense hash map.</strong>
+Instead of using pointers between nodes, we are expressing their relations with indexes within the vector: here the node with <strong>key1</strong> store a "next index" having a value of <strong>2</strong> which is the index of the node with <strong>key2</strong>. And all of that is a huge improvement! We are gaining on all fronts:
+- Iterating over all the key/value pairs is as fast as iterating over a vector, which is lightning fast.
+- We are saving a pointer on all nodes - the "prev pointer". We don't need any sort of reverse-traversal of a given bucket, but just a global reverse-traversal of all buckets. 
+- We don't need to maintain a begin and end pointer for the list of nodes.
+- Even iterating over a bucket could be faster as the node shouldn't be too scattered in memory since they all belong to one vector.
+All these new properties have a lot of use-cases in the domains I dabble with.
+For instance, the <a href="https://en.wikipedia.org/wiki/Entity_component_system">ECS (Entity-Component-System) pattern</a> often demands a container where you can do lookup for a component associated to a given entity and at the same being able to traverse all components in one-shot. </p>
+<p>With that said, the <strong>stable addressing</strong> is now gone: any insertion into the vector could produce a reallocation of its internal buffer, ending in a massive move of all the nodes across memory. So what if your user really need stable addressing? As <strong>David Wheeler</strong> would say: "just use another level of indirection".
+Instead of a using a <code>dense_hash_map&lt;Key, Value&gt;</code>, your user can always use a <code>dense_hash_map&lt;Key, unique_ptr&lt;Value&gt;&gt;</code>: </p>
+<p><center><img width=50% height=50% src="//jguegant.github.io/blogs/tech/images/dense_hash_map_unique_ptr_layout.png" alt="layout"/></center></p>
+<p>We are reintroducing pointers, which is obviously not great for the cache again.
+But this time when iterating over all the key/value pairs you will very likely see a substantial improvement over the first layout.
+The pattern of the nodes is clearly more predictable and prefetching abilities of your CPU may come to your help. </p>
+<p>There a lot more layouts for hash tables that I did not mention here and could have suited my needs. 
+For instance, any of the <a href="https://en.wikipedia.org/wiki/Hash_table#Open_addressing">open-addressing</a> strategies could bring their own pros and cons.
+Once again, if you are interested, there are a plethora of cppcon talks on that subject.</p>
+<h4>Caveats</h4>
+<p>By breaking stable-addressing, we cannot retain the address or the reference of a key-value pair from our map carelessly.
+Some operations like adding or removing a key/value pair in the map can provoke invalidation of references or pointers to the other pairs.
+This is the kind of danger I am speaking of:</p>
+<div class="highlight"><pre><span></span><code><span class="n">jg</span><span class="o">::</span><span class="n">dense_hash_map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">heroe</span><span class="o">&gt;</span> <span class="n">my_map</span><span class="p">{{</span><span class="s">&quot;spongebob&quot;</span><span class="p">,</span> <span class="n">heroe</span><span class="p">{}},</span> <span class="p">{</span><span class="s">&quot;chuck norris&quot;</span><span class="p">,</span> <span class="n">heroe</span><span class="p">{}}};</span>
+<span class="k">auto</span><span class="o">&amp;</span> <span class="n">chuck_ref</span> <span class="o">=</span> <span class="n">my_map</span><span class="p">[</span><span class="s">&quot;chuck norris&quot;</span><span class="p">];</span>
+
+<span class="n">my_map</span><span class="p">.</span><span class="n">erase</span><span class="p">(</span><span class="s">&quot;spongebob&quot;</span><span class="p">);</span> <span class="c1">// Invalidate all the nodes after spongebob.</span>
+
+<span class="n">chuck_ref</span><span class="p">.</span><span class="n">punch_your_face</span><span class="p">();</span> <span class="c1">// One should never try to retain &quot;chuck norris&quot; as a ref.</span>
+</code></pre></div>
+
+
+<p>Due to the call to erase, "chuck norris" is moved into the first slot of the internal vector, which ultimately makes chuck's address change.
+Accessing "chuck norris" with a previously acquired reference becomes a danger.
+While this can surprise at first, it is no different than trying to retain a reference to a value in a vector.
+And once again, if you need stable addressing, you are welcome to store <strong>unique_ptrs</strong> within your map.</p>
+<p>For the same stable-addressing reasons, implementing the <strong>node API of std::unordered_map</strong> like <a href="https://en.cppreference.com/w/cpp/container/unordered_map/extract">extract</a> becomes very challenging. To be fair, I have never seen a real usage of that API in any project.
+It might be useful in scenarios where you run long instances of backend-applications and want to move things across maps without a huge performance impact.
+If by any chance, you have witnessed a usage of that feature, it would be a pleasure to have some explanations in the comments section.</p>
+<p>Finally, as we will see in a later post, the <strong>erase</strong> operation of such dense_hash_map becomes <strong>slower</strong>. For any erase operation, one <strong>extra swap operation</strong> is needed on top of the destruction and deallocation ones. Thankfully, a standard usage of a map will have little erase operations compared to lookup or even insertion operations. Speaking of which, how could we improve on those operations?</p>
+<h3>Faster modulo operation</h3>
+<p>As I mentioned previously, a lookup will require that your key is hashed and adjusted with modulo to fit in the amount of buckets available.
+The amount of buckets is changing depending on how many key/value pairs are stored in your map. The more pairs, the more buckets.
+In a <code>std::unordered_map</code>, the growth is triggered every time the <a href="https://en.cppreference.com/w/cpp/container/unordered_map/load_factor">load factor</a> (average number of elements per bucket) is above a certain <a href="https://en.cppreference.com/w/cpp/container/unordered_map/max_load_factor">threshold</a>.
+Adjusting your hash with a "simple modulo operation" is as it turns out not a trivial operation for your hardware. 
+Let's <a href="https://godbolt.org/">godbolt</a> a bit!  </p>
+<p>If we write a simple modulo function, this is what godbolt gives to us (on GCC 9.0 with -O3):</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// C++</span>
+<span class="kt">int</span> <span class="nf">modulo</span><span class="p">(</span><span class="kt">int</span> <span class="n">hash</span><span class="p">,</span> <span class="kt">int</span> <span class="n">bucket_count</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="n">hash</span> <span class="o">%</span> <span class="n">bucket_count</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+
+<div class="highlight"><pre><span></span><code><span class="c1">// x86 assembly</span>
+<span class="nf">modulo</span><span class="p">(</span><span class="no">int</span><span class="p">,</span> <span class="no">int</span><span class="p">):</span>
+    <span class="nf">mov</span>     <span class="no">eax</span><span class="p">,</span> <span class="no">edi</span>  <span class="c1">// Prepare the hash into eax</span>
+    <span class="nf">cdq</span>               <span class="c1">// Prepare registers for an idiv operation. </span>
+    <span class="nf">idiv</span>    <span class="no">esi</span>       <span class="c1">// Divide by esi which contains bucket_count</span>
+    <span class="nf">mov</span>     <span class="no">eax</span><span class="p">,</span> <span class="no">edx</span>  <span class="c1">// Get the modulo value that ends-up in edx and return it into eax</span>
+    <span class="nf">ret</span>
+</code></pre></div>
+
+
+<p>So far things look rather good. The <code>idiv</code> operation seems to do most of the work by itself. 
+But, what if we made bucket_count a constant? Having more information at compile-time should help the compiler, isn't it?</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// C++</span>
+<span class="kt">int</span> <span class="nf">modulo</span><span class="p">(</span><span class="kt">int</span> <span class="n">hash</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">return</span> <span class="n">index</span> <span class="o">%</span> <span class="mi">5</span><span class="p">;</span>
+<span class="p">}</span>
+</code></pre></div>
+
+
+<div class="highlight"><pre><span></span><code><span class="c1">// x86</span>
+<span class="nf">modulo</span><span class="p">(</span><span class="no">int</span><span class="p">,</span> <span class="no">int</span><span class="p">):</span>
+    <span class="nf">movsx</span>   <span class="no">rax</span><span class="p">,</span> <span class="no">edi</span>
+    <span class="nf">mov</span>     <span class="no">edx</span><span class="p">,</span> <span class="no">edi</span>
+    <span class="nf">imul</span>    <span class="no">rax</span><span class="p">,</span> <span class="no">rax</span><span class="p">,</span> <span class="mi">1717986919</span> <span class="c1">// LOTS OF SHENANIGANS GOING HERE.</span>
+    <span class="nf">sar</span>     <span class="no">edx</span><span class="p">,</span> <span class="mi">31</span>
+    <span class="nf">sar</span>     <span class="no">rax</span><span class="p">,</span> <span class="mi">33</span>
+    <span class="nf">sub</span>     <span class="no">eax</span><span class="p">,</span> <span class="no">edx</span>
+    <span class="nf">lea</span>     <span class="no">eax</span><span class="p">,</span> <span class="p">[</span><span class="no">rax</span><span class="err">+</span><span class="no">rax</span><span class="p">*</span><span class="mi">4</span><span class="p">]</span>
+    <span class="nf">sub</span>     <span class="no">edi</span><span class="p">,</span> <span class="no">eax</span>
+    <span class="nf">mov</span>     <span class="no">eax</span><span class="p">,</span> <span class="no">edi</span>
+    <span class="nf">ret</span>
+</code></pre></div>
+
+
+<p>Interesting! The compiler is spitting a lot more operations. Wouldn't it be simpler to keep <code>idiv</code> here? A single operation... <br>
+Believe it or not, your compiler is as smart as a whip and wouldn't do this extra work without significant gains.
+So we can clearly extrapolate that our innocent <code>idiv</code> must be seriously costly if it happens to be less efficient than a couple of other operations.</p>
+<p>So how can we optimize this modulo operation without using <code>idiv</code> or a constant?
+We can use bitwise operations and restrict ourselves to sizes made of power of two.
+Assuming that <code>y</code> is a power of two in the expression <code>x % y</code>, we can replace this expression with: <code>x &amp; (y - 1)</code>.
+You can think of this bitwise operation as a "filter" on the lower bits of a number, which happen to be the same as a modulo operation when it comes to power of two.
+So what do we obtain in this conditions?</p>
+<div class="highlight"><pre><span></span><code><span class="c1">// C++</span>
+<span class="kt">int</span> <span class="nf">fast_module</span><span class="p">(</span><span class="kt">int</span> <span class="n">hash</span><span class="p">,</span> <span class="kt">int</span> <span class="n">bucket_count</span><span class="p">)</span> <span class="p">{</span>
+    <span class="k">return</span> <span class="p">(</span><span class="n">hash</span> <span class="o">&amp;</span>  <span class="p">(</span><span class="n">bucket_count</span> <span class="o">-</span> <span class="mi">1</span><span class="p">));</span>
+<span class="p">}</span>
+</code></pre></div>
+
+
+<div class="highlight"><pre><span></span><code><span class="c1">// x86</span>
+<span class="nf">fast_module</span><span class="p">(</span><span class="no">int</span><span class="p">,</span> <span class="no">int</span><span class="p">):</span>
+    <span class="nf">lea</span>     <span class="no">eax</span><span class="p">,</span> <span class="p">[</span><span class="no">rsi-1</span><span class="p">]</span>
+    <span class="nf">and</span>     <span class="no">eax</span><span class="p">,</span> <span class="no">edi</span>
+    <span class="nf">ret</span>
+</code></pre></div>
+
+
+<p>Not only we have less operations, but <code>lea</code> (loading from memory) and <code>and</code> have much less associated cost than <code>idiv</code>.
+This micro-optimisation may look a bit far-fetched, but it actually matters a lot, as proved by <a href="https://www.youtube.com/watch?v=M2fKMP47slQ">Malte Skarupke</a>, when it comes to lookup operations.</p>
+<p>To further convince you, I have run both implementations of modulo on <a href="http://quick-bench.com/XZGeHdIRvI8tjsgHHmPP22bN8us">quick-bench</a>.
+And here are the results:</p>
+<p><center><img width=70% height=70% src="//jguegant.github.io/blogs/tech/images/modulo-benchmarks.png" alt="layout"/></center></p>
+<p>There is no doubts, using <strong>bit operations</strong> instead of <strong>modulo</strong> is indeed faster!</p>
+<p>Note: For the purists, the so-called modulo operator <code>%</code> in C++ is actually an integer remainder operator since it does not handle negative value as a mathematical modulo operation would. One can only imagine how costly a proper modulo would be... </p>
+<h4>Caveats</h4>
+<p>Unlike the previous improvement, this one does not seem to collide too much with the holly standard. So how come it is not used in every implementations?
+Well, fiddling with bit operations comes with few drawbacks.</p>
+<p>Firstly, the growth of the container for the buckets must always be done following a power of two. This limits you on how creative you can be with your growth strategy. In theory, this could also create subtle performance issues in some scenarios, like <a href="https://tech.labs.oliverwyman.com/blog/2013/10/08/cpu-cache-collisions-in-the-context-of-performance/">cache line collisions</a>. In practice, you should never have an access pattern that triggers such an issue on the container of buckets. It is not like you are going to iterate over that container at any time.</p>
+<p>Secondly, in a subtle way you are making the first bits of your keys have more importance than they should.
+Let's assume that you have some bit flags (flag sets) as a key:</p>
+<div class="highlight"><pre><span></span><code>    <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="kt">uint32_t</span> <span class="n">a_precious_flag</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">0</span><span class="p">;</span>
+    <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="kt">uint32_t</span> <span class="n">another_flag</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">1</span><span class="p">;</span>
+    <span class="c1">// ...</span>
+    <span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="kt">uint32_t</span> <span class="n">yet_another_flag</span> <span class="o">=</span> <span class="mi">1</span> <span class="o">&lt;&lt;</span> <span class="mi">4</span><span class="p">;</span>
+
+
+    <span class="k">auto</span> <span class="n">a_set_of_flags</span> <span class="o">=</span> <span class="n">yet_another_flag</span> <span class="o">|</span> <span class="n">a_precious_flag</span> <span class="o">|</span> <span class="n">another_flag</span><span class="p">;</span>
+    <span class="k">auto</span> <span class="n">another_set_of_flags</span> <span class="o">=</span> <span class="n">a_precious_flag</span> <span class="o">|</span> <span class="n">another_flag</span><span class="p">;</span>
+
+    <span class="n">jg</span><span class="o">::</span><span class="n">dense_hash_map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">my_map</span><span class="p">;</span> <span class="c1">// A map with a buckets container of size 4 (2 ^ 2).</span>
+</code></pre></div>
+
+
+<p>Now, if you were to take these two flag sets and feed them directly to the modulo operation of the map, they would end-up in the same bucket simply because both of them have <code>a_precious_flag</code> and <code>another_flag</code> on. This gives way too much importance to the bits that <code>a_precious_flag</code> and <code>another_flag</code> represent.
+The fact that we are using a power two (4 in this case) will always make the lower bits very significant.
+It is not often that you store flag sets or bit fields as keys in a map, I will give you that, but as a good practice you should:
+- Remind yourself not to create a corner-case with bits more important than others in your key.
+- And if it happens, you should re-write your hash function to shuffle your bits around. </p>
+<h2>First conclusion</h2>
+<p>Now we have a grand master plan to beat <code>std::unordered_map</code> by removing some assumptions the standard had to make to be preserve us from some dangers.
+The hacks used are not even too difficult to grasp, so where is the difficulty in writing new containers? Well, some creepy C++ features are waiting for us around the corner.</p>
+<p>Be ready for the next phase: preparing a rock-solid code structure for our brand new <code>dense_hash_map</code>!</p>
+  </div>
+  <div class="tag-cloud">
+    <p>
+      <a href="//jguegant.github.io/blogs/tech/tag/c17.html">C++17</a>
+      <a href="//jguegant.github.io/blogs/tech/tag/hash-map.html">hash map</a>
+      <a href="//jguegant.github.io/blogs/tech/tag/unordered_map.html">unordered_map.</a>
+    </p>
+  </div>
+
+
+
+
+
+<!-- Disqus -->
+<div id="disqus_thread"></div>
+<script type="text/javascript">
+    var disqus_shortname = 'jeanguegantswebsite';
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>
+        Please enable JavaScript to view comments.
+
+</noscript>
+<!-- End Disqus -->
+</article>
+
+    <footer>
+<p>
+  &copy;  2015 - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>
+</p>
+<p>    Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
+</p><p>
+  <a rel="license"
+     href="http://creativecommons.org/licenses/by-sa/4.0/"
+     target="_blank">
+    <img alt="Creative Commons License"
+         title="Creative Commons License"
+         style="border-width:0"
+           src="https://i.creativecommons.org/l/by-sa/4.0/80x15.png"
+         width="80"
+         height="15"/>
+  </a>
+</p>    </footer>
+  </main>
+
+
+
+
+<script type="application/ld+json">
+{
+  "@context" : "http://schema.org",
+  "@type" : "Blog",
+  "name": " Jean Guegant's Blog ",
+  "url" : "//jguegant.github.io/blogs/tech",
+  "image": "//jguegant.github.io/blogs/tech/images/myself.png",
+  "description": ""
+}
+</script>
+
+
+</body>
+</html>

@@ -1,21 +1,48 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
-  <link rel="stylesheet" type="text/css" href="//jguegant.github.io/blogs/tech/theme/css/style.min.css">
-  <link rel="stylesheet" type="text/css" href="//jguegant.github.io/blogs/tech/theme/css/monokai.css">
-  <link rel="stylesheet" type="text/css" href="//jguegant.github.io/blogs/tech/theme/css/font-awesome.min.css">
-  <link href="//jguegant.github.io/blogs/tech/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Jean Guegant's Blog Atom">
-
   <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="HandheldFriendly" content="True" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="robots" content="index, follow" />
+    <meta name="robots" content="index, follow" />
+
+  <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro|Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="//jguegant.github.io/blogs/tech/theme/stylesheet/style.min.css">
+
+
+  <link rel="stylesheet" type="text/css" href="//jguegant.github.io/blogs/tech/theme/pygments/monokai.min.css">
+  <link rel="stylesheet" type="text/css" href="//jguegant.github.io/blogs/tech/theme/font-awesome/css/fontawesome.css">
+  <link rel="stylesheet" type="text/css" href="//jguegant.github.io/blogs/tech/theme/font-awesome/css/brands.css">
+  <link rel="stylesheet" type="text/css" href="//jguegant.github.io/blogs/tech/theme/font-awesome/css/solid.css">
+
+
+    <link href="//jguegant.github.io/blogs/tech/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Jean Guegant's Blog Atom">
+
+
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-68827527-1', 'auto');
+  ga('send', 'pageview');
+</script>
+<!-- End Google Analytics -->
+
 <meta name="author" content="Jean Guegant" />
-<meta name="description" content="About this post: Computer programming is a science, or even an art, and as such its community follows trends for better or worse. Today, I am highly positive in our future so let's speak about the new holy grail of any back-end developer, the panacea for web servers: an asynchronous …" />
+<meta name="description" content="About this post: Computer programming is a science, or even an art, and as such its community follows trends for better or worse. Today, I am highly positive in our future so let&#39;s speak about the new holy grail of any back-end developer, the panacea for web servers: an asynchronous …" />
 <meta name="keywords" content="C++14, Python, event-driven, asynchronous architecture">
+
+
 <meta property="og:site_name" content="Jean Guegant's Blog"/>
 <meta property="og:title" content="My favorite pizzeria is event-driven... my back-end server too (C++, Python)"/>
-<meta property="og:description" content="About this post: Computer programming is a science, or even an art, and as such its community follows trends for better or worse. Today, I am highly positive in our future so let's speak about the new holy grail of any back-end developer, the panacea for web servers: an asynchronous …"/>
+<meta property="og:description" content="About this post: Computer programming is a science, or even an art, and as such its community follows trends for better or worse. Today, I am highly positive in our future so let&#39;s speak about the new holy grail of any back-end developer, the panacea for web servers: an asynchronous …"/>
 <meta property="og:locale" content="en_US"/>
 <meta property="og:url" content="//jguegant.github.io/blogs/tech/drafts/asynchronous-pizzeria.html"/>
 <meta property="og:type" content="article"/>
@@ -27,7 +54,10 @@
 <meta property="article:tag" content="Python"/>
 <meta property="article:tag" content="event-driven"/>
 <meta property="article:tag" content="asynchronous architecture"/>
-<meta property="og:image" content="//jguegant.github.io/blogs/tech/images/myself.png">  <title>Jean Guegant's Blog &ndash; My favorite pizzeria is event-driven... my back-end server too (C++, Python)</title>
+<meta property="og:image" content="//jguegant.github.io/blogs/tech/images/myself.png">
+
+  <title>Jean Guegant's Blog &ndash; My favorite pizzeria is event-driven... my back-end server too (C++, Python)</title>
+
 </head>
 <body>
   <aside>
@@ -36,33 +66,59 @@
         <img src="//jguegant.github.io/blogs/tech/images/myself.png" alt="Jean Guegant" title="Jean Guegant">
       </a>
       <h1><a href="//jguegant.github.io/blogs/tech">Jean Guegant</a></h1>
-      <p>Software Engineer - C++, security, game development and random thoughts.</p>
-      <nav>
+
+<p>Software Engineer - C++, security, game development and random thoughts.</p>      <nav>
         <ul class="list">
-          <li><a href="//jguegant.github.io/blogs/tech/pages/about.html#about">About</a></li>
-          <li><a href="//jguegant.github.io/blogs/tech/pages/contact.html#contact">Contact</a></li>
+
+            <li><a target="_blank" href="//jguegant.github.io/blogs/tech/pages/about.html#about">About</a></li>
+            <li><a target="_blank" href="//jguegant.github.io/blogs/tech/pages/contact.html#contact">Contact</a></li>
+
         </ul>
       </nav>
+
       <ul class="social">
-        <li><a class="sc-linkedin" href="https://se.linkedin.com/in/jguegant" target="_blank"><i class="fa fa-linkedin"></i></a></li>
-        <li><a class="sc-github" href="https://github.com/Jiwan" target="_blank"><i class="fa fa-github"></i></a></li>
+          <li>
+            <a  class="sc-linkedin" href="https://se.linkedin.com/in/jguegant" target="_blank">
+            <i class="fab fa-linkedin">
+            </i>
+          </a></li>
+          <li>
+            <a  class="sc-github" href="https://github.com/Jiwan" target="_blank">
+            <i class="fab fa-github">
+            </i>
+          </a></li>
       </ul>
     </div>
+
+
   </aside>
   <main>
+
     <nav>
-      <a href="//jguegant.github.io/blogs/tech">Home</a>
+      <a href="//jguegant.github.io/blogs/tech">    Home
+</a>
+
       <a href="//jguegant.github.io/blogs/tech/archives.html">Archives</a>
       <a href="//jguegant.github.io/blogs/tech/categories.html">Categories</a>
       <a href="//jguegant.github.io/blogs/tech/tags.html">Tags</a>
-      <a href="//jguegant.github.io/blogs/tech/feeds/all.atom.xml">Atom</a>
+
+      <a href="//jguegant.github.io/blogs/tech/feeds/all.atom.xml">    Atom
+</a>
+
     </nav>
 
-<article>
+<article class="single">
   <header>
+      
     <h1 id="asynchronous-pizzeria">My favorite pizzeria is event-driven... my back-end server too (C++, Python)</h1>
-    <p>Posted on Sun 10 January 2016 in <a href="//jguegant.github.io/blogs/tech/category/c.html">C++</a></p>
+    <p>
+          Posted on Sun 10 January 2016 in <a href="//jguegant.github.io/blogs/tech/category/c.html">C++</a>
+
+
+    </p>
   </header>
+
+
   <div>
     <h2>About this post:</h2>
 <p>Computer programming is a science, or even an art, and as such its community follows trends for better or worse. Today, I am highly positive in our future so let's speak about the new holy grail of any back-end developer, the panacea for web servers: an <strong>asynchronous</strong> <strong>event-driven</strong> architecture. Forget about your old synchronous habits, now we enter in the era of <strong>non-blocking I/O</strong> models, <strong>coroutines</strong>, <strong>callbacks</strong>, hacky <strong>generators</strong>, and all-mighty <strong>asynchronous calls</strong>. <a href="https://nodejs.org/en/">Node.js</a> is conquering the market partly due to its full embrace of such an architecture. Google's latest child, the <a href="https://golang.org/">Go</a> Programming Language, was designed around this concept. Why would we not do the same?</p>
@@ -157,7 +213,7 @@
 <p>Now that we have the possibility to construct a <strong>Proactor</strong> pattern for our long operations using low-level APIs, we can wrap its <strong>event-queue</strong> into an <strong>event-loop</strong>.</p>
 <p>An <strong>event-loop</strong> is the base for an event-driven architecture. <strong>Event loops</strong> are actually fairly common in <strong>UI programming</strong> and <strong>video-games</strong> where user inputs are injected asynchronously in the application logic. A game or UI loop is generally constructed in the following way: check for user inputs ==&gt; update logic accordingly ==&gt; render ==&gt; restart. Thinking about a game where the main loop would <strong>wait</strong> for user inputs instead of some <strong>checks</strong> gives me chills. If an <strong>event-loop</strong> makes sense in these use-cases, so does it for anything else dealing with other external inputs (networking, file, timers).</p>
 <p>In a server, an <strong>event-loop</strong> would look closely to this:</p>
-<div class="highlight"><pre><span></span><span class="c1">// Pseudo-code for an event-loop:</span>
+<div class="highlight"><pre><span></span><code><span class="c1">// Pseudo-code for an event-loop:</span>
 
 <span class="n">DoAsynchronousOperationA</span><span class="p">();</span> <span class="c1">// A first operation!</span>
 
@@ -182,12 +238,12 @@
         <span class="p">}</span>
     <span class="p">}</span>
 <span class="p">}</span>
-</pre></div>
+</code></pre></div>
 
 
 <p>You will notice that you must start a <strong>first asynchronous operation</strong>, before entering the loop, as a <strong>bootstrap</strong>. Otherwise, the queue <strong>eventsQueue</strong> would be forever empty, and your processus would never change its state. Speaking of <strong>state</strong>, you can observe that our logic is now expressed in the shape of a <a href="https://en.wikipedia.org/wiki/Finite-state_machine">state machine</a>, each change of state being the result of an asynchronous operation. Note also that in the state "EVENT_A happened", a big computation could have been done meanwhile an Operation B was processed. One thread and is enough for running this <strong>event-loop</strong> without staling!</p>
 <p>In a more refined version, you would express your states as <a href="https://en.wikipedia.org/wiki/Callback_(computer_programming)"> callback </a> functions:</p>
-<div class="highlight"><pre><span></span><span class="c1">// Pseudo-code for a refined event-loop using callbacks:</span>
+<div class="highlight"><pre><span></span><code><span class="c1">// Pseudo-code for a refined event-loop using callbacks:</span>
 
 <span class="kt">void</span> <span class="nf">aCallBackForA</span><span class="p">()</span> <span class="c1">// A callback in reaction of the EVENT_A...</span>
 <span class="p">{</span>
@@ -214,7 +270,7 @@
         <span class="n">callback</span><span class="p">();</span> <span class="c1">// Execute the callback.</span>
     <span class="p">}</span>
 <span class="p">}</span>
-</pre></div>
+</code></pre></div>
 
 
 <p>Easy right? Well, most of the libraries or frameworks for <strong>event-driven architectures</strong> expose a such interfaces for running <strong>event-loops</strong>, with some attached <strong>asynchronous operations</strong> and <strong>callbacks</strong>. Now that these internals have no secret anymore for you, we can relax a bit and enjoy a bit of code together.</p>
@@ -236,6 +292,12 @@ Running joke test</p>
       <a href="//jguegant.github.io/blogs/tech/tag/asynchronous-architecture.html">asynchronous architecture</a>
     </p>
   </div>
+
+
+
+
+
+<!-- Disqus -->
 <div id="disqus_thread"></div>
 <script type="text/javascript">
     var disqus_shortname = 'jeanguegantswebsite';
@@ -245,51 +307,46 @@ Running joke test</p>
         (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
     })();
 </script>
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+<noscript>
+        Please enable JavaScript to view comments.
+
+</noscript>
+<!-- End Disqus -->
 </article>
 
     <footer>
 <p>
-  &copy; Jean Guegant 2015 - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>
+  &copy;  2015 - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>
 </p>
-<p>Built using <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a></p><p>
+<p>    Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
+</p><p>
   <a rel="license"
      href="http://creativecommons.org/licenses/by-sa/4.0/"
      target="_blank">
     <img alt="Creative Commons License"
          title="Creative Commons License"
          style="border-width:0"
-         src="https://i.creativecommons.org/l/by-sa/4.0/80x15.png"
+           src="https://i.creativecommons.org/l/by-sa/4.0/80x15.png"
          width="80"
          height="15"/>
   </a>
 </p>    </footer>
   </main>
-<script type="text/javascript">
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-  ga('create', 'UA-68827527-1', 'auto');
-  ga('send', 'pageview');
-</script>
+
+
+
 <script type="application/ld+json">
 {
-  "@context": "http://schema.org",
-  "@type": "BlogPosting",
-  "name": "My favorite pizzeria is event-driven... my back-end server too (C++, Python)",
-  "headline": "My favorite pizzeria is event-driven... my back-end server too (C++, Python)",
-  "datePublished": "2016-01-10 14:00:00+01:00",
-  "dateModified": "2016-01-10 14:00:00+01:00",
-  "author": {
-    "@type": "Person",
-    "name": "Jean Guegant",
-    "url": "//jguegant.github.io/blogs/tech/author/jean-guegant.html"
-  },
+  "@context" : "http://schema.org",
+  "@type" : "Blog",
+  "name": " Jean Guegant's Blog ",
+  "url" : "//jguegant.github.io/blogs/tech",
   "image": "//jguegant.github.io/blogs/tech/images/myself.png",
-  "url": "//jguegant.github.io/blogs/tech/drafts/asynchronous-pizzeria.html",
-  "description": "About this post: Computer programming is a science, or even an art, and as such its community follows trends for better or worse. Today, I am highly positive in our future so let's speak about the new holy grail of any back-end developer, the panacea for web servers: an asynchronous …"
+  "description": ""
 }
-</script></body>
+</script>
+
+
+</body>
 </html>

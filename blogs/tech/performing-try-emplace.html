@@ -1,18 +1,45 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <link href='//fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,700,400italic' rel='stylesheet' type='text/css'>
-  <link rel="stylesheet" type="text/css" href="//jguegant.github.io/blogs/tech/theme/css/style.min.css">
-  <link rel="stylesheet" type="text/css" href="//jguegant.github.io/blogs/tech/theme/css/monokai.css">
-  <link rel="stylesheet" type="text/css" href="//jguegant.github.io/blogs/tech/theme/css/font-awesome.min.css">
-  <link href="//jguegant.github.io/blogs/tech/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Jean Guegant's Blog Atom">
-
   <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+  <meta name="HandheldFriendly" content="True" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="robots" content="index, follow" />
+    <meta name="robots" content="index, follow" />
+
+  <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro|Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+
+    <link rel="stylesheet" type="text/css" href="//jguegant.github.io/blogs/tech/theme/stylesheet/style.min.css">
+
+
+  <link rel="stylesheet" type="text/css" href="//jguegant.github.io/blogs/tech/theme/pygments/monokai.min.css">
+  <link rel="stylesheet" type="text/css" href="//jguegant.github.io/blogs/tech/theme/font-awesome/css/fontawesome.css">
+  <link rel="stylesheet" type="text/css" href="//jguegant.github.io/blogs/tech/theme/font-awesome/css/brands.css">
+  <link rel="stylesheet" type="text/css" href="//jguegant.github.io/blogs/tech/theme/font-awesome/css/solid.css">
+
+
+    <link href="//jguegant.github.io/blogs/tech/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Jean Guegant's Blog Atom">
+
+
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+  ga('create', 'UA-68827527-1', 'auto');
+  ga('send', 'pageview');
+</script>
+<!-- End Google Analytics -->
+
 <meta name="author" content="Jean Guegant" />
 <meta name="description" content="Trivia: Lately, I have been working on the reincarnation of a class at work: a hash map. While this class had interesting internals (a sort of dense hash map) and performed really well, its interface was not up to standard both literally and metaphorically. After much of lipstick applied to …" />
 <meta name="keywords" content="C++17, std::map, std::unordered_map.">
+
+
 <meta property="og:site_name" content="Jean Guegant's Blog"/>
 <meta property="og:title" content="How to make your maps, try_emplace and smart pointers play nicely with each others in C++17."/>
 <meta property="og:description" content="Trivia: Lately, I have been working on the reincarnation of a class at work: a hash map. While this class had interesting internals (a sort of dense hash map) and performed really well, its interface was not up to standard both literally and metaphorically. After much of lipstick applied to …"/>
@@ -26,7 +53,10 @@
 <meta property="article:tag" content="C++17"/>
 <meta property="article:tag" content="std::map"/>
 <meta property="article:tag" content="std::unordered_map."/>
-<meta property="og:image" content="//jguegant.github.io/blogs/tech/images/myself.png">  <title>Jean Guegant's Blog &ndash; How to make your maps, try_emplace and smart pointers play nicely with each others in C++17.</title>
+<meta property="og:image" content="//jguegant.github.io/blogs/tech/images/myself.png">
+
+  <title>Jean Guegant's Blog &ndash; How to make your maps, try_emplace and smart pointers play nicely with each others in C++17.</title>
+
 </head>
 <body>
   <aside>
@@ -35,33 +65,59 @@
         <img src="//jguegant.github.io/blogs/tech/images/myself.png" alt="Jean Guegant" title="Jean Guegant">
       </a>
       <h1><a href="//jguegant.github.io/blogs/tech">Jean Guegant</a></h1>
-      <p>Software Engineer - C++, security, game development and random thoughts.</p>
-      <nav>
+
+<p>Software Engineer - C++, security, game development and random thoughts.</p>      <nav>
         <ul class="list">
-          <li><a href="//jguegant.github.io/blogs/tech/pages/about.html#about">About</a></li>
-          <li><a href="//jguegant.github.io/blogs/tech/pages/contact.html#contact">Contact</a></li>
+
+            <li><a target="_blank" href="//jguegant.github.io/blogs/tech/pages/about.html#about">About</a></li>
+            <li><a target="_blank" href="//jguegant.github.io/blogs/tech/pages/contact.html#contact">Contact</a></li>
+
         </ul>
       </nav>
+
       <ul class="social">
-        <li><a class="sc-linkedin" href="https://se.linkedin.com/in/jguegant" target="_blank"><i class="fa fa-linkedin"></i></a></li>
-        <li><a class="sc-github" href="https://github.com/Jiwan" target="_blank"><i class="fa fa-github"></i></a></li>
+          <li>
+            <a  class="sc-linkedin" href="https://se.linkedin.com/in/jguegant" target="_blank">
+            <i class="fab fa-linkedin">
+            </i>
+          </a></li>
+          <li>
+            <a  class="sc-github" href="https://github.com/Jiwan" target="_blank">
+            <i class="fab fa-github">
+            </i>
+          </a></li>
       </ul>
     </div>
+
+
   </aside>
   <main>
+
     <nav>
-      <a href="//jguegant.github.io/blogs/tech">Home</a>
+      <a href="//jguegant.github.io/blogs/tech">    Home
+</a>
+
       <a href="//jguegant.github.io/blogs/tech/archives.html">Archives</a>
       <a href="//jguegant.github.io/blogs/tech/categories.html">Categories</a>
       <a href="//jguegant.github.io/blogs/tech/tags.html">Tags</a>
-      <a href="//jguegant.github.io/blogs/tech/feeds/all.atom.xml">Atom</a>
+
+      <a href="//jguegant.github.io/blogs/tech/feeds/all.atom.xml">    Atom
+</a>
+
     </nav>
 
-<article>
+<article class="single">
   <header>
+      
     <h1 id="performing-try-emplace">How to make your maps, try_emplace and smart pointers play nicely with each others in C++17.</h1>
-    <p>Posted on Sun 18 November 2018 in <a href="//jguegant.github.io/blogs/tech/category/c.html">C++</a></p>
+    <p>
+          Posted on Sun 18 November 2018 in <a href="//jguegant.github.io/blogs/tech/category/c.html">C++</a>
+
+
+    </p>
   </header>
+
+
   <div>
     <h2>Trivia:</h2>
 <p>Lately, I have been working on the reincarnation of a <strong>class</strong> at work: a hash map. 
@@ -77,23 +133,23 @@ We will explore these challenges in this blog post, and try to figure out some s
 <h4>insert:</h4>
 <p>If you observe the interface of the <strong>associative containers</strong> (like <a href="https://en.cppreference.com/w/cpp/container/map">std::map</a> or <a href="https://en.cppreference.com/w/cpp/container/unordered_map">std::unordered_map</a>) in the current standard you will notice that there are 6 member functions to map a value to a given key: <code>insert</code>, <code>insert_or_assign</code>, <code>emplace</code>, <code>emplace_hint</code>, <code>try_emplace</code> and the <strong>subscript operator</strong> (operator[]). That number does not include all the overloads for each of these member functions. It is not a wonder that a lot of C++ users will tend to do suboptimal calls to insert values in their <strong>associative containers</strong>, the choice is not always obvious when you have 6 different functions with slightly different behaviour. </p>
 <p>Typically, you will often this pattern within a code-base:</p>
-<div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">m</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span> <span class="n">m</span><span class="p">;</span>
 
 <span class="c1">// Check if the key is already in m.</span>
 <span class="k">if</span> <span class="p">(</span><span class="n">m</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;johannes&quot;</span><span class="p">)</span> <span class="o">==</span> <span class="n">m</span><span class="p">.</span><span class="n">end</span><span class="p">())</span> <span class="p">{</span> <span class="c1">// Often written as m.count(&quot;johannes&quot;) == 0</span>
     <span class="n">m</span><span class="p">[</span><span class="s">&quot;johannes&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="s">&quot;lucio&quot;</span><span class="p">;</span> <span class="c1">// If not insert they key</span>
 <span class="p">}</span>
-</pre></div>
+</code></pre></div>
 
 
 <p>Little did your colleague, boss, or tired ego know that such a code will do twice a relatively costly job: checking the existence of the key in the map.
 Indeed, in the case of a <code>std::unordered_map</code>, the key <code>"johannes"</code> will be hashed twice: in <code>find</code> and in the <code>operator[]</code>. In both member functions, the <code>std::unoredered_map</code> has to know in which bucket the key will fall into. Worst! If you are having collisions between your keys, checking the existence of a key may induce up to N comparisons (even your hash function can be drunk sometimes) where N is the amount of stored key-value pairs. Potentially mutiplying these comparisons by two is not something you should desire. Such a situation in <code>std::map</code> is even worst, this will always bring roughly O(log(N)) comparisons. Comparing two keys may not always be as cheap as it seems and if you add on top of that the cost of jumping through a linked list of nodes, this should be considered harmful.</p>
 <p>Obviously the answer to this problem is to use <a href="https://en.cppreference.com/w/cpp/container/map/insert">insert</a>. <code>insert</code> as its name implies, will only work if it can insert the key in the <strong>associative container</strong>, meaning that the insertion will not happen if the same key is already in the map. If you really care to know whether the insertion happend, <code>insert</code> will return a <code>pair</code> of an iterator and a boolean that you can query. The iterator points to the newly inserted key-value pair or the already existing one, the boolean indicates whether the insertion happened or not.</p>
-<div class="highlight"><pre><span></span><span class="c1">// Use C++17 structured bindings and class template argument deduction (CTAD)</span>
+<div class="highlight"><pre><span></span><code><span class="c1">// Use C++17 structured bindings and class template argument deduction (CTAD)</span>
 <span class="c1">// See more on my previous post on that topics</span>
 <span class="k">auto</span> <span class="p">[</span><span class="n">it</span><span class="p">,</span> <span class="n">result</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span><span class="p">.</span><span class="n">insert</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="p">(</span><span class="s">&quot;johannes&quot;</span><span class="p">,</span> <span class="s">&quot;lucio&quot;</span><span class="p">));</span> <span class="c1">// Construct a pair and insert it if needed.</span>
 <span class="c1">// Do whatever you want with it and result.</span>
-</pre></div>
+</code></pre></div>
 
 
 <p>Here only one check for the existence will be done, that is much better, isn't it?
@@ -103,20 +159,20 @@ Internally a call to the <strong>move-constructor</strong> of the <code>pair</co
 Relying on the <strong>move-constructor</strong> of a <code>pair</code> to exist AND to be performant is too much of a wishful thinking. </p>
 <h4>emplace:</h4>
 <p>Thanksfully, C++11 added on many containers a new member function called <a href="https://en.cppreference.com/w/cpp/container/map/emplace">emplace</a>. Given a container of type <code>T</code>, <code>emplace</code> will accept the arguments necessary for an in-situ construction of a new instance of <code>T</code>. Meaning that we can easily improve our insertion in this way: </p>
-<div class="highlight"><pre><span></span><span class="k">auto</span> <span class="p">[</span><span class="n">it</span><span class="p">,</span> <span class="n">result</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span><span class="p">.</span><span class="n">emplace</span><span class="p">(</span><span class="s">&quot;johannes&quot;</span><span class="p">,</span> <span class="s">&quot;lucio&quot;</span><span class="p">);</span> <span class="c1">// Construct the pair of &quot;johannes&quot;, &quot;lucio&quot; straight into m.</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="k">auto</span> <span class="p">[</span><span class="n">it</span><span class="p">,</span> <span class="n">result</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span><span class="p">.</span><span class="n">emplace</span><span class="p">(</span><span class="s">&quot;johannes&quot;</span><span class="p">,</span> <span class="s">&quot;lucio&quot;</span><span class="p">);</span> <span class="c1">// Construct the pair of &quot;johannes&quot;, &quot;lucio&quot; straight into m.</span>
+</code></pre></div>
 
 
 <p>I will go slightly against <a href="https://abseil.io/tips/112">abseil's recommendation</a> and say that <code>emplace</code> should be prefered over <code>insert</code> in <strong>C++11</strong> for at least all the <strong>associative containers</strong>. It will perform better (as explained previously) and it also feels more natural (most users think of a key and a value, not a std::pair)! </p>
 <p>Now <code>emplace</code> on <strong>associative containers</strong> has a vicious specification which <a href="https://en.cppreference.com/w/cpp/container/map/emplace">cppreference gently warns you about</a>. For some obscure reasons, even if the <strong>emplace operation</strong> does not succeed since the key already exists, your arguments passed as a <strong>r-value</strong> may have been moved anyway.
 More vaguely, the standard mandates effects only on whether the insertion will happen or not and the return value:</p>
-<div class="highlight"><pre><span></span>Effects: Inserts a value_­type object t constructed with std::forward&lt;Args&gt;(args)... if and only if there is no element in the container with key equivalent to the key of t.
+<div class="highlight"><pre><span></span><code>Effects: Inserts a value_­type object t constructed with std::forward&lt;Args&gt;(args)... if and only if there is no element in the container with key equivalent to the key of t.
 The bool component of the returned pair is true if and only if the insertion takes place, and the iterator component of the pair points to the element with key equivalent to the key of t.
-</pre></div>
+</code></pre></div>
 
 
 <p>This cryptic language-lawyer text does not explain in any way what happens to the arguments in the case of failure. For what we know, they could be sent over smoke signal up to Hong-Kong and inserted into some fortune cookies. Why would we care about that? Well, because that will restrain you to write such code:</p>
-<div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">m</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">m</span><span class="p">;</span>
 <span class="k">auto</span> <span class="n">my_precious_int</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">42</span><span class="p">);</span>
 
 <span class="k">auto</span> <span class="p">[</span><span class="n">it</span><span class="p">,</span> <span class="n">result</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span><span class="p">.</span><span class="n">emplace</span><span class="p">(</span><span class="s">&quot;ricky&quot;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">my_precious_int</span><span class="p">));</span> <span class="c1">// We need to move unique pointers.</span>
@@ -124,7 +180,7 @@ The bool component of the returned pair is true if and only if the insertion tak
 <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">result</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// Alright the insertion failed, let&#39;s do something else with my_precious_int.</span>
     <span class="n">do_something_else</span><span class="p">(</span><span class="o">*</span><span class="n">my_precious_int</span><span class="p">);</span> <span class="c1">// Or can we?</span>
 <span class="p">}</span>
-</pre></div>
+</code></pre></div>
 
 
 <p>Here <code>my_precious_int</code> is unusable right after the call to <code>emplace</code>, it may have been moved-from forever and ever, <strong>EVEN</strong> if the insertion result is <code>false</code>.
@@ -133,9 +189,9 @@ Some confused souls will tell you that this is evident, we called <code>std::mov
 <p>This unleashed <code>emplace</code> is a real pain when you are trying to store move-only types in any <strong>associative container</strong>.
 The standard committee was aware of the issue and fixed it in <strong>C++17</strong> with another member function called <a href="https://en.cppreference.com/w/cpp/container/map/try_emplace§">try_emplace</a>.
 Here are the expected effects:</p>
-<div class="highlight"><pre><span></span>Effects: If the map already contains an element whose key is equivalent to k, there is no effect.
+<div class="highlight"><pre><span></span><code>Effects: If the map already contains an element whose key is equivalent to k, there is no effect.
 Otherwise inserts an object of type value_type constructed with piecewise_construct, forward_as_tuple(std::move(k)), forward_as_tuple(std::forward&lt;Args&gt;(args)...).
-</pre></div>
+</code></pre></div>
 
 
 <p>It effectively prevents your arguments to be moved-from (as well as being packaged into fortune cookies) in the case of an insertion failure.
@@ -145,7 +201,7 @@ Unlike the value argument, the key argument ALWAYS need to be somehow converted 
 The potential conversion would defeat the "there is no effect" policy. 
 <code>try_emplace</code> is stricter and only takes a key of type <strong>key type</strong>, which guarantees that no conversion sequence will be triggered.
 At least <code>try_emplace</code> can help us to safely rewrite the previous example:</p>
-<div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">m</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="n">unordered_map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;&gt;</span> <span class="n">m</span><span class="p">;</span>
 <span class="k">auto</span> <span class="n">my_precious_int</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">42</span><span class="p">);</span>
 
 <span class="k">auto</span> <span class="p">[</span><span class="n">it</span><span class="p">,</span> <span class="n">result</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span><span class="p">.</span><span class="n">try_emplace</span><span class="p">(</span><span class="s">&quot;ricky&quot;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">my_precious_int</span><span class="p">));</span> <span class="c1">// We need to move unique pointers.</span>
@@ -153,7 +209,7 @@ At least <code>try_emplace</code> can help us to safely rewrite the previous exa
 <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">result</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// Alright the insertion failed, let&#39;s do something else with my_precious_int.</span>
     <span class="n">do_something_else</span><span class="p">(</span><span class="o">*</span><span class="n">my_precious_int</span><span class="p">);</span> <span class="c1">// It is safe! </span>
 <span class="p">}</span>
-</pre></div>
+</code></pre></div>
 
 
 <p>Hurray! After three corrections in the standard, we can effectively mix associative containers with <code>unique_ptrs</code> for a maximum of fun and profit!
@@ -175,7 +231,7 @@ Pick your poison!</p>
 <h4>Uncessary object creation or double key lookup:</h4>
 <p>Let's keep the idea of a map of services: <code>std::map&lt;std::string, std::unique_ptr&lt;service&gt;&gt;</code>, and you would like to register a service "file_locator" only if there was none registered earlier.
 Hastily, you may write such code:</p>
-<div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">service</span><span class="o">&gt;&gt;</span> <span class="n">m</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">service</span><span class="o">&gt;&gt;</span> <span class="n">m</span><span class="p">;</span>
 <span class="c1">// ...</span>
 
 <span class="c1">// Create a file locator that explore a file system on a remote server.</span>
@@ -186,7 +242,7 @@ Hastily, you may write such code:</p>
     <span class="c1">// Print which file_locator is already in there. </span>
     <span class="n">log</span><span class="p">(</span><span class="s">&quot;Could not register a remote_file_locator, it has been overridden by: &quot;</span><span class="p">,</span> <span class="n">it</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">.</span><span class="n">name</span><span class="p">());</span>
 <span class="p">}</span>
-</pre></div>
+</code></pre></div>
 
 
 <p>If the <code>remote_file_locator</code> is successfully registered, everything is fine!
@@ -195,13 +251,13 @@ Here your compiler will emit code that allocate enough memory for a <code>remote
 If allocating can be seen as slow in the C++ world, starting a connection to a server is pure hell when it comes to speed.
 If you are not planning to use the instance of this really costly object, why would you create it in the first place?</p>
 <p>So shall we revert to the double lookup?</p>
-<div class="highlight"><pre><span></span><span class="k">auto</span> <span class="n">it</span> <span class="o">=</span> <span class="n">m</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;file_locator&quot;</span><span class="p">);</span>
+<div class="highlight"><pre><span></span><code><span class="k">auto</span> <span class="n">it</span> <span class="o">=</span> <span class="n">m</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;file_locator&quot;</span><span class="p">);</span>
 <span class="k">if</span> <span class="p">(</span><span class="n">it</span> <span class="o">==</span> <span class="n">m</span><span class="p">.</span><span class="n">end</span><span class="p">())</span> <span class="p">{</span>
     <span class="n">m</span><span class="p">[</span><span class="s">&quot;file_locator&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">remote_file_locator</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;8.8.8.8&quot;</span><span class="p">,</span> <span class="s">&quot;/a_folder/&quot;</span><span class="p">);</span>
 <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
     <span class="n">log</span><span class="p">(</span><span class="s">&quot;Could not register a remote_file_locator, it has been overridden by: &quot;</span><span class="p">,</span> <span class="n">it</span><span class="o">-&gt;</span><span class="n">second</span><span class="p">.</span><span class="n">name</span><span class="p">());</span>
 <span class="p">}</span>
-</pre></div>
+</code></pre></div>
 
 
 <p>Hell no! I already explained why I discourage you to use such a pattern in the first part of this post.
@@ -212,14 +268,14 @@ In any case, C++ is all about not paying in performance for uncessary things. </
 <h4>Two clumsy solutions:</h4>
 <p>I, personally, could come up with two solutions. If you have a better one, you are welcome to express it in the comments.</p>
 <p>The first one is actually not so hacky. You can start by trying to emplace an empty <code>unique_ptr</code>, if the insertion works you can always fix it afterwards with a real allocation:</p>
-<div class="highlight"><pre><span></span><span class="c1">// Try to emplace an empty `unique_ptr` first.</span>
+<div class="highlight"><pre><span></span><code><span class="c1">// Try to emplace an empty `unique_ptr` first.</span>
 <span class="k">auto</span> <span class="p">[</span><span class="n">it</span><span class="p">,</span> <span class="n">result</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span><span class="p">.</span><span class="n">try_emplace</span><span class="p">(</span><span class="s">&quot;file_locator&quot;</span><span class="p">,</span> <span class="k">nullptr</span><span class="p">);</span>
 
 <span class="k">if</span> <span class="p">(</span><span class="n">result</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">// The insertion happened, now we can safely create our remote_file_locator without wasting any performance. </span>
     <span class="n">it</span><span class="o">-&gt;</span><span class="n">second</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">remote_file_locator</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;8.8.8.8&quot;</span><span class="p">,</span> <span class="s">&quot;/a_folder/&quot;</span><span class="p">);</span>
 <span class="p">}</span>
-</pre></div>
+</code></pre></div>
 
 
 <p>I somehow dislike this solution. It is not consistent with the usage of <code>try_emplace</code> on more classic types, which do not require any extra step. 
@@ -231,7 +287,7 @@ To do so, I wrote a very simple helper struct that I called <code>lazy_convert_c
 This struct wraps any kind of lambda that acts like factory: the <strong>lambda factory</strong> returns an instance of a given type, <code>"result_type"</code>, when called.
 If at any point the struct needs to be converted to <code>result_type</code>, it will call the internal lambda to generate an instance of <code>result_type</code>.
 Any code should speaks for itself, so here is the <code>lazy_convert_construct</code> beast in all its beauty:</p>
-<div class="highlight"><pre><span></span><span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">Factory</span><span class="o">&gt;</span>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="o">&lt;</span><span class="k">class</span> <span class="nc">Factory</span><span class="o">&gt;</span>
 <span class="k">struct</span> <span class="n">lazy_convert_construct</span>
 <span class="p">{</span>
     <span class="k">using</span> <span class="n">result_type</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">invoke_result_t</span><span class="o">&lt;</span><span class="k">const</span> <span class="n">Factory</span><span class="o">&amp;&gt;</span><span class="p">;</span> <span class="c1">// Use some traits to check what would be the return type of the lambda if called.</span>
@@ -258,14 +314,14 @@ Any code should speaks for itself, so here is the <code>lazy_convert_construct</
 <span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="n">l</span><span class="p">;</span>
 <span class="c1">//      ^ Here l is forced to be converted to an int and will therefore call the lambda to do so.</span>
 <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">x</span><span class="p">;</span> <span class="c1">// Prints 42. </span>
-</pre></div>
+</code></pre></div>
 
 
 <p>Note that the lambda will not be called if there is no conversion needed, this makes it having a <a href="https://en.wikipedia.org/wiki/Lazy_evaluation">lazy evaluation</a>.
 Note also: after turning all optimisations on, the <code>lazy_convert_construct</code> entirely disappears and x will be simply initialised by 42 when needed. </p>
 <p>The next step is to combine this <code>lazy_convert_construct</code> with <code>try_emplace</code>, which works like a charm:</p>
-<div class="highlight"><pre><span></span><span class="k">auto</span> <span class="p">[</span><span class="n">it</span><span class="p">,</span> <span class="n">result</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span><span class="p">.</span><span class="n">try_emplace</span><span class="p">(</span><span class="s">&quot;file_locator&quot;</span><span class="p">,</span> <span class="n">lazy_convert_construct</span><span class="p">([]{</span> <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">remote_file_locator</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;8.8.8.8&quot;</span><span class="p">,</span> <span class="s">&quot;/a_folder/&quot;</span><span class="p">);</span> <span class="p">}));</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="k">auto</span> <span class="p">[</span><span class="n">it</span><span class="p">,</span> <span class="n">result</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span><span class="p">.</span><span class="n">try_emplace</span><span class="p">(</span><span class="s">&quot;file_locator&quot;</span><span class="p">,</span> <span class="n">lazy_convert_construct</span><span class="p">([]{</span> <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">make_unique</span><span class="o">&lt;</span><span class="n">remote_file_locator</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;8.8.8.8&quot;</span><span class="p">,</span> <span class="s">&quot;/a_folder/&quot;</span><span class="p">);</span> <span class="p">}));</span>
+</code></pre></div>
 
 
 <p><code>lazy_convert_construct</code> is now able to create a <code>unique_ptr&lt;remote_file_locator&gt;</code> on-demand. Even with <code>lazy_convert_construct</code>, <code>try_emplace</code> will respect its contract: it will not have any side effect on the <code>lazy_convert_construct</code> object if the key <code>"file_locator"</code> is already present. Meaning that no conversion will happen if the key already exists.
@@ -276,7 +332,7 @@ It is also a one liner!</p>
 So I wrote a very simple benchmark which explores multiple insertion scenarios on a <code>std::map&lt;std::string, std::unique_ptr&lt;T&gt;&gt;</code>.
 You can fetch it <a href="https://github.com/Jiwan/benchmarks_map_insertion">here</a>.</p>
 <p>Using clang 6.0 on my Linux laptop, I obtain the following results:</p>
-<div class="highlight"><pre><span></span>2018-11-18 14:16:17
+<div class="highlight"><pre><span></span><code>2018-11-18 14:16:17
 Running ./fast_try_emplace
 Run on (8 X 3600 MHz CPU s)
 CPU Caches:
@@ -295,14 +351,14 @@ insertion_lazy_convert_try_emplace           503 ns        506 ns    1380488
 no_insertion_double_lookup                   107 ns        107 ns    6300180
 no_insertion_construct_before_try_emplace   8642 ns       8641 ns      80478
 no_insertion_lazy_convert_try_emplace         32 ns         32 ns   22393508
-</pre></div>
+</code></pre></div>
 
 
 <p>Clearly, a sucessful insertion using the double lookup is more expensive than it should. The cost will change depending on the amount of <strong>key-value pairs</strong> already in the map.
 For a failed insertion scenario, my <code>lazy_convert_construct</code> is also faster than the double lookup. I cannot explain why! Internally, <code>find</code> and <code>try_emplace</code> should have the same lookup mechanims.
 And of course, creating a costly object and destroying right after is really bad choice. That explains why <code>no_insertion_construct_before_try_emplace</code>'s record is so damn huge compared to the two others cases (I purposely made the type very costly to create for the no insertion cases).</p>
 <p>GCC offers similar results, without the mysterious advantage of the <code>try_emplace</code> + <code>lazy_convert_construct</code> over the double lookup in a no insertion scenario.</p>
-<div class="highlight"><pre><span></span>2018-11-18 14:17:53
+<div class="highlight"><pre><span></span><code>2018-11-18 14:17:53
 Running ./fast_try_emplace
 Run on (8 X 3600 MHz CPU s)
 CPU Caches:
@@ -321,7 +377,7 @@ insertion_lazy_convert_try_emplace           495 ns        500 ns    1000000
 no_insertion_double_lookup                    44 ns         44 ns   15787599
 no_insertion_construct_before_try_emplace   8659 ns       8658 ns      78869
 no_insertion_lazy_convert_try_emplace         44 ns         44 ns   15895884
-</pre></div>
+</code></pre></div>
 
 
 <p>Now we can proudly claim that we solved all the insertion issues (at least those that I am aware of).
@@ -334,36 +390,36 @@ On one hand you could see them as simple RAII wrappers that take care of a basic
 On the other hand, you could, <strong>very arguably</strong> (&lt;== note this bold statement), see them as some funky <strong>value wrappers</strong> with a very special storage (one that implies pointer semantics). </p>
 <p><strong>Value wrappers</strong> are types that enhance the property of another type(s). The most recent ones in the standard are: <a href="https://en.cppreference.com/w/cpp/utility/optional">std::optional</a>, <a href="https://en.cppreference.com/w/cpp/utility/variant">std::variant</a> and <a href="https://en.cppreference.com/w/cpp/utility/any">std::any</a>. 
 As expected, all of these new <strong>value wrappers</strong> have constructors that accepts an instance of the type they are wrapping:</p>
-<div class="highlight"><pre><span></span><span class="k">struct</span> <span class="n">A</span> <span class="p">{</span>
+<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="n">A</span> <span class="p">{</span>
     <span class="n">A</span><span class="p">(</span><span class="kt">int</span> <span class="n">args1</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">args2</span><span class="p">)</span> <span class="p">{</span> <span class="cm">/* do some with the args */</span><span class="p">}</span>
 <span class="p">};</span>
 
 <span class="c1">// Move construct the newly created A into o.</span>
 <span class="n">std</span><span class="o">::</span><span class="n">optional</span> <span class="n">o</span><span class="p">(</span><span class="n">A</span><span class="p">{</span><span class="mi">42</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">{</span><span class="mi">42</span><span class="p">}});</span>
-</pre></div>
+</code></pre></div>
 
 
 <p>While such constructors might be sufficient for most of the usages of your <strong>value wrappers</strong>, sometimes you really want to avoid any move or copy constructors.
 The standard committee was proactive and provided another set of constructors to build the wrapped value <strong>in-place</strong>.
 In order to disambiguate with the usual constructors, these new constructors take as a first argument a <a href="https://www.fluentcpp.com/2018/04/27/tag-dispatching/">tag type</a>: <a href="https://en.cppreference.com/w/cpp/utility/in_place">std::in_place</a> or <a href="https://en.cppreference.com/w/cpp/utility/in_place">std::in_place_type</a>. Here is how <code>std::in_place</code> works with <code>std::optional</code>:</p>
-<div class="highlight"><pre><span></span><span class="c1">//            ↓ No CTAD            ↓ The arguments needed for constructing a new instance of A.</span>
+<div class="highlight"><pre><span></span><code><span class="c1">//            ↓ No CTAD            ↓ The arguments needed for constructing a new instance of A.</span>
 <span class="n">std</span><span class="o">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="n">A</span><span class="o">&gt;</span> <span class="n">o</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">in_place</span><span class="p">,</span> <span class="mi">42</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">{</span><span class="mi">42</span><span class="p">});</span>
 <span class="c1">//                   ^ dispatch to in place constructor.</span>
-</pre></div>
+</code></pre></div>
 
 
 <p>With such a constructor, we can safely assume that the wrapped instance of <code>A</code> was built directly in its storage place.
 Of course, you can also use this constructor if you are dealing with <code>map::try_emplace</code>:</p>
-<div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="n">A</span><span class="o">&gt;&gt;</span> <span class="n">m</span><span class="p">;</span>
+<div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="n">map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">optional</span><span class="o">&lt;</span><span class="n">A</span><span class="o">&gt;&gt;</span> <span class="n">m</span><span class="p">;</span>
 <span class="n">m</span><span class="p">.</span><span class="n">try_emplace</span><span class="p">(</span><span class="s">&quot;bruno&quot;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">in_place</span><span class="p">,</span> <span class="mi">42</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">{</span><span class="mi">42</span><span class="p">});</span>
 <span class="c1">//                           ^ Will construct the wrapped A deep down in the map.</span>
-</pre></div>
+</code></pre></div>
 
 
 <p>At this point, if you are following my anology between <code>std::unique_ptr</code> and <strong>value wrappers</strong>, you could start to question yourself on why we could not get a similar set of constructors for our smart pointers. Maybe something similar to this:</p>
-<div class="highlight"><pre><span></span><span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">service</span><span class="o">&gt;</span> <span class="n">x</span><span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">allocate_in_place</span><span class="o">&lt;</span><span class="n">remote_file_locator</span><span class="o">&gt;</span><span class="p">,</span> <span class="mi">42</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">{</span><span class="mi">42</span><span class="p">}};</span>
+<div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">service</span><span class="o">&gt;</span> <span class="n">x</span><span class="p">{</span><span class="n">std</span><span class="o">::</span><span class="n">allocate_in_place</span><span class="o">&lt;</span><span class="n">remote_file_locator</span><span class="o">&gt;</span><span class="p">,</span> <span class="mi">42</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">{</span><span class="mi">42</span><span class="p">}};</span>
 <span class="c1">//                          ^ tag                   ^ concret instance   ^ following args.</span>
-</pre></div>
+</code></pre></div>
 
 
 <p>I intentionally chose a different <strong>tag type</strong> than <code>std::in_place</code> for two reasons:</p>
@@ -372,18 +428,18 @@ Of course, you can also use this constructor if you are dealing with <code>map::
 <li>In a similar fashion to <a href="https://en.cppreference.com/w/cpp/utility/in_place">std::in_place_type </a>, we somehow need to encode the concret type we want to instantiate.</li>
 </ul>
 <p>With such a constructor in the standard for <code>unique_ptr</code>, our issue with <code>try_emplace</code> would become trivial to solve. Just call it!</p>
-<div class="highlight"><pre><span></span><span class="k">auto</span> <span class="p">[</span><span class="n">it</span><span class="p">,</span> <span class="n">result</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span><span class="p">.</span><span class="n">try_emplace</span><span class="p">(</span><span class="s">&quot;file_locator&quot;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">allocate_in_place</span><span class="o">&lt;</span><span class="n">remote_file_locator</span><span class="o">&gt;</span><span class="p">,</span> <span class="s">&quot;8.8.8.8&quot;</span><span class="p">,</span> <span class="s">&quot;/a_folder/&quot;</span><span class="p">);</span>
-</pre></div>
+<div class="highlight"><pre><span></span><code><span class="k">auto</span> <span class="p">[</span><span class="n">it</span><span class="p">,</span> <span class="n">result</span><span class="p">]</span> <span class="o">=</span> <span class="n">m</span><span class="p">.</span><span class="n">try_emplace</span><span class="p">(</span><span class="s">&quot;file_locator&quot;</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">allocate_in_place</span><span class="o">&lt;</span><span class="n">remote_file_locator</span><span class="o">&gt;</span><span class="p">,</span> <span class="s">&quot;8.8.8.8&quot;</span><span class="p">,</span> <span class="s">&quot;/a_folder/&quot;</span><span class="p">);</span>
+</code></pre></div>
 
 
 <p>The constructor of <code>unique_ptr</code> that accept the tag <code>allocate_in_place</code> would be called only if only the key "file_locator" is not in there.
 No overhead, simple syntax,  you could not ask for more!</p>
 <p>As a side effect,  my guess is that we could also fully deprecate the usage of <code>make_unique</code> and <code>make_shared</code>:</p>
-<div class="highlight"><pre><span></span><span class="c1">// Before:</span>
+<div class="highlight"><pre><span></span><code><span class="c1">// Before:</span>
 <span class="k">auto</span> <span class="n">x</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="n">something</span><span class="o">&gt;</span><span class="p">(</span><span class="s">&quot;michel&quot;</span><span class="p">,</span> <span class="s">&quot;christian&quot;</span><span class="p">);</span>
 <span class="c1">// After</span>
 <span class="k">auto</span> <span class="n">x</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">allocate_in_place</span><span class="o">&lt;</span><span class="n">something</span><span class="o">&gt;</span><span class="p">,</span> <span class="s">&quot;michel&quot;</span><span class="p">,</span> <span class="s">&quot;christian&quot;</span><span class="p">);</span> 
-</pre></div>
+</code></pre></div>
 
 
 <p>Obviously the syntax is far from being <strong>terse</strong>. The invented feature also does not take in consideration the <strong>allocator arguments</strong> you could receive in a smart pointer.
@@ -404,6 +460,12 @@ Me and a colleague promised ourselves to look a bit more into this topic. Whethe
       <a href="//jguegant.github.io/blogs/tech/tag/stdunordered_map.html">std::unordered_map.</a>
     </p>
   </div>
+
+
+
+
+
+<!-- Disqus -->
 <div id="disqus_thread"></div>
 <script type="text/javascript">
     var disqus_shortname = 'jeanguegantswebsite';
@@ -413,51 +475,46 @@ Me and a colleague promised ourselves to look a bit more into this topic. Whethe
         (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
     })();
 </script>
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+<noscript>
+        Please enable JavaScript to view comments.
+
+</noscript>
+<!-- End Disqus -->
 </article>
 
     <footer>
 <p>
-  &copy; Jean Guegant 2015 - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>
+  &copy;  2015 - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>
 </p>
-<p>Built using <a href="http://getpelican.com" target="_blank">Pelican</a> - <a href="https://github.com/alexandrevicenzi/flex" target="_blank">Flex</a> theme by <a href="http://alexandrevicenzi.com" target="_blank">Alexandre Vicenzi</a></p><p>
+<p>    Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
+</p><p>
   <a rel="license"
      href="http://creativecommons.org/licenses/by-sa/4.0/"
      target="_blank">
     <img alt="Creative Commons License"
          title="Creative Commons License"
          style="border-width:0"
-         src="https://i.creativecommons.org/l/by-sa/4.0/80x15.png"
+           src="https://i.creativecommons.org/l/by-sa/4.0/80x15.png"
          width="80"
          height="15"/>
   </a>
 </p>    </footer>
   </main>
-<script type="text/javascript">
-  (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
-  (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
-  m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
-  })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
 
-  ga('create', 'UA-68827527-1', 'auto');
-  ga('send', 'pageview');
-</script>
+
+
+
 <script type="application/ld+json">
 {
-  "@context": "http://schema.org",
-  "@type": "BlogPosting",
-  "name": "How to make your maps, try_emplace and smart pointers play nicely with each others in C++17.",
-  "headline": "How to make your maps, try_emplace and smart pointers play nicely with each others in C++17.",
-  "datePublished": "2018-11-18 15:30:00+01:00",
-  "dateModified": "2018-11-18 15:35:00+01:00",
-  "author": {
-    "@type": "Person",
-    "name": "Jean Guegant",
-    "url": "//jguegant.github.io/blogs/tech/author/jean-guegant.html"
-  },
+  "@context" : "http://schema.org",
+  "@type" : "Blog",
+  "name": " Jean Guegant's Blog ",
+  "url" : "//jguegant.github.io/blogs/tech",
   "image": "//jguegant.github.io/blogs/tech/images/myself.png",
-  "url": "//jguegant.github.io/blogs/tech/performing-try-emplace.html",
-  "description": "Trivia: Lately, I have been working on the reincarnation of a class at work: a hash map. While this class had interesting internals (a sort of dense hash map) and performed really well, its interface was not up to standard both literally and metaphorically. After much of lipstick applied to …"
+  "description": ""
 }
-</script></body>
+</script>
+
+
+</body>
 </html>
