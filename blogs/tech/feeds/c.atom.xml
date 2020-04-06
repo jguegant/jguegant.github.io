@@ -64,12 +64,14 @@ Well, we could wrap our buckets into contiguous memory like so:&lt;/p&gt;
 &lt;p&gt;&lt;center&gt;&lt;img width=50% height=50% src="//jguegant.github.io/blogs/tech/images/dense_hash_map_layout.png" alt="dense_hash_map layout"/&gt;&lt;/center&gt;&lt;/p&gt;
 &lt;p&gt;Here we are still keeping a linked-list for each buckets, but all the nodes are stored in a vector, therefore one after each others in memory.
 Let's call this a &lt;strong&gt;dense hash map.&lt;/strong&gt;
-Instead of using pointers between nodes, we are expressing their relations with indexes within the vector: here the node with &lt;strong&gt;key1&lt;/strong&gt; store a "next index" having a value of &lt;strong&gt;2&lt;/strong&gt; which is the index of the node with &lt;strong&gt;key2&lt;/strong&gt;. And all of that is a huge improvement! We are gaining on all fronts:
-- Iterating over all the key/value pairs is as fast as iterating over a vector, which is lightning fast.
-- We are saving a pointer on all nodes - the "prev pointer". We don't need any sort of reverse-traversal of a given bucket, but just a global reverse-traversal of all buckets. 
-- We don't need to maintain a begin and end pointer for the list of nodes.
-- Even iterating over a bucket could be faster as the node shouldn't be too scattered in memory since they all belong to one vector.
-All these new properties have a lot of use-cases in the domains I dabble with.
+Instead of using pointers between nodes, we are expressing their relations with indexes within the vector: here the node with &lt;strong&gt;key1&lt;/strong&gt; store a "next index" having a value of &lt;strong&gt;2&lt;/strong&gt; which is the index of the node with &lt;strong&gt;key2&lt;/strong&gt;. And all of that is a huge improvement! We are gaining on all fronts:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Iterating over all the key/value pairs is as fast as iterating over a vector, which is lightning fast.&lt;/li&gt;
+&lt;li&gt;We are saving a pointer on all nodes - the "prev pointer". We don't need any sort of reverse-traversal of a given bucket, but just a global reverse-traversal of all buckets. &lt;/li&gt;
+&lt;li&gt;We don't need to maintain a begin and end pointer for the list of nodes.&lt;/li&gt;
+&lt;li&gt;Even iterating over a bucket could be faster as the node shouldn't be too scattered in memory since they all belong to one vector.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;All these new properties have a lot of use-cases in the domains I dabble with.
 For instance, the &lt;a href="https://en.wikipedia.org/wiki/Entity_component_system"&gt;ECS (Entity-Component-System) pattern&lt;/a&gt; often demands a container where you can do lookup for a component associated to a given entity and at the same being able to traverse all components in one-shot. &lt;/p&gt;
 &lt;p&gt;With that said, the &lt;strong&gt;stable addressing&lt;/strong&gt; is now gone: any insertion into the vector could produce a reallocation of its internal buffer, ending in a massive move of all the nodes across memory. So what if your user really need stable addressing? As &lt;strong&gt;David Wheeler&lt;/strong&gt; would say: "just use another level of indirection".
 Instead of a using a &lt;code&gt;dense_hash_map&amp;lt;Key, Value&amp;gt;&lt;/code&gt;, your user can always use a &lt;code&gt;dense_hash_map&amp;lt;Key, unique_ptr&amp;lt;Value&amp;gt;&amp;gt;&lt;/code&gt;: &lt;/p&gt;
@@ -202,9 +204,11 @@ Let's assume that you have some bit flags (flag sets) as a key:&lt;/p&gt;
 
 &lt;p&gt;Now, if you were to take these two flag sets and feed them directly to the modulo operation of the map, they would end-up in the same bucket simply because both of them have &lt;code&gt;a_precious_flag&lt;/code&gt; and &lt;code&gt;another_flag&lt;/code&gt; on. This gives way too much importance to the bits that &lt;code&gt;a_precious_flag&lt;/code&gt; and &lt;code&gt;another_flag&lt;/code&gt; represent.
 The fact that we are using a power two (4 in this case) will always make the lower bits very significant.
-It is not often that you store flag sets or bit fields as keys in a map, I will give you that, but as a good practice you should:
-- Remind yourself not to create a corner-case with bits more important than others in your key.
-- And if it happens, you should re-write your hash function to shuffle your bits around. &lt;/p&gt;
+It is not often that you store flag sets or bit fields as keys in a map, I will give you that, but as a good practice you should:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Remind yourself not to create a corner-case with bits more important than others in your key.&lt;/li&gt;
+&lt;li&gt;And if it happens, you should re-write your hash function to shuffle your bits around. &lt;/li&gt;
+&lt;/ul&gt;
 &lt;h2&gt;First conclusion&lt;/h2&gt;
 &lt;p&gt;Now we have a grand master plan to beat &lt;code&gt;std::unordered_map&lt;/code&gt; by removing some assumptions the standard had to make to be preserve us from some dangers.
 The hacks used are not even too difficult to grasp, so where is the difficulty in writing new containers? Well, some creepy C++ features are waiting for us around the corner.&lt;/p&gt;

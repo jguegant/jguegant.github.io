@@ -176,12 +176,14 @@ Well, we could wrap our buckets into contiguous memory like so:</p>
 <p><center><img width=50% height=50% src="//jguegant.github.io/blogs/tech/images/dense_hash_map_layout.png" alt="dense_hash_map layout"/></center></p>
 <p>Here we are still keeping a linked-list for each buckets, but all the nodes are stored in a vector, therefore one after each others in memory.
 Let's call this a <strong>dense hash map.</strong>
-Instead of using pointers between nodes, we are expressing their relations with indexes within the vector: here the node with <strong>key1</strong> store a "next index" having a value of <strong>2</strong> which is the index of the node with <strong>key2</strong>. And all of that is a huge improvement! We are gaining on all fronts:
-- Iterating over all the key/value pairs is as fast as iterating over a vector, which is lightning fast.
-- We are saving a pointer on all nodes - the "prev pointer". We don't need any sort of reverse-traversal of a given bucket, but just a global reverse-traversal of all buckets. 
-- We don't need to maintain a begin and end pointer for the list of nodes.
-- Even iterating over a bucket could be faster as the node shouldn't be too scattered in memory since they all belong to one vector.
-All these new properties have a lot of use-cases in the domains I dabble with.
+Instead of using pointers between nodes, we are expressing their relations with indexes within the vector: here the node with <strong>key1</strong> store a "next index" having a value of <strong>2</strong> which is the index of the node with <strong>key2</strong>. And all of that is a huge improvement! We are gaining on all fronts:</p>
+<ul>
+<li>Iterating over all the key/value pairs is as fast as iterating over a vector, which is lightning fast.</li>
+<li>We are saving a pointer on all nodes - the "prev pointer". We don't need any sort of reverse-traversal of a given bucket, but just a global reverse-traversal of all buckets. </li>
+<li>We don't need to maintain a begin and end pointer for the list of nodes.</li>
+<li>Even iterating over a bucket could be faster as the node shouldn't be too scattered in memory since they all belong to one vector.</li>
+</ul>
+<p>All these new properties have a lot of use-cases in the domains I dabble with.
 For instance, the <a href="https://en.wikipedia.org/wiki/Entity_component_system">ECS (Entity-Component-System) pattern</a> often demands a container where you can do lookup for a component associated to a given entity and at the same being able to traverse all components in one-shot. </p>
 <p>With that said, the <strong>stable addressing</strong> is now gone: any insertion into the vector could produce a reallocation of its internal buffer, ending in a massive move of all the nodes across memory. So what if your user really need stable addressing? As <strong>David Wheeler</strong> would say: "just use another level of indirection".
 Instead of a using a <code>dense_hash_map&lt;Key, Value&gt;</code>, your user can always use a <code>dense_hash_map&lt;Key, unique_ptr&lt;Value&gt;&gt;</code>: </p>
@@ -314,9 +316,11 @@ Let's assume that you have some bit flags (flag sets) as a key:</p>
 
 <p>Now, if you were to take these two flag sets and feed them directly to the modulo operation of the map, they would end-up in the same bucket simply because both of them have <code>a_precious_flag</code> and <code>another_flag</code> on. This gives way too much importance to the bits that <code>a_precious_flag</code> and <code>another_flag</code> represent.
 The fact that we are using a power two (4 in this case) will always make the lower bits very significant.
-It is not often that you store flag sets or bit fields as keys in a map, I will give you that, but as a good practice you should:
-- Remind yourself not to create a corner-case with bits more important than others in your key.
-- And if it happens, you should re-write your hash function to shuffle your bits around. </p>
+It is not often that you store flag sets or bit fields as keys in a map, I will give you that, but as a good practice you should:</p>
+<ul>
+<li>Remind yourself not to create a corner-case with bits more important than others in your key.</li>
+<li>And if it happens, you should re-write your hash function to shuffle your bits around. </li>
+</ul>
 <h2>First conclusion</h2>
 <p>Now we have a grand master plan to beat <code>std::unordered_map</code> by removing some assumptions the standard had to make to be preserve us from some dangers.
 The hacks used are not even too difficult to grasp, so where is the difficulty in writing new containers? Well, some creepy C++ features are waiting for us around the corner.</p>
