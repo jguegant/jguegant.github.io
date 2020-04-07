@@ -10,16 +10,16 @@
 
   <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro|Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
 
-    <link rel="stylesheet" type="text/css" href="https//jguegant.github.io/blogs/tech/theme/stylesheet/style.min.css">
+    <link rel="stylesheet" type="text/css" href="//jguegant.github.io/blogs/tech/theme/stylesheet/style.min.css">
 
 
-  <link rel="stylesheet" type="text/css" href="https//jguegant.github.io/blogs/tech/theme/pygments/monokai.min.css">
-  <link rel="stylesheet" type="text/css" href="https//jguegant.github.io/blogs/tech/theme/font-awesome/css/fontawesome.css">
-  <link rel="stylesheet" type="text/css" href="https//jguegant.github.io/blogs/tech/theme/font-awesome/css/brands.css">
-  <link rel="stylesheet" type="text/css" href="https//jguegant.github.io/blogs/tech/theme/font-awesome/css/solid.css">
+  <link rel="stylesheet" type="text/css" href="//jguegant.github.io/blogs/tech/theme/pygments/monokai.min.css">
+  <link rel="stylesheet" type="text/css" href="//jguegant.github.io/blogs/tech/theme/font-awesome/css/fontawesome.css">
+  <link rel="stylesheet" type="text/css" href="//jguegant.github.io/blogs/tech/theme/font-awesome/css/brands.css">
+  <link rel="stylesheet" type="text/css" href="//jguegant.github.io/blogs/tech/theme/font-awesome/css/solid.css">
 
 
-    <link href="https//jguegant.github.io/blogs/tech/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Jean Guegant's Blog Atom">
+    <link href="//jguegant.github.io/blogs/tech/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Jean Guegant's Blog Atom">
 
 
 
@@ -44,17 +44,17 @@
 <meta property="og:title" content="An introduction to C++&#39;s variadic templates: a thread-safe multi-type map"/>
 <meta property="og:description" content="Trivia: One of our favorite motto in our C++ team at work is: you shall use dependency injections instead of singletons! It actually comes with our unit-testing strategy. If the various components of your architecture are too tightly coupled, it becomes a tremendous effort to deeply test small critical chunks …"/>
 <meta property="og:locale" content="en_US"/>
-<meta property="og:url" content="https//jguegant.github.io/blogs/tech/thread-safe-multi-type-map.html"/>
+<meta property="og:url" content="//jguegant.github.io/blogs/tech/thread-safe-multi-type-map.html"/>
 <meta property="og:type" content="article"/>
 <meta property="article:published_time" content="2016-02-01 14:00:00+01:00"/>
 <meta property="article:modified_time" content="2016-02-01 14:00:00+01:00"/>
-<meta property="article:author" content="https//jguegant.github.io/blogs/tech/author/jean-guegant.html">
+<meta property="article:author" content="//jguegant.github.io/blogs/tech/author/jean-guegant.html">
 <meta property="article:section" content="C++"/>
 <meta property="article:tag" content="C++11"/>
 <meta property="article:tag" content="C++14"/>
 <meta property="article:tag" content="variadic templates"/>
 <meta property="article:tag" content="meta programming"/>
-<meta property="og:image" content="https//jguegant.github.io/blogs/tech/images/myself.png">
+<meta property="og:image" content="//jguegant.github.io/blogs/tech/images/myself.png">
 
   <title>Jean Guegant's Blog &ndash; An introduction to C++&#39;s variadic templates: a thread-safe multi-type map</title>
 
@@ -62,16 +62,16 @@
 <body>
   <aside>
     <div>
-      <a href="https//jguegant.github.io/blogs/tech">
-        <img src="https//jguegant.github.io/blogs/tech/images/myself.png" alt="Jean Guegant" title="Jean Guegant">
+      <a href="//jguegant.github.io/blogs/tech">
+        <img src="//jguegant.github.io/blogs/tech/images/myself.png" alt="Jean Guegant" title="Jean Guegant">
       </a>
-      <h1><a href="https//jguegant.github.io/blogs/tech">Jean Guegant</a></h1>
+      <h1><a href="//jguegant.github.io/blogs/tech">Jean Guegant</a></h1>
 
 <p>Software Engineer - C++, security, game development and random thoughts.</p>      <nav>
         <ul class="list">
 
-            <li><a target="_blank" href="https//jguegant.github.io/blogs/tech/pages/about.html#about">About</a></li>
-            <li><a target="_blank" href="https//jguegant.github.io/blogs/tech/pages/contact.html#contact">Contact</a></li>
+            <li><a target="_blank" href="//jguegant.github.io/blogs/tech/pages/about.html#about">About</a></li>
+            <li><a target="_blank" href="//jguegant.github.io/blogs/tech/pages/contact.html#contact">Contact</a></li>
 
         </ul>
       </nav>
@@ -95,14 +95,14 @@
   <main>
 
     <nav>
-      <a href="https//jguegant.github.io/blogs/tech">    Home
+      <a href="//jguegant.github.io/blogs/tech">    Home
 </a>
 
-      <a href="https//jguegant.github.io/blogs/tech/archives.html">Archives</a>
-      <a href="https//jguegant.github.io/blogs/tech/categories.html">Categories</a>
-      <a href="https//jguegant.github.io/blogs/tech/tags.html">Tags</a>
+      <a href="//jguegant.github.io/blogs/tech/archives.html">Archives</a>
+      <a href="//jguegant.github.io/blogs/tech/categories.html">Categories</a>
+      <a href="//jguegant.github.io/blogs/tech/tags.html">Tags</a>
 
-      <a href="https//jguegant.github.io/blogs/tech/feeds/all.atom.xml">    Atom
+      <a href="//jguegant.github.io/blogs/tech/feeds/all.atom.xml">    Atom
 </a>
 
     </nav>
@@ -112,7 +112,7 @@
       
     <h1 id="thread-safe-multi-type-map">An introduction to C++'s variadic templates: a thread-safe multi-type map</h1>
     <p>
-          Posted on Mon 01 February 2016 in <a href="https//jguegant.github.io/blogs/tech/category/c.html">C++</a>
+          Posted on Mon 01 February 2016 in <a href="//jguegant.github.io/blogs/tech/category/c.html">C++</a>
 
 
     </p>
@@ -533,7 +533,7 @@ If using types as keys seems odd for you, fear not! Here is the most rational ex
 
 
 <p>Here is a UML representation of this Repository using distinct <strong>Keys</strong> for the type <strong>std::string</strong>:
-<img alt="A nice UML diagram of my classes" src="https/jguegant.github.io/blogs/tech/images/repository_uml.png"></p>
+<img alt="A nice UML diagram of my classes" src="//jguegant.github.io/blogs/tech/images/repository_uml.png"></p>
 <p>Our repository class is missing an <strong>emplace</strong> method, right? <strong>emplace</strong> is taking a variable number of arguments with different types and <strong>forward</strong> them to create an object within one of our slots. A variable number of arguments and types must remind you something... <strong>variadic templates</strong>! Let's create this variadic <strong>emplace</strong> method as well as its equivalent in the Slot class:</p>
 <div class="highlight"><pre><span></span><code><span class="c1">// In class Slot:</span>
 
@@ -578,7 +578,7 @@ If using types as keys seems odd for you, fear not! Here is the most rational ex
 </code></pre></div>
 
 
-<p>We are done for this part (finally...), time to think about multi-threading! If you want to know more about the magic behind <strong>std::is_base_of</strong>, I would suggest you to read my previous post on <a href="https/jguegant.github.io/blogs/tech/sfinae-introduction.html">SFINAE</a>, it might give you few hints. Here is a <a href="https://gist.github.com/Jiwan/c1daf7a80ebeb166dc61">gist</a> of what we achieved so far. Did you notice the change on <strong>emplace</strong>? If you do not understand it, have a look at <a href="http://thbecker.net/articles/rvalue_references/section_07.html">this explanation on perfect forwarding</a>. Sadly, it would be a way too long topic for this post (trust me on that point!) and has a minor impact on our repository right now.</p>
+<p>We are done for this part (finally...), time to think about multi-threading! If you want to know more about the magic behind <strong>std::is_base_of</strong>, I would suggest you to read my previous post on <a href="//jguegant.github.io/blogs/tech/sfinae-introduction.html">SFINAE</a>, it might give you few hints. Here is a <a href="https://gist.github.com/Jiwan/c1daf7a80ebeb166dc61">gist</a> of what we achieved so far. Did you notice the change on <strong>emplace</strong>? If you do not understand it, have a look at <a href="http://thbecker.net/articles/rvalue_references/section_07.html">this explanation on perfect forwarding</a>. Sadly, it would be a way too long topic for this post (trust me on that point!) and has a minor impact on our repository right now.</p>
 <h4>Let's play safe:</h4>
 <p>The repository we just succeeded to craft can now be used in a single-thread environment without further investigation. But the initial decision was to make this class manipulable from multiple-threads without any worries considering the safety of our operations. As explained in the beginning of this post, we will not use direct values as we currently do, but instead allocate our objects on the heap and use some <strong>shared pointers</strong> to strictly control their <strong>lifetime</strong>. No matter which version (recent or deprecated) of the object a thread is manipulating, it's lifetime will be extended until the last thread using it definitely release it. It also implies that the objects themselves are thread-safe. In the case of read-only objects like configs or assets, it shouldn't be too much a burden. In this <a href="https://gist.github.com/Jiwan/cb66d01c38128a351f42">gist</a>, you will find a repository version using <strong>std::shared_ptrs</strong>.</p>
 <p><strong>std::shared_ptr</strong> is an amazing feature of <strong>C++11</strong> when dealing with multi-threading, but has its weakness. Within my code (in the previous gist link) a race condition can occur:</p>
@@ -772,10 +772,10 @@ If using types as keys seems odd for you, fear not! Here is the most rational ex
   </div>
   <div class="tag-cloud">
     <p>
-      <a href="https//jguegant.github.io/blogs/tech/tag/c11.html">C++11</a>
-      <a href="https//jguegant.github.io/blogs/tech/tag/c14.html">C++14</a>
-      <a href="https//jguegant.github.io/blogs/tech/tag/variadic-templates.html">variadic templates</a>
-      <a href="https//jguegant.github.io/blogs/tech/tag/meta-programming.html">meta programming</a>
+      <a href="//jguegant.github.io/blogs/tech/tag/c11.html">C++11</a>
+      <a href="//jguegant.github.io/blogs/tech/tag/c14.html">C++14</a>
+      <a href="//jguegant.github.io/blogs/tech/tag/variadic-templates.html">variadic templates</a>
+      <a href="//jguegant.github.io/blogs/tech/tag/meta-programming.html">meta programming</a>
     </p>
   </div>
 
@@ -827,8 +827,8 @@ If using types as keys seems odd for you, fear not! Here is the most rational ex
   "@context" : "http://schema.org",
   "@type" : "Blog",
   "name": " Jean Guegant's Blog ",
-  "url" : "https//jguegant.github.io/blogs/tech",
-  "image": "https//jguegant.github.io/blogs/tech/images/myself.png",
+  "url" : "//jguegant.github.io/blogs/tech",
+  "image": "//jguegant.github.io/blogs/tech/images/myself.png",
   "description": ""
 }
 </script>

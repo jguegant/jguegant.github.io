@@ -4,273 +4,273 @@ xsi:schemaLocation="http://www.sitemaps.org/schemas/sitemap/0.9 http://www.sitem
 xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
-<loc>https//jguegant.github.io/blogs/tech/</loc>
-<lastmod>2020-04-07T20:37:49-00:00</lastmod>
+<loc>//jguegant.github.io/blogs/tech/</loc>
+<lastmod>2020-04-06T23:07:57-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
-<loc>https//jguegant.github.io/blogs/tech/archives.html</loc>
-<lastmod>2020-04-07T20:37:49-00:00</lastmod>
+<loc>//jguegant.github.io/blogs/tech/archives.html</loc>
+<lastmod>2020-04-06T23:07:57-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
-<loc>https//jguegant.github.io/blogs/tech/tags.html</loc>
-<lastmod>2020-04-07T20:37:49-00:00</lastmod>
+<loc>//jguegant.github.io/blogs/tech/tags.html</loc>
+<lastmod>2020-04-06T23:07:57-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
-<loc>https//jguegant.github.io/blogs/tech/categories.html</loc>
-<lastmod>2020-04-07T20:37:49-00:00</lastmod>
+<loc>//jguegant.github.io/blogs/tech/categories.html</loc>
+<lastmod>2020-04-06T23:07:57-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
-<loc>https//jguegant.github.io/blogs/tech/pages/about.html</loc>
+<loc>//jguegant.github.io/blogs/tech/pages/about.html</loc>
 <lastmod>2015-10-13T22:20:00+02:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>https//jguegant.github.io/blogs/tech/pages/contact.html</loc>
+<loc>//jguegant.github.io/blogs/tech/pages/contact.html</loc>
 <lastmod>2015-10-13T22:20:00+02:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.5</priority>
 </url>
 
 <url>
-<loc>https//jguegant.github.io/blogs/tech/dense-hash-map.html</loc>
+<loc>//jguegant.github.io/blogs/tech/dense-hash-map.html</loc>
 <lastmod>2020-04-06T17:40:00+02:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
-<loc>https//jguegant.github.io/blogs/tech/trip-report-meetingcpp-2019.html</loc>
+<loc>//jguegant.github.io/blogs/tech/trip-report-meetingcpp-2019.html</loc>
 <lastmod>2019-11-29T22:30:00+01:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
-<loc>https//jguegant.github.io/blogs/tech/performing-try-emplace.html</loc>
+<loc>//jguegant.github.io/blogs/tech/performing-try-emplace.html</loc>
 <lastmod>2018-11-18T15:35:00+01:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
-<loc>https//jguegant.github.io/blogs/tech/trip-report-cppcon-2018.html</loc>
+<loc>//jguegant.github.io/blogs/tech/trip-report-cppcon-2018.html</loc>
 <lastmod>2018-10-07T23:09:00+02:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
-<loc>https//jguegant.github.io/blogs/tech/meta-crush-saga.html</loc>
+<loc>//jguegant.github.io/blogs/tech/meta-crush-saga.html</loc>
 <lastmod>2018-05-19T23:30:00+02:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
-<loc>https//jguegant.github.io/blogs/tech/distributed-c++-meetup-0x02.html</loc>
+<loc>//jguegant.github.io/blogs/tech/distributed-c++-meetup-0x02.html</loc>
 <lastmod>2018-04-07T21:04:00+02:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
-<loc>https//jguegant.github.io/blogs/tech/distributed-c++-meetup.html</loc>
+<loc>//jguegant.github.io/blogs/tech/distributed-c++-meetup.html</loc>
 <lastmod>2018-03-20T21:04:00+01:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
-<loc>https//jguegant.github.io/blogs/tech/trip-report-meetingcpp-2017.html</loc>
+<loc>//jguegant.github.io/blogs/tech/trip-report-meetingcpp-2017.html</loc>
 <lastmod>2017-11-16T23:09:00+01:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
-<loc>https//jguegant.github.io/blogs/tech/c++-stockholm-0x02.html</loc>
+<loc>//jguegant.github.io/blogs/tech/c++-stockholm-0x02.html</loc>
 <lastmod>2017-02-20T21:04:00+01:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
-<loc>https//jguegant.github.io/blogs/tech/thread-safe-multi-type-map.html</loc>
+<loc>//jguegant.github.io/blogs/tech/thread-safe-multi-type-map.html</loc>
 <lastmod>2016-02-01T14:00:00+01:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
-<loc>https//jguegant.github.io/blogs/tech/sfinae-introduction.html</loc>
+<loc>//jguegant.github.io/blogs/tech/sfinae-introduction.html</loc>
 <lastmod>2015-10-18T14:00:00+02:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
-<loc>https//jguegant.github.io/blogs/tech/first-post.html</loc>
+<loc>//jguegant.github.io/blogs/tech/first-post.html</loc>
 <lastmod>2015-10-17T21:04:00+02:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
-<loc>https//jguegant.github.io/blogs/tech/category/c.html</loc>
+<loc>//jguegant.github.io/blogs/tech/category/c.html</loc>
 <lastmod>2020-04-06T17:40:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
-<loc>https//jguegant.github.io/blogs/tech/category/news.html</loc>
+<loc>//jguegant.github.io/blogs/tech/category/news.html</loc>
 <lastmod>2018-04-07T21:04:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
-<loc>https//jguegant.github.io/blogs/tech/tag/c17.html</loc>
+<loc>//jguegant.github.io/blogs/tech/tag/c17.html</loc>
 <lastmod>2020-04-06T17:40:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
-<loc>https//jguegant.github.io/blogs/tech/tag/hash-map.html</loc>
+<loc>//jguegant.github.io/blogs/tech/tag/hash-map.html</loc>
 <lastmod>2020-04-06T17:40:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
-<loc>https//jguegant.github.io/blogs/tech/tag/unordered_map.html</loc>
+<loc>//jguegant.github.io/blogs/tech/tag/unordered_map.html</loc>
 <lastmod>2020-04-06T17:40:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
-<loc>https//jguegant.github.io/blogs/tech/tag/c.html</loc>
+<loc>//jguegant.github.io/blogs/tech/tag/c.html</loc>
 <lastmod>2019-11-29T22:30:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
-<loc>https//jguegant.github.io/blogs/tech/tag/event.html</loc>
+<loc>//jguegant.github.io/blogs/tech/tag/event.html</loc>
 <lastmod>2019-11-29T22:30:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
-<loc>https//jguegant.github.io/blogs/tech/tag/meetingcpp.html</loc>
+<loc>//jguegant.github.io/blogs/tech/tag/meetingcpp.html</loc>
 <lastmod>2019-11-29T22:30:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
-<loc>https//jguegant.github.io/blogs/tech/tag/stdmap.html</loc>
+<loc>//jguegant.github.io/blogs/tech/tag/stdmap.html</loc>
 <lastmod>2018-11-18T15:35:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
-<loc>https//jguegant.github.io/blogs/tech/tag/stdunordered_map.html</loc>
+<loc>//jguegant.github.io/blogs/tech/tag/stdunordered_map.html</loc>
 <lastmod>2018-11-18T15:35:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
-<loc>https//jguegant.github.io/blogs/tech/tag/cppcon.html</loc>
+<loc>//jguegant.github.io/blogs/tech/tag/cppcon.html</loc>
 <lastmod>2018-10-07T23:09:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
-<loc>https//jguegant.github.io/blogs/tech/tag/tmp.html</loc>
+<loc>//jguegant.github.io/blogs/tech/tag/tmp.html</loc>
 <lastmod>2018-05-19T23:30:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
-<loc>https//jguegant.github.io/blogs/tech/tag/meta-programming.html</loc>
+<loc>//jguegant.github.io/blogs/tech/tag/meta-programming.html</loc>
 <lastmod>2018-05-19T23:30:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
-<loc>https//jguegant.github.io/blogs/tech/tag/constexpr.html</loc>
+<loc>//jguegant.github.io/blogs/tech/tag/constexpr.html</loc>
 <lastmod>2018-05-19T23:30:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
-<loc>https//jguegant.github.io/blogs/tech/tag/c-stockholm-london-berlin-distributed-meetup.html</loc>
+<loc>//jguegant.github.io/blogs/tech/tag/c-stockholm-london-berlin-distributed-meetup.html</loc>
 <lastmod>2018-04-07T21:04:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
-<loc>https//jguegant.github.io/blogs/tech/tag/blog-c17-c-stockholm.html</loc>
+<loc>//jguegant.github.io/blogs/tech/tag/blog-c17-c-stockholm.html</loc>
 <lastmod>2017-02-20T21:04:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
-<loc>https//jguegant.github.io/blogs/tech/tag/c11.html</loc>
+<loc>//jguegant.github.io/blogs/tech/tag/c11.html</loc>
 <lastmod>2016-02-01T14:00:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
-<loc>https//jguegant.github.io/blogs/tech/tag/c14.html</loc>
+<loc>//jguegant.github.io/blogs/tech/tag/c14.html</loc>
 <lastmod>2016-02-01T14:00:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
-<loc>https//jguegant.github.io/blogs/tech/tag/variadic-templates.html</loc>
+<loc>//jguegant.github.io/blogs/tech/tag/variadic-templates.html</loc>
 <lastmod>2016-02-01T14:00:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
-<loc>https//jguegant.github.io/blogs/tech/tag/blog.html</loc>
+<loc>//jguegant.github.io/blogs/tech/tag/blog.html</loc>
 <lastmod>2015-10-17T21:04:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
-<loc>https//jguegant.github.io/blogs/tech/author/jean-guegant.html</loc>
+<loc>//jguegant.github.io/blogs/tech/author/jean-guegant.html</loc>
 <lastmod>2020-04-06T17:40:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
