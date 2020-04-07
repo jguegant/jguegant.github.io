@@ -10,16 +10,16 @@
 
   <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro|Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
 
-    <link rel="stylesheet" type="text/css" href="//jguegant.github.io/blogs/tech/theme/stylesheet/style.min.css">
+    <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/stylesheet/style.min.css">
 
 
-  <link rel="stylesheet" type="text/css" href="//jguegant.github.io/blogs/tech/theme/pygments/monokai.min.css">
-  <link rel="stylesheet" type="text/css" href="//jguegant.github.io/blogs/tech/theme/font-awesome/css/fontawesome.css">
-  <link rel="stylesheet" type="text/css" href="//jguegant.github.io/blogs/tech/theme/font-awesome/css/brands.css">
-  <link rel="stylesheet" type="text/css" href="//jguegant.github.io/blogs/tech/theme/font-awesome/css/solid.css">
+  <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/pygments/monokai.min.css">
+  <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/font-awesome/css/fontawesome.css">
+  <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/font-awesome/css/brands.css">
+  <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/font-awesome/css/solid.css">
 
 
-    <link href="//jguegant.github.io/blogs/tech/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Jean Guegant's Blog Atom">
+    <link href="https://jguegant.github.io/blogs/tech/feeds/all.atom.xml" type="application/atom+xml" rel="alternate" title="Jean Guegant's Blog Atom">
 
 
 
@@ -44,16 +44,16 @@
 <meta property="og:title" content="Making a STL-compatible hash map from scratch."/>
 <meta property="og:description" content="This post is part of a planned series of posts: Part 1 - Beating std::unordered_map (Current) Part 2 - Structuring our code (Coming Soon) Part 3 - ... (Coming Soon) Part 1 - Beating std::unordered_map Trivia: If C++ had an equivalent in the video game world, it would be similar to Dark Souls …"/>
 <meta property="og:locale" content="en_US"/>
-<meta property="og:url" content="//jguegant.github.io/blogs/tech/dense-hash-map.html"/>
+<meta property="og:url" content="https://jguegant.github.io/blogs/tech/dense-hash-map.html"/>
 <meta property="og:type" content="article"/>
 <meta property="article:published_time" content="2020-04-06 17:40:00+02:00"/>
 <meta property="article:modified_time" content="2020-04-06 17:40:00+02:00"/>
-<meta property="article:author" content="//jguegant.github.io/blogs/tech/author/jean-guegant.html">
+<meta property="article:author" content="https://jguegant.github.io/blogs/tech/author/jean-guegant.html">
 <meta property="article:section" content="C++"/>
 <meta property="article:tag" content="C++17"/>
 <meta property="article:tag" content="hash map"/>
 <meta property="article:tag" content="unordered_map."/>
-<meta property="og:image" content="//jguegant.github.io/blogs/tech/images/myself.png">
+<meta property="og:image" content="https://jguegant.github.io/blogs/tech/images/myself.png">
 
   <title>Jean Guegant's Blog &ndash; Making a STL-compatible hash map from scratch.</title>
 
@@ -61,16 +61,16 @@
 <body>
   <aside>
     <div>
-      <a href="//jguegant.github.io/blogs/tech">
-        <img src="//jguegant.github.io/blogs/tech/images/myself.png" alt="Jean Guegant" title="Jean Guegant">
+      <a href="https://jguegant.github.io/blogs/tech">
+        <img src="https://jguegant.github.io/blogs/tech/images/myself.png" alt="Jean Guegant" title="Jean Guegant">
       </a>
-      <h1><a href="//jguegant.github.io/blogs/tech">Jean Guegant</a></h1>
+      <h1><a href="https://jguegant.github.io/blogs/tech">Jean Guegant</a></h1>
 
 <p>Software Engineer - C++, security, game development and random thoughts.</p>      <nav>
         <ul class="list">
 
-            <li><a target="_blank" href="//jguegant.github.io/blogs/tech/pages/about.html#about">About</a></li>
-            <li><a target="_blank" href="//jguegant.github.io/blogs/tech/pages/contact.html#contact">Contact</a></li>
+            <li><a target="_blank" href="https://jguegant.github.io/blogs/tech/pages/about.html#about">About</a></li>
+            <li><a target="_blank" href="https://jguegant.github.io/blogs/tech/pages/contact.html#contact">Contact</a></li>
 
         </ul>
       </nav>
@@ -94,14 +94,14 @@
   <main>
 
     <nav>
-      <a href="//jguegant.github.io/blogs/tech">    Home
+      <a href="https://jguegant.github.io/blogs/tech">    Home
 </a>
 
-      <a href="//jguegant.github.io/blogs/tech/archives.html">Archives</a>
-      <a href="//jguegant.github.io/blogs/tech/categories.html">Categories</a>
-      <a href="//jguegant.github.io/blogs/tech/tags.html">Tags</a>
+      <a href="https://jguegant.github.io/blogs/tech/archives.html">Archives</a>
+      <a href="https://jguegant.github.io/blogs/tech/categories.html">Categories</a>
+      <a href="https://jguegant.github.io/blogs/tech/tags.html">Tags</a>
 
-      <a href="//jguegant.github.io/blogs/tech/feeds/all.atom.xml">    Atom
+      <a href="https://jguegant.github.io/blogs/tech/feeds/all.atom.xml">    Atom
 </a>
 
     </nav>
@@ -111,7 +111,7 @@
       
     <h1 id="dense-hash-map">Making a STL-compatible hash map from scratch.</h1>
     <p>
-          Posted on Mon 06 April 2020 in <a href="//jguegant.github.io/blogs/tech/category/c.html">C++</a>
+          Posted on Mon 06 April 2020 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
 
 
     </p>
@@ -134,7 +134,7 @@ Speaking of which... what could be the final boss of C++?
 According to <a href="https://twitter.com/stephantlavavej">Stephan T. Lavavej (STL)</a> this would be the <a href="https://cppcon2019.sched.com/event/Sft8/floating-point-charconv-making-your-code-10x-faster-with-c17s-final-boss">Floating-Point charconv of the C++17's standard</a>.
 While I wouldn't be able to beat this boss by myself anytime soon, I can tackle a tiny boss: making a standard-compatible (but not necessarily standard-compliant) container from scratch.
 I would like to share with you how to beat this kind of smaller bosses by yourself!</p>
-<p><center><img width=35% height=35% src="//jguegant.github.io/blogs/tech/images/dark-souls.webp" alt="Dark Souls"/></center></p>
+<p><center><img width=35% height=35% src="https://jguegant.github.io/blogs/tech/images/dark-souls.webp" alt="Dark Souls"/></center></p>
 <p>We will build a <code>unordered_map</code> together, with all the arcane beasts that come along: iterators, allocators, type traits... and we will survive it.</p>
 <p>I encourage you to read this post as an introduction to the wonderful world of hash maps and the ways of the standard. You can find the code for the hash-map I am describing thorough this series of posts <a href="https://github.com/Jiwan/dense_hash_map">right here</a>.
 Hopefully when you are done reading this series, you will be ready to explore a bit more what the talented people in the C++ community have produced recently.</p>
@@ -156,7 +156,7 @@ May this over-protective behaviour be damned! We know better!</p>
 <strong>Stable addressing</strong> means that the insertion or deletion of a <strong>key/value pair</strong> in a <code>std::unordered_map</code> should not affect the memory location of other <strong>key/value</strong> pairs in the same <code>std::unordered_map</code>. More precisely, the standard does not mention, in the <a href="https://eel.is/c++draft/unord.map.modifiers">Effects</a> sections of std::unordered_map's modifiers, anything about reference, pointer or iterator invalidation.</p>
 <p>This forces any standard implementation of <code>std::unordered_map</code> to use linked-list for the buckets of pairs rather than contiguous memory.
 <code>std::unordered_map</code> should look roughly like this in memory:</p>
-<p><center><img width=50% height=50% src="//jguegant.github.io/blogs/tech/images/unordered_map_layout.png" alt="unordered_map layout"/></center></p>
+<p><center><img width=50% height=50% src="https://jguegant.github.io/blogs/tech/images/unordered_map_layout.png" alt="unordered_map layout"/></center></p>
 <p>As you can see, the <strong>entries</strong> are stored in a giant <strong>linked-list</strong>. Each of the <strong>buckets</strong> are themselves <strong>sub-parts</strong> of the linked-list.
 Here each colors represent different buckets of key/value pairs.
 When a <strong>key/value pair</strong> is <strong>inserted</strong>, the <strong>key</strong> is somehow <strong>hashed</strong> and adjusted (usually using modulo on the amount of buckets) to find which bucket it belongs to, and the key/value pair gets inserted into that bucket. 
@@ -173,7 +173,7 @@ Each dereference of the pointer to the next node will be a huge drag on your CPU
 On the other hand, since each node are separately allocated, they can stay wherever they are in memory even if others are added or removed, which provides <strong>stable addressing</strong>.</p>
 <p>So what could we obtain if we were to free ourselves from <strong>stable addressing</strong>?
 Well, we could wrap our buckets into contiguous memory like so:</p>
-<p><center><img width=50% height=50% src="//jguegant.github.io/blogs/tech/images/dense_hash_map_layout.png" alt="dense_hash_map layout"/></center></p>
+<p><center><img width=50% height=50% src="https://jguegant.github.io/blogs/tech/images/dense_hash_map_layout.png" alt="dense_hash_map layout"/></center></p>
 <p>Here we are still keeping a linked-list for each buckets, but all the nodes are stored in a vector, therefore one after each others in memory.
 Let's call this a <strong>dense hash map.</strong>
 Instead of using pointers between nodes, we are expressing their relations with indexes within the vector: here the node with <strong>key1</strong> store a "next index" having a value of <strong>2</strong> which is the index of the node with <strong>key2</strong>. And all of that is a huge improvement! We are gaining on all fronts:</p>
@@ -187,7 +187,7 @@ Instead of using pointers between nodes, we are expressing their relations with 
 For instance, the <a href="https://en.wikipedia.org/wiki/Entity_component_system">ECS (Entity-Component-System) pattern</a> often demands a container where you can do lookup for a component associated to a given entity and at the same being able to traverse all components in one-shot. </p>
 <p>With that said, the <strong>stable addressing</strong> is now gone: any insertion into the vector could produce a reallocation of its internal buffer, ending in a massive move of all the nodes across memory. So what if your user really need stable addressing? As <strong>David Wheeler</strong> would say: "just use another level of indirection".
 Instead of a using a <code>dense_hash_map&lt;Key, Value&gt;</code>, your user can always use a <code>dense_hash_map&lt;Key, unique_ptr&lt;Value&gt;&gt;</code>: </p>
-<p><center><img width=50% height=50% src="//jguegant.github.io/blogs/tech/images/dense_hash_map_unique_ptr_layout.png" alt="layout"/></center></p>
+<p><center><img width=50% height=50% src="https://jguegant.github.io/blogs/tech/images/dense_hash_map_unique_ptr_layout.png" alt="layout"/></center></p>
 <p>We are reintroducing pointers, which is obviously not great for the cache again.
 But this time when iterating over all the key/value pairs you will very likely see a substantial improvement over the first layout.
 The pattern of the nodes is clearly more predictable and prefetching abilities of your CPU may come to your help. </p>
@@ -292,7 +292,7 @@ So what do we obtain in this conditions?</p>
 This micro-optimisation may look a bit far-fetched, but it actually matters a lot, as proved by <a href="https://www.youtube.com/watch?v=M2fKMP47slQ">Malte Skarupke</a>, when it comes to lookup operations.</p>
 <p>To further convince you, I have run both implementations of modulo on <a href="http://quick-bench.com/XZGeHdIRvI8tjsgHHmPP22bN8us">quick-bench</a>.
 And here are the results:</p>
-<p><center><img width=70% height=70% src="//jguegant.github.io/blogs/tech/images/modulo-benchmarks.png" alt="layout"/></center></p>
+<p><center><img width=70% height=70% src="https://jguegant.github.io/blogs/tech/images/modulo-benchmarks.png" alt="layout"/></center></p>
 <p>There is no doubts, using <strong>bit operations</strong> instead of <strong>modulo</strong> is indeed faster!</p>
 <p>Note: For the purists, the so-called modulo operator <code>%</code> in C++ is actually an integer remainder operator since it does not handle negative value as a mathematical modulo operation would. One can only imagine how costly a proper modulo would be... </p>
 <h4>Caveats</h4>
@@ -328,9 +328,9 @@ The hacks used are not even too difficult to grasp, so where is the difficulty i
   </div>
   <div class="tag-cloud">
     <p>
-      <a href="//jguegant.github.io/blogs/tech/tag/c17.html">C++17</a>
-      <a href="//jguegant.github.io/blogs/tech/tag/hash-map.html">hash map</a>
-      <a href="//jguegant.github.io/blogs/tech/tag/unordered_map.html">unordered_map.</a>
+      <a href="https://jguegant.github.io/blogs/tech/tag/c17.html">C++17</a>
+      <a href="https://jguegant.github.io/blogs/tech/tag/hash-map.html">hash map</a>
+      <a href="https://jguegant.github.io/blogs/tech/tag/unordered_map.html">unordered_map.</a>
     </p>
   </div>
 
@@ -382,8 +382,8 @@ The hacks used are not even too difficult to grasp, so where is the difficulty i
   "@context" : "http://schema.org",
   "@type" : "Blog",
   "name": " Jean Guegant's Blog ",
-  "url" : "//jguegant.github.io/blogs/tech",
-  "image": "//jguegant.github.io/blogs/tech/images/myself.png",
+  "url" : "https://jguegant.github.io/blogs/tech",
+  "image": "https://jguegant.github.io/blogs/tech/images/myself.png",
   "description": ""
 }
 </script>
