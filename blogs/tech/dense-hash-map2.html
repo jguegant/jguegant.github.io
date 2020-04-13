@@ -242,7 +242,7 @@ We also saw that there were drawbacks in doing so. So instead of forcing this de
         <span class="n">min_capacity</span> <span class="o">|=</span> <span class="n">min_capacity</span> <span class="o">&gt;&gt;</span> <span class="mi">8</span><span class="p">;</span>
         <span class="n">min_capacity</span> <span class="o">|=</span> <span class="n">min_capacity</span> <span class="o">&gt;&gt;</span> <span class="mi">16</span><span class="p">;</span>  
 
-        <span class="k">if</span> <span class="nf">constexpr</span> <span class="p">(</span><span class="k">sizeof</span><span class="p">(</span><span class="n">min_capacity</span><span class="p">)</span> <span class="o">==</span> <span class="mi">8</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nf">constexpr</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="k">decltype</span><span class="p">(</span><span class="n">min_capacity</span><span class="p">)</span><span class="o">&gt;::</span><span class="n">digits</span> <span class="o">&gt;=</span> <span class="mi">64</span><span class="p">)</span>
         <span class="p">{</span>
             <span class="n">min_capacity</span> <span class="o">|=</span> <span class="n">min_capacity</span> <span class="o">&gt;&gt;</span> <span class="mi">32</span><span class="p">;</span>
         <span class="p">}</span>
@@ -272,7 +272,7 @@ And if we add one:
 </code></pre></div>
 
 
-<p><code>compute_closest_capacity</code> is doing exactly that with the operator <code>|=</code> and some bit-shifting with the operator <code>&gt;&gt;</code>. It handles the case where we already have a power two by substracting one before processing the number. Finally, by sprinkling a bit of <code>if constexpr</code> we can detect whether <code>std::size_t</code> is made of 32  or 64 bits. The more bits we have, the more filling we need to do.</p>
+<p><code>compute_closest_capacity</code> is doing exactly that with the operator <code>|=</code> and some bit-shifting with the operator <code>&gt;&gt;</code>. It handles the case where we already have a power two by substracting one before processing the number. Finally, by sprinkling a bit of <code>if constexpr</code> we can detect whether <code>std::size_t</code> is made of 64 bits or more. The more bits we have, the more filling we need to do.</p>
 <p>Note: you can also achieve a similar effect with some built-ins in your conpiler. For instance, GCC provides <a href="https://gcc.gnu.org/onlinedocs/gcc/Other-Builtins.html">__builtin_clz</a> which can be of great help.</p>
 <p>Afterwards, we rely on the growth policy in our <code>dense_hash_map</code> by "using" its functions:</p>
 <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">dense_hash_map</span> <span class="o">:</span> <span class="k">private</span> <span class="n">GrowthPolicy</span>

@@ -288,7 +288,7 @@ So what do we obtain in this conditions?</p>
 </code></pre></div>
 
 
-<p>Not only we have less operations, but <code>lea</code> (loading from memory) and <code>and</code> have much less associated cost than <code>idiv</code>.
+<p>Not only we have less operations, but <code>lea</code> (compute a memory address) and <code>and</code> have much less associated cost than <code>idiv</code>.
 This micro-optimisation may look a bit far-fetched, but it actually matters a lot, as proved by <a href="https://www.youtube.com/watch?v=M2fKMP47slQ">Malte Skarupke</a>, when it comes to lookup operations.</p>
 <p>To further convince you, I have run both implementations of modulo on <a href="http://quick-bench.com/XZGeHdIRvI8tjsgHHmPP22bN8us">quick-bench</a>.
 And here are the results:</p>
