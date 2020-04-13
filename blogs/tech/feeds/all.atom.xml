@@ -1,16 +1,389 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Jean Guegant's Blog</title><link href="https://jguegant.github.io/blogs/tech/" rel="alternate"></link><link href="https://jguegant.github.io/blogs/tech/feeds/all.atom.xml" rel="self"></link><id>https://jguegant.github.io/blogs/tech/</id><updated>2020-04-06T17:40:00+02:00</updated><subtitle>Software Engineer - C++, security, game development and random thoughts.</subtitle><entry><title>Making a STL-compatible hash map from scratch.</title><link href="https://jguegant.github.io/blogs/tech/dense-hash-map.html" rel="alternate"></link><published>2020-04-06T17:40:00+02:00</published><updated>2020-04-06T17:40:00+02:00</updated><author><name>Jean Guegant</name></author><id>tag:jguegant.github.io,2020-04-06:/blogs/tech/dense-hash-map.html</id><summary type="html">&lt;p&gt;This post is part of a planned series of posts:&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Jean Guegant's Blog</title><link href="https://jguegant.github.io/blogs/tech/" rel="alternate"></link><link href="https://jguegant.github.io/blogs/tech/feeds/all.atom.xml" rel="self"></link><id>https://jguegant.github.io/blogs/tech/</id><updated>2020-04-13T17:40:00+02:00</updated><subtitle>Software Engineer - C++, security, game development and random thoughts.</subtitle><entry><title>Making a STL-compatible hash map from scratch - Part 2 - Growth Policies &amp; The Schrodinger std::pair</title><link href="https://jguegant.github.io/blogs/tech/dense-hash-map2.html" rel="alternate"></link><published>2020-04-13T17:40:00+02:00</published><updated>2020-04-13T17:40:00+02:00</updated><author><name>Jean Guegant</name></author><id>tag:jguegant.github.io,2020-04-13:/blogs/tech/dense-hash-map2.html</id><summary type="html">&lt;p&gt;This post is part of a series of posts:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;Part 1 - Beating std::unordered_map (Current)&lt;/li&gt;
-&lt;li&gt;Part 2 - Structuring our code (Coming Soon)&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://jguegant.github.io/blogs/tech/dense-hash-map.html"&gt;Part 1 - Beating std::unordered_map&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Part 2 - Growth Policies &amp;amp; The Schrodinger std::pair (Current)&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;Part 3 - The wonderful world of iterators and allocators (Coming Soon)&lt;/li&gt;
+&lt;li&gt;Part 4 - ... (Coming Soon)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;In the &lt;a href="https://jguegant.github.io/blogs/tech/dense-hash-map.html"&gt;previous post&lt;/a&gt;, we started a quest that consists in implementing …&lt;/p&gt;</summary><content type="html">&lt;p&gt;This post is part of a series of posts:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="https://jguegant.github.io/blogs/tech/dense-hash-map.html"&gt;Part 1 - Beating std::unordered_map&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Part 2 - Growth Policies &amp;amp; The Schrodinger std::pair (Current)&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;Part 3 - The wonderful world of iterators and allocators (Coming Soon)&lt;/li&gt;
+&lt;li&gt;Part 4 - ... (Coming Soon)&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;In the &lt;a href="https://jguegant.github.io/blogs/tech/dense-hash-map.html"&gt;previous post&lt;/a&gt;, we started a quest that consists in implementing an associative container similar to &lt;code&gt;std::unordered_map&lt;/code&gt; in the C++ standard library. We saw two approaches that could help us in beating the performance of most &lt;code&gt;std::unordered_map&lt;/code&gt; implementations: freeing ourselves from stable-addressing and swapping the modulo operation with some bit-wise operations.
+Due to its layout, we called this new associative container a &lt;code&gt;dense_hash_map&lt;/code&gt;. You can find a reference implementation &lt;a href="https://github.com/Jiwan/dense_hash_map"&gt;right here&lt;/a&gt;.&lt;/p&gt;
+&lt;p&gt;Let's carry-on and start our own implementation right now!&lt;/p&gt;
+&lt;h1&gt;Part 2 - Structuring our code &amp;amp; Dealing with value_type:&lt;/h1&gt;
+&lt;h2&gt;Preparing for the adventure:&lt;/h2&gt;
+&lt;p&gt;Disclaimer: this section starts very gently, if your C++ e-beard or e-hair is already pretty long, you may want to skip to the &lt;strong&gt;Structuring our code&lt;/strong&gt; section. &lt;/p&gt;
+&lt;p&gt;Like any hero starting her/his journey, we need to ensure we have the right items in our inventory.&lt;/p&gt;
+&lt;p&gt;For C++, here is my list of handy things to have when working on some standard-ish looking code:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;a href="http://eel.is/c++draft/"&gt;eel.is C++ draft&lt;/a&gt;, the holly bible of C++ itself (the latest draft of the C++ standard).
+eel.is's transformation of the standard latex source files to a clean HTML version is a godsent gift. You can navigate in each of the sections of the standard with ease. In our case, we will mainly refer ourselves to the sections &lt;a href="http://eel.is/c++draft/unord.map"&gt;unord.map&lt;/a&gt;, &lt;a href="http://eel.is/c++draft/associative.reqmts"&gt;associative.reqmts&lt;/a&gt; and &lt;a href="http://eel.is/c++draft/containers"&gt;container&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://en.cppreference.com"&gt;cppreference&lt;/a&gt;, the tuned-down version of the standard. This wiki is of great help when the lawyer language of the standard is too advanced for your taste (sometimes the standard feels downright insulting to your intellectual abilities). On some rare occasions, I have seen &lt;strong&gt;cppreference&lt;/strong&gt; have slightly inacurate descriptions of the standard. It always nice to cross-check the holly bible and this wiki. In our case, we will most refer to the &lt;a href="https://en.cppreference.com/w/cpp/container/unordered_map"&gt;unordered_map section&lt;/a&gt;.&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://godbolt.org/"&gt;godbolt&lt;/a&gt; to experiment quickly your ideas on different compilers and check how the standard reacts for certain use-cases. With the recently added feature that permits you to run code, &lt;strong&gt;godbolt&lt;/strong&gt; is extremely handy. &lt;strong&gt;Goldbot's&lt;/strong&gt; grand cousin, &lt;a href="https://cppinsights.io/"&gt;cppinsights&lt;/a&gt; can help you to explore complicated expressions. &lt;/li&gt;
+&lt;li&gt;&lt;a href="https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines"&gt;The C++ core guidelines&lt;/a&gt;, a bunch of C++ precepts written or more or less by those behind the holly C++ standard. When given multiples way of doing one task, the core guidelines will direct you towards the better way to achieve that task.&lt;/li&gt;
+&lt;li&gt;Some linter and formatting tools. I personally like &lt;a href="https://clang.llvm.org/extra/clang-tidy/"&gt;clang-tidy&lt;/a&gt; and &lt;a href="https://clang.llvm.org/docs/ClangFormat.html"&gt;clang-format&lt;/a&gt;. &lt;/li&gt;
+&lt;li&gt;A good unit-test framework like &lt;a href="https://github.com/catchorg/Catch2"&gt;catch2&lt;/a&gt;. Writing such standard-like code without writing unit-tests is like running naked towards a level 100 creature and expecting to beat it with a simple bamboo stick. Good luck to you to achieve that!&lt;/li&gt;
+&lt;li&gt;A bunch of warnings applied to your compiler. For the unix-like compilers (GCC or clang), a bare minimum would be  &lt;code&gt;-Wall -Wextra -pedantic -Werror&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;&lt;center&gt;&lt;img width=50% height=50% src="https://jguegant.github.io/blogs/tech/images/the-holly-cpp-standard.jpg" alt="The Holly C++ Standard"/&gt;&lt;/center&gt;&lt;/p&gt;
+&lt;p&gt;And some optional items:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;A recent compiler that supports a recent version of the language (C++17 in my case). Technically, nothing prevents you to write standard-library-like code with ancient C++, but each version of the standard made it a lot simpler. This is especially true for the meta-programming part.&lt;/li&gt;
+&lt;li&gt;&lt;a href="https://cmake.org/"&gt;cmake&lt;/a&gt;. Whether you find cmake's syntax an abomination or poetry, it is currently the de-facto standard build tool for any C++ projects.
+Just for that sake of consistency in the C++ ecosystem, I would advise to support some sort of &lt;strong&gt;cmake&lt;/strong&gt; bindings for your project. &lt;/li&gt;
+&lt;/ul&gt;
+&lt;h2&gt;Structuring our code:&lt;/h2&gt;
+&lt;h3&gt;A header only Library:&lt;/h3&gt;
+&lt;p&gt;Given that most of the classes, functions or even variables will have template parameters, there will be very little code that could end-up in its own compilation unit. So the &lt;code&gt;dense_hash_map&lt;/code&gt; will be header library. The file layout is fairly standard:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;├── CMakeLists.txt                                &lt;span class="c1"&gt;# Main CMakeLists.txt file that defines.&lt;/span&gt;
+├── include
+│   └── jg
+│       ├── dense_hash_map.hpp                    &lt;span class="c1"&gt;# Main file to be included by users.&lt;/span&gt;
+│       └── details                               &lt;span class="c1"&gt;# Folder that contains internal structures that users should not depend-on.&lt;/span&gt;
+│           ├── bucket_iterator.hpp
+│           ├── dense_hash_map_iterator.hpp
+│           ├── node.hpp
+│           ├── power_of_two_growth_policy.hpp
+│           └── type_traits.hpp
+├── tests                                         &lt;span class="c1"&gt;# Unit-tests folder.&lt;/span&gt;
+│   ├── CMakeLists.txt
+│   └── src
+│       └── dense_hash_map_tests.cpp
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Note: as any C++ egomaniac would do when facing the hard issue of choosing a namespace for his/her project, I went for my initial "jg".&lt;/p&gt;
+&lt;h3&gt;Our main class in dense_hash_map.hpp:&lt;/h3&gt;
+&lt;p&gt;To be able to organise our code correctly, let's have look at the "dense" layout we saw in the last &lt;a href="https://jguegant.github.io/blogs/tech/dense-hash-map.html"&gt;post&lt;/a&gt;: &lt;/p&gt;
+&lt;p&gt;&lt;center&gt;&lt;img width=60% height=60% src="https://jguegant.github.io/blogs/tech/images/dense_hash_map_layout2.png" alt="The definitive layout"/&gt;&lt;/center&gt;&lt;/p&gt;
+&lt;p&gt;We will have &lt;strong&gt;two vectors&lt;/strong&gt;:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;One for the &lt;strong&gt;buckets&lt;/strong&gt;. More precisely, these are the indices for the first node of the linked-list of each of our buckets.&lt;/li&gt;
+&lt;li&gt;One for all the &lt;strong&gt;nodes&lt;/strong&gt;. These are the nodes in the interleaved linked-lists that hold the key/value pairs.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;While we are crafting our &lt;code&gt;dense_hash_map&lt;/code&gt; from scratch, it doesn't mean that we cannot reuse some of the other containers in the standard library.
+Naturally, our &lt;strong&gt;two vectors&lt;/strong&gt; will be some good old &lt;code&gt;std::vector&lt;/code&gt;. Both of those will be members of our &lt;a href="https://github.com/Jiwan/dense_hash_map/blob/master/include/jg/dense_hash_map.hpp#L892"&gt;dense_hash_map class&lt;/a&gt;. If we inspire ourselves from &lt;a href="https://en.cppreference.com/w/cpp/container/unordered_map"&gt;std::unordered_map's signature&lt;/a&gt;, this gives us our first piece of code:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="k"&gt;template&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;
+    &lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Key&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; 
+    &lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;T&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; 
+    &lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Hash&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;hash&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;Key&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; 
+    &lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Pred&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;equal_to&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;Key&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Allocator&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;allocator&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;pair&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="n"&gt;Key&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt;
+    &lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;GrowthPolicy&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;details&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;power_of_two_growth_policy&lt;/span&gt;
+&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;dense_hash_map&lt;/span&gt; &lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="k"&gt;private&lt;/span&gt; &lt;span class="n"&gt;GrowthPolicy&lt;/span&gt;
+&lt;span class="p"&gt;{&lt;/span&gt;
+&lt;span class="k"&gt;private&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+    &lt;span class="c1"&gt;// Define some aliases to avoid further typing later on.&lt;/span&gt;
+    &lt;span class="k"&gt;using&lt;/span&gt; &lt;span class="n"&gt;node_type&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;details&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;node&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;Key&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="c1"&gt;// A node type that contains our key/value.&lt;/span&gt;
+    &lt;span class="k"&gt;using&lt;/span&gt; &lt;span class="n"&gt;nodes_container_type&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;vector&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;node_type&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="k"&gt;using&lt;/span&gt; &lt;span class="n"&gt;nodes_size_type&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;typename&lt;/span&gt; &lt;span class="n"&gt;nodes_container_type&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;size_type&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="k"&gt;using&lt;/span&gt; &lt;span class="n"&gt;buckets_container_type&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;vector&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;nodes_size_type&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+&lt;span class="k"&gt;public&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+    &lt;span class="c1"&gt;// ...&lt;/span&gt;
+
+&lt;span class="k"&gt;private&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;nodes_container_type&lt;/span&gt; &lt;span class="n"&gt;nodes_&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="n"&gt;buckets_container_type&lt;/span&gt; &lt;span class="n"&gt;buckets_&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="p"&gt;};&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The &lt;code&gt;buckets_container_type&lt;/code&gt; is dependent on the &lt;code&gt;size_type&lt;/code&gt; of the &lt;code&gt;nodes_container_type&lt;/code&gt;. In a &lt;code&gt;std::vector&lt;/code&gt;, &lt;code&gt;size_type&lt;/code&gt; is the type used for accessing elements using the subscript operator &lt;code&gt;operator[]&lt;/code&gt;. It makes sense, since &lt;strong&gt;buckets_&lt;/strong&gt; contains indices for &lt;strong&gt;nodes_&lt;/strong&gt;. Traditionnaly, and to the &lt;a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p1428r0.pdf"&gt;dismay of plenty&lt;/a&gt;, &lt;code&gt;size_type&lt;/code&gt; is &lt;code&gt;std::size_t&lt;/code&gt; which is an unsigned integer. We will use the value of &lt;code&gt;std::numeric_limits&amp;lt;nodes_size_type&amp;gt;::max()&lt;/code&gt; to represent an invalid index into &lt;strong&gt;nodes_&lt;/strong&gt; or the end of our linked-lists:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="k"&gt;static&lt;/span&gt; &lt;span class="kr"&gt;inline&lt;/span&gt; &lt;span class="k"&gt;constexpr&lt;/span&gt; &lt;span class="n"&gt;nodes_size_type&lt;/span&gt; &lt;span class="n"&gt;node_end_index&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;numeric_limits&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;nodes_size_type&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;::&lt;/span&gt;&lt;span class="n"&gt;max&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;For instance, &lt;strong&gt;buckets_&lt;/strong&gt; will be initialized, at the construction of an empty &lt;code&gt;dense_hash_map&lt;/code&gt;, with &lt;code&gt;node_end_index&lt;/code&gt; since all the buckets are empty.&lt;/p&gt;
+&lt;p&gt;If you were attentive, you would notice that there was also an extra template parameter &lt;code&gt;GrowthPolicy&lt;/code&gt; to &lt;code&gt;dense_hash_map&lt;/code&gt;. Let's have a closer look at it!&lt;/p&gt;
+&lt;h3&gt;Growth Policy:&lt;/h3&gt;
+&lt;p&gt;In the last &lt;a href="https://jguegant.github.io/blogs/tech/dense-hash-map.html"&gt;post&lt;/a&gt;, we discovered some bit-wise operation tricks to increase the speed when mapping a &lt;strong&gt;key&lt;/strong&gt; to its &lt;strong&gt;bucket&lt;/strong&gt;.
+We also saw that there were drawbacks in doing so. So instead of forcing this design choice on our &lt;code&gt;dense_hash_map&lt;/code&gt; users, we can make this behaviour a &lt;a href="https://en.wikipedia.org/wiki/Modern_C%2B%2B_Design#Policy-based_design"&gt;policy&lt;/a&gt;. The default policy will be the &lt;a href="https://github.com/Jiwan/dense_hash_map/blob/master/include/jg/details/power_of_two_growth_policy.hpp"&gt;power_of_two_growth_policy&lt;/a&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="c1"&gt;// power_of_two_growth_policy.hpp&lt;/span&gt;
+&lt;span class="k"&gt;namespace&lt;/span&gt; &lt;span class="n"&gt;jg&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;details&lt;/span&gt;
+&lt;span class="p"&gt;{&lt;/span&gt;
+&lt;span class="k"&gt;struct&lt;/span&gt; &lt;span class="n"&gt;power_of_two_growth_policy&lt;/span&gt;
+&lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="c1"&gt;// Given a hash and the current capacity, use bit-wise trick to return the bucket index.&lt;/span&gt;
+    &lt;span class="k"&gt;static&lt;/span&gt; &lt;span class="k"&gt;constexpr&lt;/span&gt; &lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="n"&gt;compute_index&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="kt"&gt;size_t&lt;/span&gt; &lt;span class="n"&gt;hash&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="kt"&gt;size_t&lt;/span&gt; &lt;span class="n"&gt;capacity&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="kt"&gt;size_t&lt;/span&gt;
+    &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;hash&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;capacity&lt;/span&gt; &lt;span class="o"&gt;-&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt; &lt;span class="c1"&gt;// We saw that trick in the previous post.&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+
+    &lt;span class="c1"&gt;// Given a desired new capacity for the bucket container, pick the closest power of two. &lt;/span&gt;
+    &lt;span class="k"&gt;static&lt;/span&gt; &lt;span class="k"&gt;constexpr&lt;/span&gt; &lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="n"&gt;compute_closest_capacity&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="kt"&gt;size_t&lt;/span&gt; &lt;span class="n"&gt;min_capacity&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="kt"&gt;size_t&lt;/span&gt;
+    &lt;span class="p"&gt;{&lt;/span&gt;
+         &lt;span class="c1"&gt;// We didn&amp;#39;t see that trick yet.&lt;/span&gt;
+        &lt;span class="o"&gt;--&lt;/span&gt;&lt;span class="n"&gt;min_capacity&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;                  
+
+        &lt;span class="n"&gt;min_capacity&lt;/span&gt; &lt;span class="o"&gt;|=&lt;/span&gt; &lt;span class="n"&gt;min_capacity&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="n"&gt;min_capacity&lt;/span&gt; &lt;span class="o"&gt;|=&lt;/span&gt; &lt;span class="n"&gt;min_capacity&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="n"&gt;min_capacity&lt;/span&gt; &lt;span class="o"&gt;|=&lt;/span&gt; &lt;span class="n"&gt;min_capacity&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;4&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="n"&gt;min_capacity&lt;/span&gt; &lt;span class="o"&gt;|=&lt;/span&gt; &lt;span class="n"&gt;min_capacity&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="n"&gt;min_capacity&lt;/span&gt; &lt;span class="o"&gt;|=&lt;/span&gt; &lt;span class="n"&gt;min_capacity&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;16&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;  
+
+        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="nf"&gt;constexpr&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;sizeof&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;min_capacity&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+        &lt;span class="p"&gt;{&lt;/span&gt;
+            &lt;span class="n"&gt;min_capacity&lt;/span&gt; &lt;span class="o"&gt;|=&lt;/span&gt; &lt;span class="n"&gt;min_capacity&lt;/span&gt; &lt;span class="o"&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="mi"&gt;32&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="p"&gt;}&lt;/span&gt;
+
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="o"&gt;++&lt;/span&gt;&lt;span class="n"&gt;min_capacity&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+
+    &lt;span class="c1"&gt;// Returns the minimum capacity (~= initial capacity) the bucket container must have.&lt;/span&gt;
+    &lt;span class="k"&gt;static&lt;/span&gt; &lt;span class="k"&gt;constexpr&lt;/span&gt; &lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="n"&gt;minimum_capacity&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="kt"&gt;size_t&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="mi"&gt;8u&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;};&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;All the growth policies will have to respect an implicit &lt;a href="https://en.cppreference.com/w/cpp/language/constraints"&gt;C++ concept&lt;/a&gt;: it must have the three static member functions &lt;code&gt;compute_index&lt;/code&gt;, &lt;code&gt;compute_closest_capacity&lt;/code&gt; and &lt;code&gt;minimum_capacity&lt;/code&gt;. &lt;/p&gt;
+&lt;p&gt;These specific &lt;code&gt;compute_index&lt;/code&gt; and &lt;code&gt;minimum_capacity&lt;/code&gt; functions are self-explanatory. But &lt;code&gt;compute_closest_capacity&lt;/code&gt; is interesting: it tries to find the closest upper power of two given a random capacity.
+A clever way that achieve that task is to fill your capacity number in its bit representation with &lt;code&gt;1&lt;/code&gt; starting from the right until you reach the highest bit already toggled on with &lt;code&gt;1&lt;/code&gt;. Afterwards, you can just increment and tada... you get your upper power of two.
+Here is an example with the number 18 to clarify a bit (no pun intended):&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;18 (decimal) == 0001 0010 (binary)
+                   ^ Highest bit already toggle on.
+
+After filling starting from the right:
+0001 1111 (binary)
+
+And if we add one:
+0010 0000 (binary) == 32 (decimal)
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;&lt;code&gt;compute_closest_capacity&lt;/code&gt; is doing exactly that with the operator &lt;code&gt;|=&lt;/code&gt; and some bit-shifting with the operator &lt;code&gt;&amp;gt;&amp;gt;&lt;/code&gt;. It handles the case where we already have a power two by substracting one before processing the number. Finally, by sprinkling a bit of &lt;code&gt;if constexpr&lt;/code&gt; we can detect whether &lt;code&gt;std::size_t&lt;/code&gt; is made of 32  or 64 bits. The more bits we have, the more filling we need to do.&lt;/p&gt;
+&lt;p&gt;Note: you can also achieve a similar effect with some built-ins in your conpiler. For instance, GCC provides &lt;a href="https://gcc.gnu.org/onlinedocs/gcc/Other-Builtins.html"&gt;__builtin_clz&lt;/a&gt; which can be of great help.&lt;/p&gt;
+&lt;p&gt;Afterwards, we rely on the growth policy in our &lt;code&gt;dense_hash_map&lt;/code&gt; by "using" its functions:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;dense_hash_map&lt;/span&gt; &lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="k"&gt;private&lt;/span&gt; &lt;span class="n"&gt;GrowthPolicy&lt;/span&gt;
+&lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;using&lt;/span&gt; &lt;span class="n"&gt;GrowthPolicy&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;compute_closest_capacity&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="c1"&gt;// &amp;quot;Import&amp;quot; the policy&amp;#39;s functions in this scope.&lt;/span&gt;
+    &lt;span class="k"&gt;using&lt;/span&gt; &lt;span class="n"&gt;GrowthPolicy&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;compute_index&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="k"&gt;using&lt;/span&gt; &lt;span class="n"&gt;GrowthPolicy&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;minimum_capacity&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+    &lt;span class="c1"&gt;// ...&lt;/span&gt;
+
+    &lt;span class="k"&gt;constexpr&lt;/span&gt; &lt;span class="kt"&gt;void&lt;/span&gt; &lt;span class="nf"&gt;rehash&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;size_type&lt;/span&gt; &lt;span class="n"&gt;count&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="c1"&gt;// ...&lt;/span&gt;
+        &lt;span class="n"&gt;count&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;compute_closest_capacity&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;count&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+        &lt;span class="c1"&gt;// ...&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+&lt;span class="p"&gt;};&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;So what's left of the first code snippet that we didn't dive into? The node type: &lt;code&gt;details::node&amp;lt;Key, T&amp;gt;&lt;/code&gt;. By now, you should have a vague feeling that there is something is fishy with this one, it has its own class in the detail namespace. But is that so complicated to make a node holding a key/value pair?&lt;/p&gt;
+&lt;h2&gt;Dealing with a const value_type:&lt;/h2&gt;
+&lt;p&gt;So here is the deal, &lt;code&gt;std::unordered_map&lt;/code&gt; has a peculiar &lt;code&gt;value_type&lt;/code&gt; (&lt;code&gt;value_type&lt;/code&gt; is the type you obtain as a reference when querying most containers in the standard library when using iterators) which is &lt;code&gt;std::pair&amp;lt;const Key, T&amp;gt;&lt;/code&gt;. Whenever you supply a template argument &lt;code&gt;Key&lt;/code&gt;, all the key/value pairs you obtain from &lt;code&gt;std::unordered_map&lt;/code&gt; will have their first member, which is the key, stored as &lt;code&gt;const Key&lt;/code&gt;. And, this, ladies and gentlemen, is can of giant worms ready to devore your last bits of sanity. So... let's open it!&lt;/p&gt;
+&lt;p&gt;&lt;center&gt;&lt;img width=40% height=40% src="https://jguegant.github.io/blogs/tech/images/dark-soul-open-door.jpg" alt="Opening the const value_type door"/&gt;&lt;/center&gt;&lt;/p&gt;
+&lt;p&gt;When you think a bit more about it, this design prevents you to put yourself in serious troubles. You cannot mutate the keys in your associative container once you have inserted them. Typically, without a &lt;code&gt;const Key&lt;/code&gt;, you would be able to do such crazy moves: &lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="n"&gt;jg&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;dense_hash_map&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;heroe&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;my_map&lt;/span&gt;&lt;span class="p"&gt;{{&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;spongebob&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;heroe&lt;/span&gt;&lt;span class="p"&gt;{}},&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;chuck norris&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;heroe&lt;/span&gt;&lt;span class="p"&gt;{}}};&lt;/span&gt;
+&lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="n"&gt;it&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;my_map&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;find&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;chuck norris&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+&lt;span class="n"&gt;it&lt;/span&gt;&lt;span class="o"&gt;-&amp;gt;&lt;/span&gt;&lt;span class="n"&gt;first&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;Chuck Norris&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="c1"&gt;// We are mutating the key to properly capitalise the venerable chuck.&lt;/span&gt;
+&lt;span class="c1"&gt;// my_map after that would be in sad state.&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;When mutating a key, your key will very likely have a new hash (unless you are the lucky winner of a collision...) which means that it probably belongs to a new bucket (unless both hashes belong to the same bucket...). Sadly, there is no way for your container to be aware that you mutated a &lt;code&gt;std::pair&amp;lt;const Key, T&amp;gt;&lt;/code&gt; it gave you as reference, which implies that the container cannot handle properly the hash change. Its internal data-structure would be in a broken state rather quickly. By having a &lt;code&gt;const Key&lt;/code&gt;, the standard shields itself from this issue: the key becomes immutable.&lt;/p&gt;
+&lt;p&gt;Now, let's assume that our &lt;code&gt;details::node&amp;lt;Key, T&amp;gt;&lt;/code&gt; has a &lt;code&gt;std::pair&amp;lt;const Key, T&amp;gt;&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="k"&gt;template&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Key&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="k"&gt;struct&lt;/span&gt; &lt;span class="n"&gt;node&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;pair&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="n"&gt;Key&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;pair&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;          &lt;span class="c1"&gt;// Our glorious pair.&lt;/span&gt;
+    &lt;span class="n"&gt;nodes_size_type&lt;/span&gt; &lt;span class="n"&gt;next&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;node_end_index&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="c1"&gt;// Next index of the node in the linked-list.&lt;/span&gt;
+&lt;span class="p"&gt;};&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;With our "dense" design, this becomes a &lt;strong&gt;performance issue&lt;/strong&gt;. Our &lt;code&gt;std::pair&amp;lt;const Key, T&amp;gt;&lt;/code&gt; will have its &lt;strong&gt;move-constructor&lt;/strong&gt; and &lt;strong&gt;move-assignment operator&lt;/strong&gt; disabled forever and ever, and so does the node type. All our nodes are stored in a packed vector &lt;code&gt;nodes_&lt;/code&gt;, which sometimes reallocate itself and send all its content into a bigger buffer. Not being to able to &lt;strong&gt;move&lt;/strong&gt; our objects accross memory is a huge bummer. We would have to copy them around. That's unacceptable! Even more irritating, &lt;strong&gt;std::unordered_map&lt;/strong&gt; does not suffer from this as its design allocates each nodes separately.&lt;/p&gt;
+&lt;p&gt;Big problems require big &lt;strike&gt;solutions&lt;/strike&gt; hacks. Here are our two choices:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;We make a &lt;code&gt;std::pair&lt;/code&gt; type on steroids that communicates back and forth with the container when the key change.
+  This also requires our new type to be interoperable with &lt;code&gt;std::pair&lt;/code&gt;. It might be possible to partially fake a &lt;code&gt;std::pair&lt;/code&gt; with some implicit conversions, but we will never make our &lt;code&gt;dense_hash_map&lt;/code&gt; a drop-in replacement that way.&lt;/li&gt;
+&lt;li&gt;We circumvent the type system with some &lt;a href="https://en.wikipedia.org/wiki/Type_punning"&gt;type punning&lt;/a&gt; and create a Schrodinger &lt;code&gt;std::pair&lt;/code&gt; that has both a &lt;code&gt;Key&lt;/code&gt; and a &lt;code&gt;const Key&lt;/code&gt; as its first member. In other words, we store internally a &lt;code&gt;std::pair&amp;lt;Key, T&amp;gt;&lt;/code&gt; in our node but expose it as a &lt;code&gt;std::pair&amp;lt;const Key, T&amp;gt;&lt;/code&gt; to the user.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;Obviously, the Schrodinger &lt;code&gt;std::pair&lt;/code&gt; sounds the most dangerous creature of the two. So... let's pick it!&lt;/p&gt;
+&lt;h4&gt;The Schrodinger &lt;strong&gt;std::pair&lt;/strong&gt;:&lt;/h4&gt;
+&lt;p&gt;C++ offers at least two official ways to perform type-punning: &lt;a href="https://en.cppreference.com/w/cpp/language/reinterpret_cast"&gt;reinterpret_cast&lt;/a&gt; and &lt;a href="https://en.cppreference.com/w/cpp/language/union"&gt;unions&lt;/a&gt;.&lt;/p&gt;
+&lt;h5&gt;reinterpret_cast:&lt;/h5&gt;
+&lt;p&gt;&lt;strong&gt;reinterpret_cast&lt;/strong&gt; sounds quite attractive: "it is purely a compile-time directive which instructs the compiler to treat expression as if it had the type new_type". But if you read closely &lt;a href="http://eel.is/c++draft/expr.reinterpret.cast#:cast,reinterpret"&gt;along the standard lines&lt;/a&gt;, it has a very restricted usage. It is often used when casting to &lt;code&gt;const char*&lt;/code&gt; (&lt;code&gt;const std::byte*&lt;/code&gt;) to manipulate your types as raw data. But even doing so is harder than you expect. A fun-fact is that the classic pattern in many C++ code-base of reinterpret_casting a memory buffer to a &lt;a href="https://en.cppreference.com/w/cpp/named_req/PODType"&gt;POD&lt;/a&gt; is actually not &lt;a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0593r2.html"&gt;allowed&lt;/a&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="k"&gt;struct&lt;/span&gt; &lt;span class="n"&gt;A&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="p"&gt;};&lt;/span&gt;
+
+&lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="kt"&gt;char&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;network_buffer&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;get_buffer&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+
+&lt;span class="c1"&gt;// The following code is not allowed as explained by, you would need std:bless from p0593r2.&lt;/span&gt;
+&lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="n"&gt;A&lt;/span&gt;&lt;span class="o"&gt;*&lt;/span&gt; &lt;span class="n"&gt;my_a&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;reinterpret_cast&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="n"&gt;A&lt;/span&gt;&lt;span class="o"&gt;*&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;network_buffer&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Clearly, &lt;strong&gt;reinterpret_cast&lt;/strong&gt; is not our friend here. &lt;a href="https://en.cppreference.com/w/cpp/language/reinterpret_cast"&gt;cppreference&lt;/a&gt; even gently warn us:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;The behavior is undefined unless one of the following is true:
+- AliasedType and DynamicType are similar.
+...
+std::pair&amp;lt;int, int&amp;gt; and std::pair&amp;lt;const int, int&amp;gt; are not similar.
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;h5&gt;union:&lt;/h5&gt;
+&lt;p&gt;We are left with C++'s &lt;a href="https://en.cppreference.com/w/cpp/language/union"&gt;unions&lt;/a&gt; to perform our type-punning. Let's write one:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="k"&gt;template&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Key&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="k"&gt;union&lt;/span&gt; &lt;span class="n"&gt;union_key_value_pair&lt;/span&gt;
+&lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;using&lt;/span&gt; &lt;span class="n"&gt;pair_t&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;pair&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;Key&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="k"&gt;using&lt;/span&gt; &lt;span class="n"&gt;const_key_pair_t&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;pair&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="n"&gt;Key&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+    &lt;span class="k"&gt;template&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;class&lt;/span&gt;&lt;span class="p"&gt;...&lt;/span&gt; &lt;span class="n"&gt;Args&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+    &lt;span class="n"&gt;union_key_value_pair&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Args&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt;&lt;span class="p"&gt;...&lt;/span&gt; &lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;:&lt;/span&gt; 
+        &lt;span class="n"&gt;pair_&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;forward&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;Args&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;)...)&lt;/span&gt; &lt;span class="c1"&gt;// Construct the active member.&lt;/span&gt;
+    &lt;span class="p"&gt;{}&lt;/span&gt;
+
+    &lt;span class="c1"&gt;// Special members need to be explicitely defined for unions.&lt;/span&gt;
+    &lt;span class="n"&gt;union_key_value_pair&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="n"&gt;union_key_value_pair&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;other&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{}&lt;/span&gt;
+    &lt;span class="n"&gt;union_key_value_pair&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;union_key_value_pair&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;other&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{}&lt;/span&gt;
+    &lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="k"&gt;operator&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="n"&gt;union_key_value_pair&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;other&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;union_key_value_pair&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;
+    &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;pair_&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;other&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;pair_&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="k"&gt;operator&lt;/span&gt;&lt;span class="o"&gt;=&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;union_key_value_pair&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;other&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;union_key_value_pair&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt;
+    &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="n"&gt;pair_&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;move&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;other&lt;/span&gt;&lt;span class="p"&gt;).&lt;/span&gt;&lt;span class="n"&gt;pair_&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="o"&gt;*&lt;/span&gt;&lt;span class="k"&gt;this&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+
+    &lt;span class="o"&gt;~&lt;/span&gt;&lt;span class="n"&gt;union_key_value_pair&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="n"&gt;pair_&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="o"&gt;~&lt;/span&gt;&lt;span class="n"&gt;pair_t&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+
+    &lt;span class="c1"&gt;// Accessors to the two members.&lt;/span&gt;
+    &lt;span class="n"&gt;pair_t&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;pair&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;pair_&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="n"&gt;pair_t&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;pair&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;pair_&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="n"&gt;const_key_pair_t&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;const_key_pair&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;const_key_pair_&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="n"&gt;const_key_pair_t&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;const_key_pair&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;const_key_pair_&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="k"&gt;private&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;pair_t&lt;/span&gt; &lt;span class="n"&gt;pair_&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;                           &lt;span class="c1"&gt;// Our active member.&lt;/span&gt;
+    &lt;span class="n"&gt;const_key_pair_t&lt;/span&gt; &lt;span class="n"&gt;const_key_pair_&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="p"&gt;};&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Unions have this concept of an &lt;strong&gt;active member&lt;/strong&gt;: the latest member you constructed. You can only have one active member at a time for a union.
+In our case, the active member will always be &lt;code&gt;pair_&lt;/code&gt;, a &lt;code&gt;std::pair&amp;lt;Key, T&amp;gt;&lt;/code&gt;, since this is how we truly want to store the pair.
+It is also why we defined all the special members (copy/move constructors/assignment operators) in terms of the &lt;code&gt;pair_&lt;/code&gt; member.
+Now the interesting question is what can we do with the "inactive member" &lt;code&gt;const_key_pair_&lt;/code&gt;? Can we expose it to the user directly?&lt;/p&gt;
+&lt;p&gt;The standard is suprisingly &lt;a href="http://eel.is/c++draft/class.union#2"&gt;quite clear&lt;/a&gt; on that topic:&lt;/p&gt;
+&lt;blockquote&gt;
+&lt;p&gt;One special guarantee is made in order to simplify the use of unions: 
+If a standard-layout union contains several standard-layout structs that share a common initial sequence ([class.mem]), and if a non-static data member of an object of this standard-layout union type is active and is one of the standard-layout structs, it is permitted to inspect the common initial sequence of any of the standard-layout struct members; see [class.mem].&lt;/p&gt;
+&lt;/blockquote&gt;
+&lt;p&gt;In rough terms, we will be able to access the inactive member &lt;code&gt;const_key_pair_&lt;/code&gt; if both &lt;code&gt;std::pair&amp;lt;Key, T&amp;gt;&lt;/code&gt; and &lt;code&gt;std::pair&amp;lt;const Key, T&amp;gt;&lt;/code&gt; share the &lt;strong&gt;same layout for their members&lt;/strong&gt; &lt;code&gt;first&lt;/code&gt; and &lt;code&gt;second&lt;/code&gt; and both are &lt;strong&gt;standard-layout structs&lt;/strong&gt;. If you take a look at all the three main standard libraries (&lt;a href="https://github.com/llvm-mirror/libcxx/blob/master/include/utility#L305"&gt;libc++&lt;/a&gt;, &lt;a href="https://github.com/gcc-mirror/gcc/blob/master/libstdc%2B%2B-v3/include/bits/stl_pair.h#L216"&gt;libstdc++&lt;/a&gt;, &lt;a href="https://github.com/microsoft/STL/blob/master/stl/inc/utility#L330"&gt;MSVC's STL&lt;/a&gt;), we can assume that the &lt;code&gt;first&lt;/code&gt; and &lt;code&gt;second&lt;/code&gt; members will always be at the same position (no weird template specialisation going on). But having the guarantee that our pair types will be &lt;strong&gt;standard-layout structs&lt;/strong&gt; is much harder. For that to happen, the types &lt;code&gt;Key&lt;/code&gt; and &lt;code&gt;T&lt;/code&gt; they store need to be &lt;strong&gt;standard-layout structs&lt;/strong&gt; themselves.
+Here we have to make a hard choice, to follow or not to follow the standard. Please, roll a binary dice and observe the result:&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;1 - To follow the standard: &lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;We decided to listen to the standard and will stick to the &lt;strong&gt;standard-layout structs&lt;/strong&gt; rule. In this scenario, we will conditionally enable our &lt;code&gt;union_key_value_pair&lt;/code&gt; optimisation:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="c1"&gt;// Our safe fallback to store key/value pairs.&lt;/span&gt;
+&lt;span class="k"&gt;template&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Key&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="k"&gt;struct&lt;/span&gt; &lt;span class="n"&gt;safe_key_value_pair&lt;/span&gt;
+&lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;using&lt;/span&gt; &lt;span class="n"&gt;const_key_pair_t&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;pair&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="n"&gt;Key&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+    &lt;span class="k"&gt;template&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;class&lt;/span&gt;&lt;span class="p"&gt;...&lt;/span&gt; &lt;span class="n"&gt;Args&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+    &lt;span class="n"&gt;safe_key_value_pair&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;Args&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt;&lt;span class="p"&gt;...&lt;/span&gt; &lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;const_key_pair_&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;forward&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;Args&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;args&lt;/span&gt;&lt;span class="p"&gt;)...)&lt;/span&gt; &lt;span class="p"&gt;{}&lt;/span&gt;
+
+    &lt;span class="c1"&gt;// Accessors to the two members.&lt;/span&gt;
+    &lt;span class="n"&gt;const_key_pair_t&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;pair&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;const_key_pair_&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="n"&gt;const_key_pair_t&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;pair&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;const_key_pair_&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="n"&gt;const_key_pair_t&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;const_key_pair&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;const_key_pair_&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="n"&gt;const_key_pair_t&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;const_key_pair&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;const_key_pair_&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="k"&gt;private&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+    &lt;span class="n"&gt;const_key_pair_t&lt;/span&gt; &lt;span class="n"&gt;const_key_pair_&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="p"&gt;};&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Given a two types Key and T, checks if a pair of the two would be of standard-layout.&lt;/span&gt;
+&lt;span class="k"&gt;template&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Key&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="kr"&gt;inline&lt;/span&gt; &lt;span class="k"&gt;constexpr&lt;/span&gt; &lt;span class="kt"&gt;bool&lt;/span&gt; &lt;span class="n"&gt;are_pairs_standard_layout_v&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt;
+    &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;is_standard_layout_v&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;pair&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="n"&gt;Key&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; 
+    &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;is_standard_layout_v&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;pair&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;Key&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Given a two types Key and T, returns you the best storage for your pair: the optimised one or the safe one.&lt;/span&gt;
+&lt;span class="k"&gt;template&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Key&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="k"&gt;using&lt;/span&gt; &lt;span class="n"&gt;key_value_pair_t&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;conditional_t&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;
+    &lt;span class="n"&gt;are_pairs_standard_layout_v&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;Key&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; 
+    &lt;span class="n"&gt;union_key_value_pair&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;Key&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; 
+    &lt;span class="n"&gt;safe_key_value_pair&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;Key&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;We start by defining a safe container &lt;code&gt;safe_key_value_pair&lt;/code&gt;. This container is &lt;strong&gt;not a union&lt;/strong&gt; and has only one member of type &lt;code&gt;std::pair&amp;lt;const Key, T&amp;gt;&lt;/code&gt;.
+The accessors to the "two members" are behind the scene redirecting to only one member. This type will always perform a copy when moved accross memory, but hey... at least it is safe. Now, when you are crafting your node type, you can use the meta-function &lt;code&gt;key_value_pair_t&lt;/code&gt; that checks whether your pair is of &lt;strong&gt;standard-layout&lt;/strong&gt; and if we should optimise or not the storage. If the pair's type has a &lt;strong&gt;standard-layout&lt;/strong&gt;, we can use the optimised union &lt;code&gt;union_key_value_pair&lt;/code&gt;, if not, we fallback to &lt;code&gt;safe_key_value_pair&lt;/code&gt;. &lt;/p&gt;
+&lt;p&gt;Finally, if we are so zealous about the standard, we can always add an extra safety net to &lt;code&gt;union_key_value_pair&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="k"&gt;template&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Key&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="k"&gt;union&lt;/span&gt; &lt;span class="n"&gt;union_key_value_pair&lt;/span&gt;
+&lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;static_assert&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;
+        &lt;span class="n"&gt;offsetof&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;pair_t&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;first&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="n"&gt;offsetof&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;const_key_pair_t&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;first&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt;
+        &lt;span class="n"&gt;offsetof&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;pair_t&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;second&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="n"&gt;offsetof&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;const_key_pair_t&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;second&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;
+    &lt;span class="p"&gt;);&lt;/span&gt;
+    &lt;span class="c1"&gt;// ...&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;This &lt;a href="https://en.cppreference.com/w/cpp/language/static_assert"&gt;static_assert&lt;/a&gt; ensure that the &lt;code&gt;first&lt;/code&gt; and &lt;code&gt;second&lt;/code&gt; members are truly located in the same memory area in both &lt;code&gt;std::pair&amp;lt;Key, T&amp;gt;&lt;/code&gt; and &lt;code&gt;std::pair&amp;lt;const Key, T&amp;gt;&lt;/code&gt;. Even if one of the three main standard library implementation were to sabotage our &lt;code&gt;union_key_value_pair&lt;/code&gt; by shuffling members, we would be warned about it!&lt;/p&gt;
+&lt;p&gt;&lt;strong&gt;0 - To dodge the standard: &lt;/strong&gt;&lt;/p&gt;
+&lt;p&gt;Note: If you are a C++ purist that never abuse the standard or write his own undefined behaviour, here is the exact point in this post where you should use your jetpack and fly away to a better place.&lt;/p&gt;
+&lt;p&gt;In this scenario, we are as paranoid as &lt;a href="https://www.youtube.com/watch?v=IAdLwUXRUvg"&gt;Miro Knejp&lt;/a&gt;: clearly, the standard committee is trying to hide the true power of unions to us. Yes, we can pun!
+&lt;center&gt;&lt;a href="https://www.youtube.com/watch?v=IAdLwUXRUvg"&gt;&lt;img width=35% height=35% src="https://jguegant.github.io/blogs/tech/images/non-conforming-cpp.png" alt="Miro Knejp talk"/&gt;&lt;/a&gt;&lt;/center&gt;&lt;/p&gt;
+&lt;p&gt;Type-punning through unions have been unofficially supported in all three major compilers for longer than I am alive.
+Our case is quite safe, given that:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;Our types would differ from a single &lt;code&gt;const&lt;/code&gt;, this shouldn't have any impact on the size of &lt;code&gt;first&lt;/code&gt; nor its alignment.&lt;/li&gt;
+&lt;li&gt;We made the &lt;code&gt;const&lt;/code&gt; version the inactive member that we expose to the user. Going from &lt;code&gt;T&lt;/code&gt; to &lt;code&gt;const T&lt;/code&gt; is a LOT safer than the other way around.&lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;So, we will unconditionally use the &lt;code&gt;union_key_value_pair&lt;/code&gt; container, but we will keep the &lt;code&gt;static_assert&lt;/code&gt; from the previous solution.
+We still want to ensure that the memory layout of &lt;code&gt;std::pair&amp;lt;Key, T&amp;gt;&lt;/code&gt; and &lt;code&gt;std::pair&amp;lt;const Key, T&amp;gt;&lt;/code&gt; are strictly the same.
+By doing so, we will actually disrespect the standard &lt;a href="http://eel.is/c++draft/support.types.layout#1"&gt;once again&lt;/a&gt;: "the offsetof macro with a type other than a standard-layout class is conditionally-supported". Thankfully, the three main compilers do seem to support it! We can silence GCC's warning on that topic with a well-placed &lt;code&gt;#pragma GCC diagnostic ignored "-Winvalid-offsetof"&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Now, we have a fast container for our key/value pairs no matter the types we receive for &lt;code&gt;Key&lt;/code&gt; and &lt;code&gt;T&lt;/code&gt;.
+Our last move will be a gesture towards our strict friends, we will wrap all our dangerously-undefined-type-punning into an &lt;code&gt;#ifdef&lt;/code&gt; directive:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="cp"&gt;#ifdef JG_STRICT_TYPE_PUNNING&lt;/span&gt;
+&lt;span class="c1"&gt;// Use the previous solution.&lt;/span&gt;
+&lt;span class="c1"&gt;// ...&lt;/span&gt;
+&lt;span class="cp"&gt;#else&lt;/span&gt;
+
+&lt;span class="c1"&gt;// Use our hacky but fast solution.&lt;/span&gt;
+&lt;span class="k"&gt;template&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;Key&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+&lt;span class="k"&gt;using&lt;/span&gt; &lt;span class="n"&gt;key_value_pair_t&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;union_key_value_pair&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;Key&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+&lt;span class="cp"&gt;#endif&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;/!\ On a more serious note: you should really be aware of the undefined behaviour of this solution. If your application is used in critical operations, you should refrain yourself from defying the standard. On the other hand, if your application is non-critical (or have a rock-solid release process), you could give a try on the fast type punning. Choose wisely!&lt;/p&gt;
+&lt;h2&gt;Conclusion:&lt;/h2&gt;
+&lt;p&gt;We survived this first day of our journey! We can control the growth of our container using a policy pattern.
+We also have a &lt;strong&gt;Schrodinger std::pair&lt;/strong&gt; at our disposal to move our key/value pairs blazingly fast accross memory while preventing our users to shoot themselves in the feet.&lt;/p&gt;
+&lt;p&gt;Be ready for the next phase: the dreaded iterators and allocators are waiting for you!&lt;/p&gt;</content><category term="C++"></category><category term="C++17"></category><category term="hash map"></category><category term="unordered_map."></category></entry><entry><title>Making a STL-compatible hash map from scratch - Part 1 - Beating std::unordered_map</title><link href="https://jguegant.github.io/blogs/tech/dense-hash-map.html" rel="alternate"></link><published>2020-04-06T17:40:00+02:00</published><updated>2020-04-06T17:40:00+02:00</updated><author><name>Jean Guegant</name></author><id>tag:jguegant.github.io,2020-04-06:/blogs/tech/dense-hash-map.html</id><summary type="html">&lt;p&gt;This post is part of a planned series of posts:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;&lt;strong&gt;Part 1 - Beating std::unordered_map (Current)&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;Part 2 - &lt;a href="https://jguegant.github.io/blogs/tech/dense-hash-map2.html"&gt;Growth Policies &amp;amp; The Schrodinger std::pair&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;Part 3 - ... (Coming Soon)&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h1&gt;Part 1 - Beating std::unordered_map&lt;/h1&gt;
 &lt;h2&gt;Trivia:&lt;/h2&gt;
-&lt;p&gt;If C++ had an equivalent in the video game world, it would be similar to Dark Souls …&lt;/p&gt;</summary><content type="html">&lt;p&gt;This post is part of a planned series of posts:&lt;/p&gt;
+&lt;p&gt;If C++ had an equivalent in the video game world, it would be similar to Dark …&lt;/p&gt;</summary><content type="html">&lt;p&gt;This post is part of a planned series of posts:&lt;/p&gt;
 &lt;ul&gt;
-&lt;li&gt;Part 1 - Beating std::unordered_map (Current)&lt;/li&gt;
-&lt;li&gt;Part 2 - Structuring our code (Coming Soon)&lt;/li&gt;
+&lt;li&gt;&lt;strong&gt;Part 1 - Beating std::unordered_map (Current)&lt;/strong&gt;&lt;/li&gt;
+&lt;li&gt;Part 2 - &lt;a href="https://jguegant.github.io/blogs/tech/dense-hash-map2.html"&gt;Growth Policies &amp;amp; The Schrodinger std::pair&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;Part 3 - ... (Coming Soon)&lt;/li&gt;
 &lt;/ul&gt;
 &lt;h1&gt;Part 1 - Beating std::unordered_map&lt;/h1&gt;
@@ -212,7 +585,7 @@ It is not often that you store flag sets or bit fields as keys in a map, I will 
 &lt;h2&gt;First conclusion&lt;/h2&gt;
 &lt;p&gt;Now we have a grand master plan to beat &lt;code&gt;std::unordered_map&lt;/code&gt; by removing some assumptions the standard had to make to be preserve us from some dangers.
 The hacks used are not even too difficult to grasp, so where is the difficulty in writing new containers? Well, some creepy C++ features are waiting for us around the corner.&lt;/p&gt;
-&lt;p&gt;Be ready for the next phase: preparing a rock-solid code structure for our brand new &lt;code&gt;dense_hash_map&lt;/code&gt;!&lt;/p&gt;</content><category term="C++"></category><category term="C++17"></category><category term="hash map"></category><category term="unordered_map."></category></entry><entry><title>Trip report - Meeting C++ 2019</title><link href="https://jguegant.github.io/blogs/tech/trip-report-meetingcpp-2019.html" rel="alternate"></link><published>2019-11-29T22:30:00+01:00</published><updated>2019-11-29T22:30:00+01:00</updated><author><name>Jean Guegant</name></author><id>tag:jguegant.github.io,2019-11-29:/blogs/tech/trip-report-meetingcpp-2019.html</id><summary type="html">&lt;p&gt;Time to go back to the roots!
+&lt;p&gt;Be ready for the next phase: &lt;a href="https://jguegant.github.io/blogs/tech/dense-hash-map2.html"&gt;Part 2 - Growth Policies &amp;amp; The Schrodinger std::pair&lt;/a&gt;!&lt;/p&gt;</content><category term="C++"></category><category term="C++17"></category><category term="hash map"></category><category term="unordered_map."></category></entry><entry><title>Trip report - Meeting C++ 2019</title><link href="https://jguegant.github.io/blogs/tech/trip-report-meetingcpp-2019.html" rel="alternate"></link><published>2019-11-29T22:30:00+01:00</published><updated>2019-11-29T22:30:00+01:00</updated><author><name>Jean Guegant</name></author><id>tag:jguegant.github.io,2019-11-29:/blogs/tech/trip-report-meetingcpp-2019.html</id><summary type="html">&lt;p&gt;Time to go back to the roots!
 Me and a few colleagues have been travelling across the old continent to attend the renowned &lt;a href="https://meetingcpp.com/"&gt;Meeting C++&lt;/a&gt; conference in Berlin.&lt;br&gt;
 Fully backed by our employer, &lt;a href="https://discover.king.com/about/"&gt;King&lt;/a&gt;, we were able to enjoy a yearly dose of C++ talks at an excellent venue.
 I …&lt;/p&gt;</summary><content type="html">&lt;p&gt;Time to go back to the roots!

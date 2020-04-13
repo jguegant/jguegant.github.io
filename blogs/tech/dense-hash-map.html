@@ -36,13 +36,13 @@
 <!-- End Google Analytics -->
 
 <meta name="author" content="Jean Guegant" />
-<meta name="description" content="This post is part of a planned series of posts: Part 1 - Beating std::unordered_map (Current) Part 2 - Structuring our code (Coming Soon) Part 3 - ... (Coming Soon) Part 1 - Beating std::unordered_map Trivia: If C++ had an equivalent in the video game world, it would be similar to Dark Souls …" />
+<meta name="description" content="This post is part of a planned series of posts: Part 1 - Beating std::unordered_map (Current) Part 2 - Growth Policies &amp; The Schrodinger std::pair Part 3 - ... (Coming Soon) Part 1 - Beating std::unordered_map Trivia: If C++ had an equivalent in the video game world, it would be similar to Dark …" />
 <meta name="keywords" content="C++17, hash map, unordered_map.">
 
 
 <meta property="og:site_name" content="Jean Guegant's Blog"/>
-<meta property="og:title" content="Making a STL-compatible hash map from scratch."/>
-<meta property="og:description" content="This post is part of a planned series of posts: Part 1 - Beating std::unordered_map (Current) Part 2 - Structuring our code (Coming Soon) Part 3 - ... (Coming Soon) Part 1 - Beating std::unordered_map Trivia: If C++ had an equivalent in the video game world, it would be similar to Dark Souls …"/>
+<meta property="og:title" content="Making a STL-compatible hash map from scratch - Part 1 - Beating std::unordered_map"/>
+<meta property="og:description" content="This post is part of a planned series of posts: Part 1 - Beating std::unordered_map (Current) Part 2 - Growth Policies &amp; The Schrodinger std::pair Part 3 - ... (Coming Soon) Part 1 - Beating std::unordered_map Trivia: If C++ had an equivalent in the video game world, it would be similar to Dark …"/>
 <meta property="og:locale" content="en_US"/>
 <meta property="og:url" content="https://jguegant.github.io/blogs/tech/dense-hash-map.html"/>
 <meta property="og:type" content="article"/>
@@ -55,7 +55,7 @@
 <meta property="article:tag" content="unordered_map."/>
 <meta property="og:image" content="https://jguegant.github.io/blogs/tech/images/myself.png">
 
-  <title>Jean Guegant's Blog &ndash; Making a STL-compatible hash map from scratch.</title>
+  <title>Jean Guegant's Blog &ndash; Making a STL-compatible hash map from scratch - Part 1 - Beating std::unordered_map</title>
 
 </head>
 <body>
@@ -109,7 +109,7 @@
 <article class="single">
   <header>
       
-    <h1 id="dense-hash-map">Making a STL-compatible hash map from scratch.</h1>
+    <h1 id="dense-hash-map">Making a STL-compatible hash map from scratch - Part 1 - Beating std::unordered_map</h1>
     <p>
           Posted on Mon 06 April 2020 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
 
@@ -121,8 +121,8 @@
   <div>
     <p>This post is part of a planned series of posts:</p>
 <ul>
-<li>Part 1 - Beating std::unordered_map (Current)</li>
-<li>Part 2 - Structuring our code (Coming Soon)</li>
+<li><strong>Part 1 - Beating std::unordered_map (Current)</strong></li>
+<li>Part 2 - <a href="https://jguegant.github.io/blogs/tech/dense-hash-map2.html">Growth Policies &amp; The Schrodinger std::pair</a></li>
 <li>Part 3 - ... (Coming Soon)</li>
 </ul>
 <h1>Part 1 - Beating std::unordered_map</h1>
@@ -324,7 +324,7 @@ It is not often that you store flag sets or bit fields as keys in a map, I will 
 <h2>First conclusion</h2>
 <p>Now we have a grand master plan to beat <code>std::unordered_map</code> by removing some assumptions the standard had to make to be preserve us from some dangers.
 The hacks used are not even too difficult to grasp, so where is the difficulty in writing new containers? Well, some creepy C++ features are waiting for us around the corner.</p>
-<p>Be ready for the next phase: preparing a rock-solid code structure for our brand new <code>dense_hash_map</code>!</p>
+<p>Be ready for the next phase: <a href="https://jguegant.github.io/blogs/tech/dense-hash-map2.html">Part 2 - Growth Policies &amp; The Schrodinger std::pair</a>!</p>
   </div>
   <div class="tag-cloud">
     <p>

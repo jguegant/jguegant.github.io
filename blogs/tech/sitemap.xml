@@ -5,28 +5,28 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>https://jguegant.github.io/blogs/tech/</loc>
-<lastmod>2020-04-07T20:51:37-00:00</lastmod>
+<lastmod>2020-04-13T13:40:10-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
 <loc>https://jguegant.github.io/blogs/tech/archives.html</loc>
-<lastmod>2020-04-07T20:51:37-00:00</lastmod>
+<lastmod>2020-04-13T13:40:10-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
 <loc>https://jguegant.github.io/blogs/tech/tags.html</loc>
-<lastmod>2020-04-07T20:51:37-00:00</lastmod>
+<lastmod>2020-04-13T13:40:10-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
 <loc>https://jguegant.github.io/blogs/tech/categories.html</loc>
-<lastmod>2020-04-07T20:51:37-00:00</lastmod>
+<lastmod>2020-04-13T13:40:10-00:00</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
@@ -43,6 +43,13 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 <lastmod>2015-10-13T22:20:00+02:00</lastmod>
 <changefreq>monthly</changefreq>
 <priority>0.5</priority>
+</url>
+
+<url>
+<loc>https://jguegant.github.io/blogs/tech/dense-hash-map2.html</loc>
+<lastmod>2020-04-13T17:40:00+02:00</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.6</priority>
 </url>
 
 <url>
@@ -131,7 +138,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>https://jguegant.github.io/blogs/tech/category/c.html</loc>
-<lastmod>2020-04-06T17:40:00+00:09</lastmod>
+<lastmod>2020-04-13T17:40:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
@@ -145,21 +152,21 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>https://jguegant.github.io/blogs/tech/tag/c17.html</loc>
-<lastmod>2020-04-06T17:40:00+00:09</lastmod>
+<lastmod>2020-04-13T17:40:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
 <loc>https://jguegant.github.io/blogs/tech/tag/hash-map.html</loc>
-<lastmod>2020-04-06T17:40:00+00:09</lastmod>
+<lastmod>2020-04-13T17:40:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
 
 <url>
 <loc>https://jguegant.github.io/blogs/tech/tag/unordered_map.html</loc>
-<lastmod>2020-04-06T17:40:00+00:09</lastmod>
+<lastmod>2020-04-13T17:40:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
@@ -271,7 +278,7 @@ xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 
 <url>
 <loc>https://jguegant.github.io/blogs/tech/author/jean-guegant.html</loc>
-<lastmod>2020-04-06T17:40:00+00:09</lastmod>
+<lastmod>2020-04-13T17:40:00+00:09</lastmod>
 <changefreq>daily</changefreq>
 <priority>0.6</priority>
 </url>
