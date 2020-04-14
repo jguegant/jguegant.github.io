@@ -233,18 +233,19 @@ We also saw that there were drawbacks in doing so. So instead of forcing this de
     <span class="c1">// Given a desired new capacity for the bucket container, pick the closest power of two. </span>
     <span class="k">static</span> <span class="k">constexpr</span> <span class="k">auto</span> <span class="n">compute_closest_capacity</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">min_capacity</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span>
     <span class="p">{</span>
-         <span class="c1">// We didn&#39;t see that trick yet.</span>
+        <span class="c1">// We didn&#39;t see that trick yet.</span>
+
+        <span class="k">constexpr</span> <span class="k">auto</span> <span class="n">highest_capacity</span> <span class="o">=</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="p">{</span><span class="mi">1</span><span class="p">}</span> <span class="o">&lt;&lt;</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="o">&gt;::</span><span class="n">digits</span> <span class="o">-</span> <span class="mi">1</span><span class="p">));</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="n">min_capacity</span> <span class="o">&gt;</span> <span class="n">highest_capacity</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">assert</span><span class="p">(</span><span class="nb">false</span> <span class="o">&amp;&amp;</span> <span class="s">&quot;Maximum capacity for the dense_hash_map reached.&quot;</span><span class="p">);</span>
+            <span class="k">return</span> <span class="n">highest_capacity</span><span class="p">;</span>
+        <span class="p">}</span>
+
         <span class="o">--</span><span class="n">min_capacity</span><span class="p">;</span>                  
 
-        <span class="n">min_capacity</span> <span class="o">|=</span> <span class="n">min_capacity</span> <span class="o">&gt;&gt;</span> <span class="mi">1</span><span class="p">;</span>
-        <span class="n">min_capacity</span> <span class="o">|=</span> <span class="n">min_capacity</span> <span class="o">&gt;&gt;</span> <span class="mi">2</span><span class="p">;</span>
-        <span class="n">min_capacity</span> <span class="o">|=</span> <span class="n">min_capacity</span> <span class="o">&gt;&gt;</span> <span class="mi">4</span><span class="p">;</span>
-        <span class="n">min_capacity</span> <span class="o">|=</span> <span class="n">min_capacity</span> <span class="o">&gt;&gt;</span> <span class="mi">8</span><span class="p">;</span>
-        <span class="n">min_capacity</span> <span class="o">|=</span> <span class="n">min_capacity</span> <span class="o">&gt;&gt;</span> <span class="mi">16</span><span class="p">;</span>  
-
-        <span class="k">if</span> <span class="nf">constexpr</span> <span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="k">decltype</span><span class="p">(</span><span class="n">min_capacity</span><span class="p">)</span><span class="o">&gt;::</span><span class="n">digits</span> <span class="o">&gt;=</span> <span class="mi">64</span><span class="p">)</span>
-        <span class="p">{</span>
-            <span class="n">min_capacity</span> <span class="o">|=</span> <span class="n">min_capacity</span> <span class="o">&gt;&gt;</span> <span class="mi">32</span><span class="p">;</span>
+        <span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="o">&gt;::</span><span class="n">digits</span><span class="p">;</span> <span class="n">i</span> <span class="o">*=</span> <span class="mi">2</span><span class="p">)</span> <span class="p">{</span>
+            <span class="n">min_capacity</span> <span class="o">|=</span> <span class="n">min_capacity</span> <span class="o">&gt;&gt;</span> <span class="n">i</span><span class="p">;</span>
         <span class="p">}</span>
 
         <span class="k">return</span> <span class="o">++</span><span class="n">min_capacity</span><span class="p">;</span>
@@ -272,7 +273,7 @@ And if we add one:
 </code></pre></div>
 
 
-<p><code>compute_closest_capacity</code> is doing exactly that with the operator <code>|=</code> and some bit-shifting with the operator <code>&gt;&gt;</code>. It handles the case where we already have a power two by substracting one before processing the number. Finally, by sprinkling a bit of <code>if constexpr</code> we can detect whether <code>std::size_t</code> is made of 64 bits or more. The more bits we have, the more filling we need to do.</p>
+<p><code>compute_closest_capacity</code> is doing exactly that with the operator <code>|=</code> and some bit-shifting with the operator <code>&gt;&gt;</code>. It handles the case where we already have a power two by substracting one before processing the number. We also cap the minimum capacity to the highest power of two we can represent to avoid an overflow in the result.</p>
 <p>Note: you can also achieve a similar effect with some built-ins in your conpiler. For instance, GCC provides <a href="https://gcc.gnu.org/onlinedocs/gcc/Other-Builtins.html">__builtin_clz</a> which can be of great help.</p>
 <p>Afterwards, we rely on the growth policy in our <code>dense_hash_map</code> by "using" its functions:</p>
 <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">dense_hash_map</span> <span class="o">:</span> <span class="k">private</span> <span class="n">GrowthPolicy</span>
@@ -298,7 +299,7 @@ And if we add one:
 <p>So here is the deal, <code>std::unordered_map</code> has a peculiar <code>value_type</code> (<code>value_type</code> is the type you obtain as a reference when querying most containers in the standard library when using iterators) which is <code>std::pair&lt;const Key, T&gt;</code>. Whenever you supply a template argument <code>Key</code>, all the key/value pairs you obtain from <code>std::unordered_map</code> will have their first member, which is the key, stored as <code>const Key</code>. And, this, ladies and gentlemen, is can of giant worms ready to devore your last bits of sanity. So... let's open it!</p>
 <p><center><img width=40% height=40% src="https://jguegant.github.io/blogs/tech/images/dark-soul-open-door.jpg" alt="Opening the const value_type door"/></center></p>
 <p>When you think a bit more about it, this design prevents you to put yourself in serious troubles. You cannot mutate the keys in your associative container once you have inserted them. Typically, without a <code>const Key</code>, you would be able to do such crazy moves: </p>
-<div class="highlight"><pre><span></span><code><span class="n">jg</span><span class="o">::</span><span class="n">dense_hash_map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">heroe</span><span class="o">&gt;</span> <span class="n">my_map</span><span class="p">{{</span><span class="s">&quot;spongebob&quot;</span><span class="p">,</span> <span class="n">heroe</span><span class="p">{}},</span> <span class="p">{</span><span class="s">&quot;chuck norris&quot;</span><span class="p">,</span> <span class="n">heroe</span><span class="p">{}}};</span>
+<div class="highlight"><pre><span></span><code><span class="n">jg</span><span class="o">::</span><span class="n">dense_hash_map</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">,</span> <span class="n">hero</span><span class="o">&gt;</span> <span class="n">my_map</span><span class="p">{{</span><span class="s">&quot;spongebob&quot;</span><span class="p">,</span> <span class="n">hero</span><span class="p">{}},</span> <span class="p">{</span><span class="s">&quot;chuck norris&quot;</span><span class="p">,</span> <span class="n">hero</span><span class="p">{}}};</span>
 <span class="k">auto</span> <span class="n">it</span> <span class="o">=</span> <span class="n">my_map</span><span class="p">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;chuck norris&quot;</span><span class="p">);</span>
 
 <span class="n">it</span><span class="o">-&gt;</span><span class="n">first</span> <span class="o">=</span> <span class="s">&quot;Chuck Norris&quot;</span><span class="p">;</span> <span class="c1">// We are mutating the key to properly capitalise the venerable chuck.</span>
