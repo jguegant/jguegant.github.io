@@ -175,7 +175,7 @@ More precisely, <code>iterator</code> is the type returned by <a href="https://e
 
 <p>The modern picasso in me decided to show you what this range-loop would do internally:</p>
 <p><center><img width=50% height=50% src="https://jguegant.github.io/blogs/tech/images/dense-hash-map-iterator.webp" alt=""/></center></p>
-<p>Yes, it should be as simple as iterating in our <code>nodes_</code> container. No, it won't be as easy you may think.</p>
+<p>Yes, it should be as simple as iterating in our <code>nodes_</code> container. No, it won't be as easy as you may think.</p>
 <p>To iterate over the <code>nodes_</code> container, we can simply use its own... iterators. Conveniently, <code>nodes_</code>'s iterator type is also following the concept
 <a href="https://en.cppreference.com/w/cpp/named_req/ForwardIterator">LegacyForwardIterator</a> which is also needed for our <code>dense_hash_map::iterator</code> type.
 Even better, it actually follows the <a href="https://en.cppreference.com/w/cpp/named_req/RandomAccessIterator">LegacyRandomAccessIterator concept</a> which is a powerful subset of the <strong>LegacyForwardIterator</strong> concept.</p>

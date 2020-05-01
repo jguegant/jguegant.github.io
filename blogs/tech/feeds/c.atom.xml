@@ -59,7 +59,7 @@ More precisely, &lt;code&gt;iterator&lt;/code&gt; is the type returned by &lt;a 
 
 &lt;p&gt;The modern picasso in me decided to show you what this range-loop would do internally:&lt;/p&gt;
 &lt;p&gt;&lt;center&gt;&lt;img width=50% height=50% src="https://jguegant.github.io/blogs/tech/images/dense-hash-map-iterator.webp" alt=""/&gt;&lt;/center&gt;&lt;/p&gt;
-&lt;p&gt;Yes, it should be as simple as iterating in our &lt;code&gt;nodes_&lt;/code&gt; container. No, it won't be as easy you may think.&lt;/p&gt;
+&lt;p&gt;Yes, it should be as simple as iterating in our &lt;code&gt;nodes_&lt;/code&gt; container. No, it won't be as easy as you may think.&lt;/p&gt;
 &lt;p&gt;To iterate over the &lt;code&gt;nodes_&lt;/code&gt; container, we can simply use its own... iterators. Conveniently, &lt;code&gt;nodes_&lt;/code&gt;'s iterator type is also following the concept
 &lt;a href="https://en.cppreference.com/w/cpp/named_req/ForwardIterator"&gt;LegacyForwardIterator&lt;/a&gt; which is also needed for our &lt;code&gt;dense_hash_map::iterator&lt;/code&gt; type.
 Even better, it actually follows the &lt;a href="https://en.cppreference.com/w/cpp/named_req/RandomAccessIterator"&gt;LegacyRandomAccessIterator concept&lt;/a&gt; which is a powerful subset of the &lt;strong&gt;LegacyForwardIterator&lt;/strong&gt; concept.&lt;/p&gt;
