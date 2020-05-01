@@ -36,13 +36,13 @@
 <!-- End Google Analytics -->
 
 <meta name="author" content="Jean Guegant" />
-<meta name="description" content="This post is part of a series of posts: Part 1 - Beating std::unordered_map Part 2 - Growth Policies &amp; The Schrodinger std::pair (Current) Part 3 - The wonderful world of iterators and allocators (Coming Soon) Part 4 - ... (Coming Soon) In the previous post, we started a quest that consists in implementing …" />
+<meta name="description" content="This post is part of a series of posts: Part 1 - Beating std::unordered_map Part 2 - Growth Policies &amp; The Schrodinger std::pair (Current) Part 3 - The wonderful world of iterators and allocators Part 4 - An insertion maze (Coming Soon) In the previous post, we started a quest that consists in …" />
 <meta name="keywords" content="C++17, hash map, unordered_map.">
 
 
 <meta property="og:site_name" content="Jean Guegant's Blog"/>
 <meta property="og:title" content="Making a STL-compatible hash map from scratch - Part 2 - Growth Policies &amp; The Schrodinger std::pair"/>
-<meta property="og:description" content="This post is part of a series of posts: Part 1 - Beating std::unordered_map Part 2 - Growth Policies &amp; The Schrodinger std::pair (Current) Part 3 - The wonderful world of iterators and allocators (Coming Soon) Part 4 - ... (Coming Soon) In the previous post, we started a quest that consists in implementing …"/>
+<meta property="og:description" content="This post is part of a series of posts: Part 1 - Beating std::unordered_map Part 2 - Growth Policies &amp; The Schrodinger std::pair (Current) Part 3 - The wonderful world of iterators and allocators Part 4 - An insertion maze (Coming Soon) In the previous post, we started a quest that consists in …"/>
 <meta property="og:locale" content="en_US"/>
 <meta property="og:url" content="https://jguegant.github.io/blogs/tech/dense-hash-map2.html"/>
 <meta property="og:type" content="article"/>
@@ -123,8 +123,8 @@
 <ul>
 <li><a href="https://jguegant.github.io/blogs/tech/dense-hash-map.html">Part 1 - Beating std::unordered_map</a></li>
 <li><strong>Part 2 - Growth Policies &amp; The Schrodinger std::pair (Current)</strong></li>
-<li>Part 3 - The wonderful world of iterators and allocators (Coming Soon)</li>
-<li>Part 4 - ... (Coming Soon)</li>
+<li><a href="https://jguegant.github.io/blogs/tech/dense-hash-map3.html">Part 3 - The wonderful world of iterators and allocators</a></li>
+<li>Part 4 - An insertion maze (Coming Soon)</li>
 </ul>
 <p>In the <a href="https://jguegant.github.io/blogs/tech/dense-hash-map.html">previous post</a>, we started a quest that consists in implementing an associative container similar to <code>std::unordered_map</code> in the C++ standard library. We saw two approaches that could help us in beating the performance of most <code>std::unordered_map</code> implementations: freeing ourselves from stable-addressing and swapping the modulo operation with some bit-wise operations.
 Due to its layout, we called this new associative container a <code>dense_hash_map</code>. You can find a reference implementation <a href="https://github.com/Jiwan/dense_hash_map">right here</a>.</p>
@@ -311,8 +311,8 @@ And if we add one:
 <p>Now, let's assume that our <code>details::node&lt;Key, T&gt;</code> has a <code>std::pair&lt;const Key, T&gt;</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Key</span><span class="p">,</span> <span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span>
 <span class="k">struct</span> <span class="n">node</span> <span class="p">{</span>
-    <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="k">const</span> <span class="n">Key</span><span class="p">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">pair</span><span class="p">;</span>          <span class="c1">// Our glorious pair.</span>
     <span class="n">nodes_size_type</span> <span class="n">next</span> <span class="o">=</span> <span class="n">node_end_index</span><span class="p">;</span> <span class="c1">// Next index of the node in the linked-list.</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="k">const</span> <span class="n">Key</span><span class="p">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">pair</span><span class="p">;</span>          <span class="c1">// Our glorious pair.</span>
 <span class="p">};</span>
 </code></pre></div>
 
@@ -486,7 +486,7 @@ Our last move will be a gesture towards our strict friends, we will wrap all our
 <h2>Conclusion:</h2>
 <p>We survived this first day of our journey! We can control the growth of our container using a policy pattern.
 We also have a <strong>Schrodinger std::pair</strong> at our disposal to move our key/value pairs blazingly fast accross memory while preventing our users to shoot themselves in the feet.</p>
-<p>Be ready for the next phase: the dreaded iterators and allocators are waiting for you!</p>
+<p>Be ready for the next phase: <a href="https://jguegant.github.io/blogs/tech/dense-hash-map3.html">the dreaded iterators and allocators</a> are waiting for you!</p>
   </div>
   <div class="tag-cloud">
     <p>

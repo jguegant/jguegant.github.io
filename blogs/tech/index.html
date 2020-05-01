@@ -100,6 +100,33 @@
 
 <article>
   <header>
+    <h2><a href="https://jguegant.github.io/blogs/tech/dense-hash-map3.html#dense-hash-map3">Making a STL-compatible hash map from scratch - Part 3 - The wonderful world of iterators and allocators</a></h2>
+    <p>
+          Posted on Fri 01 May 2020 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
+
+
+          &#8226;     Tagged with
+
+              <a href="https://jguegant.github.io/blogs/tech/tag/c20.html">C++20</a>,              <a href="https://jguegant.github.io/blogs/tech/tag/c17.html">C++17</a>,              <a href="https://jguegant.github.io/blogs/tech/tag/hash-map.html">hash map</a>,              <a href="https://jguegant.github.io/blogs/tech/tag/unordered_map.html">unordered_map</a>,              <a href="https://jguegant.github.io/blogs/tech/tag/iterator.html">iterator</a>,              <a href="https://jguegant.github.io/blogs/tech/tag/allocator.html">allocator</a>
+    </p>
+  </header>
+  <div>
+      <p>This post is part of a series of posts:</p>
+<ul>
+<li><a href="https://jguegant.github.io/blogs/tech/dense-hash-map.html">Part 1 - Beating std::unordered_map</a></li>
+<li><a href="https://jguegant.github.io/blogs/tech/dense-hash-map2.html">Part 2 - Growth Policies &amp; The Schrodinger std::pair</a></li>
+<li><strong>Part 3 - The wonderful world of iterators and allocators (Current)</strong></li>
+<li>Part 4 - ... (Coming Soon)</li>
+</ul>
+<p>In the <a href="https://jguegant.github.io/blogs/tech/dense-hash-map2.html">previous post</a>, we prepared our data-structure to be able to store our …</p>
+        <br>
+        <a class="btn" href="https://jguegant.github.io/blogs/tech/dense-hash-map3.html#dense-hash-map3">    Continue reading
+</a>
+  </div>
+  <hr />
+</article>
+<article>
+  <header>
     <h2><a href="https://jguegant.github.io/blogs/tech/dense-hash-map2.html#dense-hash-map2">Making a STL-compatible hash map from scratch - Part 2 - Growth Policies & The Schrodinger std::pair</a></h2>
     <p>
           Posted on Mon 13 April 2020 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
@@ -115,10 +142,10 @@
 <ul>
 <li><a href="https://jguegant.github.io/blogs/tech/dense-hash-map.html">Part 1 - Beating std::unordered_map</a></li>
 <li><strong>Part 2 - Growth Policies &amp; The Schrodinger std::pair (Current)</strong></li>
-<li>Part 3 - The wonderful world of iterators and allocators (Coming Soon)</li>
-<li>Part 4 - ... (Coming Soon)</li>
+<li><a href="https://jguegant.github.io/blogs/tech/dense-hash-map3.html">Part 3 - The wonderful world of iterators and allocators</a></li>
+<li>Part 4 - An insertion maze (Coming Soon)</li>
 </ul>
-<p>In the <a href="https://jguegant.github.io/blogs/tech/dense-hash-map.html">previous post</a>, we started a quest that consists in implementing …</p>
+<p>In the <a href="https://jguegant.github.io/blogs/tech/dense-hash-map.html">previous post</a>, we started a quest that consists in …</p>
         <br>
         <a class="btn" href="https://jguegant.github.io/blogs/tech/dense-hash-map2.html#dense-hash-map2">    Continue reading
 </a>
@@ -141,12 +168,13 @@
       <p>This post is part of a planned series of posts:</p>
 <ul>
 <li><strong>Part 1 - Beating std::unordered_map (Current)</strong></li>
-<li>Part 2 - <a href="https://jguegant.github.io/blogs/tech/dense-hash-map2.html">Growth Policies &amp; The Schrodinger std::pair</a></li>
-<li>Part 3 - ... (Coming Soon)</li>
+<li><a href="https://jguegant.github.io/blogs/tech/dense-hash-map2.html">Part 2 - Growth Policies &amp; The Schrodinger std::pair</a></li>
+<li><a href="https://jguegant.github.io/blogs/tech/dense-hash-map3.html">Part 3 - The wonderful world of iterators and allocators</a></li>
+<li>Part 4 - An insertion maze (Coming Soon)</li>
 </ul>
 <h1>Part 1 - Beating std::unordered_map</h1>
 <h2>Trivia:</h2>
-<p>If C++ had an equivalent in the video game world, it would be similar to Dark …</p>
+<p>If C++ had an …</p>
         <br>
         <a class="btn" href="https://jguegant.github.io/blogs/tech/dense-hash-map.html#dense-hash-map">    Continue reading
 </a>
@@ -300,29 +328,6 @@ Although I might be a bit late on the "trip-report-race", I think that it is …
 Thanks to my current employer <a href="https://discover.king.com/about/">King</a>, I went last week to <a href="http://meetingcpp.com/">Meeting C++</a> in <strong>Berlin</strong>, which is, as far as I know, the biggest <strong>C++</strong> event in Europe. I really enjoyed …</p>
         <br>
         <a class="btn" href="https://jguegant.github.io/blogs/tech/trip-report-meetingcpp-2017.html#trip-report-meetingcpp-2017">    Continue reading
-</a>
-  </div>
-  <hr />
-</article>
-<article>
-  <header>
-    <h2><a href="https://jguegant.github.io/blogs/tech/c++-stockholm-0x02.html#c++-stockholm-0x02">C++ Stockholm 0x02</a></h2>
-    <p>
-          Posted on Mon 20 February 2017 in <a href="https://jguegant.github.io/blogs/tech/category/news.html">News</a>
-
-
-          &#8226;     Tagged with
-
-              <a href="https://jguegant.github.io/blogs/tech/tag/blog-c17-c-stockholm.html">blog C++17 C++ Stockholm</a>
-    </p>
-  </header>
-  <div>
-      <p>I had the chance to participate last week in a <strong>C++ meetup</strong>.
-This <a href="https://www.meetup.com/swedencpp/">Stockholm meetup group</a> is fairly recent but has a lot of potential!
-I am always enjoying my time during these sessions, surrounded by the smart and passionated people.
-In the unlikely chance that you are living around …</p>
-        <br>
-        <a class="btn" href="https://jguegant.github.io/blogs/tech/c++-stockholm-0x02.html#c++-stockholm-0x02">    Continue reading
 </a>
   </div>
 </article>
