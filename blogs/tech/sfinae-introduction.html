@@ -160,9 +160,9 @@
 <span class="n">b</span> <span class="o">=</span> <span class="n">B</span><span class="p">()</span>
 <span class="n">c</span> <span class="o">=</span> <span class="n">C</span><span class="p">()</span>
 
-<span class="nb">print</span><span class="p">(</span><span class="n">serialize</span><span class="p">(</span><span class="n">a</span><span class="p">))</span> <span class="c1"># output: I am a A.</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">serialize</span><span class="p">(</span><span class="n">b</span><span class="p">))</span> <span class="c1"># output: I am a B.</span>
-<span class="nb">print</span><span class="p">(</span><span class="n">serialize</span><span class="p">(</span><span class="n">c</span><span class="p">))</span> <span class="c1"># output: I am a C.</span>
+<span class="k">print</span><span class="p">(</span><span class="n">serialize</span><span class="p">(</span><span class="n">a</span><span class="p">))</span> <span class="c1"># output: I am a A.</span>
+<span class="k">print</span><span class="p">(</span><span class="n">serialize</span><span class="p">(</span><span class="n">b</span><span class="p">))</span> <span class="c1"># output: I am a B.</span>
+<span class="k">print</span><span class="p">(</span><span class="n">serialize</span><span class="p">(</span><span class="n">c</span><span class="p">))</span> <span class="c1"># output: I am a C.</span>
 </code></pre></div>
 
 
@@ -591,7 +591,7 @@ Once again, let's explore the new features, and use them to build something wond
 <p>It works as long as the type is easily "guessable" by the compiler. We are coding in C++ after all, not OCaml! </p>
 <h6>A feature for functional lovers:</h6>
 <p><strong>C++11</strong> introduced <a href="http://en.cppreference.com/w/cpp/language/lambda">lambdas</a>. A lambda has the following syntax: </p>
-<div class="highlight"><pre><span></span><code><span class="err">[capture-list](params) -&gt; non-mandatory-return-type { ...body... }</span>
+<div class="highlight"><pre><span></span><code>[<span class="nv">capture</span><span class="o">-</span><span class="nv">list</span>]<span class="ss">(</span><span class="nb">params</span><span class="ss">)</span> <span class="o">-&gt;</span> <span class="nv">non</span><span class="o">-</span><span class="nv">mandatory</span><span class="o">-</span><span class="k">return</span><span class="o">-</span><span class="nv">type</span> { ...<span class="nv">body</span>... }
 </code></pre></div>
 
 

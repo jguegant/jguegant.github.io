@@ -189,7 +189,7 @@ Thanks to my current employer <a href="https://discover.king.com/about/">King</a
 </ul>
 <div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="n">future</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">foo</span><span class="p">();</span>
 
-<span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="k">co_await</span> <span class="n">foo</span><span class="p">();</span> <span class="c1">// The continuation is &quot;generated&quot; by the compiler using the keyword co_await.</span>
+<span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="n">co_await</span> <span class="n">foo</span><span class="p">();</span> <span class="c1">// The continuation is &quot;generated&quot; by the compiler using the keyword co_await.</span>
 <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">x</span><span class="p">;</span> <span class="c1">// Everything after co_await is implicitely part of the continuation.</span>
 </code></pre></div>
 

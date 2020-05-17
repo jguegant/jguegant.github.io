@@ -1,5 +1,267 @@
 <?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom"><title>Jean Guegant's Blog</title><link href="https://jguegant.github.io/blogs/tech/" rel="alternate"></link><link href="https://jguegant.github.io/blogs/tech/feeds/all.atom.xml" rel="self"></link><id>https://jguegant.github.io/blogs/tech/</id><updated>2020-05-01T17:43:00+02:00</updated><subtitle>Software Engineer - C++, security, game development and random thoughts.</subtitle><entry><title>Making a STL-compatible hash map from scratch - Part 3 - The wonderful world of iterators and allocators</title><link href="https://jguegant.github.io/blogs/tech/dense-hash-map3.html" rel="alternate"></link><published>2020-05-01T17:40:00+02:00</published><updated>2020-05-01T17:43:00+02:00</updated><author><name>Jean Guegant</name></author><id>tag:jguegant.github.io,2020-05-01:/blogs/tech/dense-hash-map3.html</id><summary type="html">&lt;p&gt;This post is part of a series of posts:&lt;/p&gt;
+<feed xmlns="http://www.w3.org/2005/Atom"><title>Jean Guegant's Blog</title><link href="https://jguegant.github.io/blogs/tech/" rel="alternate"></link><link href="https://jguegant.github.io/blogs/tech/feeds/all.atom.xml" rel="self"></link><id>https://jguegant.github.io/blogs/tech/</id><updated>2020-05-17T17:40:00+02:00</updated><subtitle>Software Engineer - C++, security, game development and random thoughts.</subtitle><entry><title>Let's unravel C++17's structured bindings</title><link href="https://jguegant.github.io/blogs/tech/structured-bindings.html" rel="alternate"></link><published>2020-05-17T17:40:00+02:00</published><updated>2020-05-17T17:40:00+02:00</updated><author><name>Jean Guegant</name></author><id>tag:jguegant.github.io,2020-05-17:/blogs/tech/structured-bindings.html</id><summary type="html">&lt;h2&gt;Trivia:&lt;/h2&gt;
+&lt;p&gt;I had a good intuition on how structured bindings worked when C++17 came out. The feature is quite intuitive to use and provides great help.
+But it is not until recently that I actually read &lt;a href="http://eel.is/c++draft/dcl.struct.bind"&gt;the part of the standard&lt;/a&gt; that describes how this truly works under the …&lt;/p&gt;</summary><content type="html">&lt;h2&gt;Trivia:&lt;/h2&gt;
+&lt;p&gt;I had a good intuition on how structured bindings worked when C++17 came out. The feature is quite intuitive to use and provides great help.
+But it is not until recently that I actually read &lt;a href="http://eel.is/c++draft/dcl.struct.bind"&gt;the part of the standard&lt;/a&gt; that describes how this truly works under the hood. As always, the standard is rather cryptic with all its language lawyer terms and for once &lt;a href="https://en.cppreference.com/w/cpp/language/structured_binding"&gt;cppreference&lt;/a&gt; is not so succinct either.&lt;/p&gt;
+&lt;p&gt;For future me, I decided to write a dumbed-down version of what happens here!&lt;/p&gt;
+&lt;p&gt;Disclaimer: this post reflects my humble understanding of the standard, feel free to reach me if I got anything wrong in there.&lt;/p&gt;
+&lt;h2&gt;Destructuring the structured bindings:&lt;/h2&gt;
+&lt;p&gt;Similar to the &lt;a href="https://en.cppreference.com/w/cpp/language/range-for"&gt;range-based for loops&lt;/a&gt;, this new "structured binding" feature can be seen a syntax-sugar. This means that we can produce a code equivalent to what a structured binding declaration would do.&lt;/p&gt;
+&lt;p&gt;So let's start with a simple case:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The way you should interpret this code is the following:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;I am declaring a new &lt;strong&gt;anonymous&lt;/strong&gt; variable that encompass &lt;code&gt;[x, y]&lt;/code&gt;.&lt;/li&gt;
+&lt;li&gt;This new variable will have its type deduced and be a copy of what foo returns since we have &lt;code&gt;auto&lt;/code&gt;. &lt;/li&gt;
+&lt;/ul&gt;
+&lt;p&gt;In other words, your compiler starts by producing a code very similar to this:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="n"&gt;a_secret_variable&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;What this implies is the &lt;code&gt;auto&lt;/code&gt; keyword is &lt;strong&gt;applied to the anonymous variable&lt;/strong&gt; and &lt;strong&gt;NOT&lt;/strong&gt; the identifier &lt;code&gt;x&lt;/code&gt; and &lt;code&gt;y&lt;/code&gt; as some may think.
+The anonymous variable itself is not visible to anyone except the compiler, it is not possible to actually check its type, but you have to trust me here! &lt;/p&gt;
+&lt;p&gt;Now let's assume that &lt;code&gt;foo&lt;/code&gt; is returning a type by &lt;strong&gt;value&lt;/strong&gt; - &lt;code&gt;T foo()&lt;/code&gt; - and therefore produce a &lt;strong&gt;temporary&lt;/strong&gt; variable. This means that we can only use &lt;code&gt;auto&lt;/code&gt;, &lt;code&gt;const auto&amp;amp;&lt;/code&gt; or &lt;code&gt;auto&amp;amp;&amp;amp;&lt;/code&gt; but NOT &lt;code&gt;auto&amp;amp;&lt;/code&gt;. &lt;code&gt;auto&lt;/code&gt; will do a copy of that temporary, &lt;code&gt;const auto&amp;amp;&lt;/code&gt; and &lt;code&gt;auto&amp;amp;&amp;amp;&lt;/code&gt; will bind to that temporary and &lt;a href="https://en.cppreference.com/w/cpp/language/reference_initialization#Lifetime_of_a_temporary"&gt;prolong its life until the end of the scope&lt;/a&gt;. &lt;code&gt;auto&amp;amp;&lt;/code&gt; would not work here as l-value references cannot bind to temporary values. &lt;code&gt;auto&amp;amp;&lt;/code&gt; will be useful only if your (member) function &lt;code&gt;foo&lt;/code&gt; returns a l-value reference - &lt;code&gt;T&amp;amp; foo()&lt;/code&gt; - and you want to avoid a copy while having non-const access.&lt;/p&gt;
+&lt;p&gt;Note that the expression on the right part of the equal operator can be more complicated than just a call to a function like &lt;code&gt;foo&lt;/code&gt;.
+Anything that could assign &lt;code&gt;a_secret_variable&lt;/code&gt; could belong there, like &lt;code&gt;auto&amp;amp;&amp;amp; a_secret_variable =  std::pair(2, "bob");&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Now that the compiler produced the anonymous variable, how do we obtain &lt;code&gt;x&lt;/code&gt; and &lt;code&gt;y&lt;/code&gt; from it? This will depend on the type of expression on the right.
+There are three cases: one for array types, one for simple types and one for types that act like std::tuple.
+The two first ones are pretty straightforward, while the later one requires a bit more explanations.&lt;/p&gt;
+&lt;h3&gt;Arrays:&lt;/h3&gt;
+&lt;p&gt;Let's try to bind to an array:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;an_array&lt;/span&gt;&lt;span class="p"&gt;[]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="mi"&gt;1337&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1337&lt;/span&gt;&lt;span class="p"&gt;};&lt;/span&gt;
+&lt;span class="k"&gt;auto&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;an_array&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+&lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;42&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="n"&gt;y&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;42&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;cout&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;an_array&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;,&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;an_array&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;];&lt;/span&gt; &lt;span class="c1"&gt;// What happen here?&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;After substitution of &lt;code&gt;[x, y]&lt;/code&gt; with our anonymous variable we obtain:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;an_array&lt;/span&gt;&lt;span class="p"&gt;[]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="mi"&gt;1337&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1337&lt;/span&gt;&lt;span class="p"&gt;};&lt;/span&gt;
+&lt;span class="k"&gt;auto&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;a_secret_variable&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;an_array&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+&lt;span class="n"&gt;a_secret_variable&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;42&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="n"&gt;a_secret_variable&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;42&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;cout&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;an_array&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;,&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;an_array&lt;/span&gt;&lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;];&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;As you can see, &lt;code&gt;x&lt;/code&gt; and &lt;code&gt;y&lt;/code&gt; do not really exist as variables. They don't even have their own storage! Rather, they should be seen as special identifiers ; what the standard call "the names of lvalues that refer to some elements". In this scenario, &lt;code&gt;x&lt;/code&gt; is a special identifier that refers to &lt;code&gt;a_secret_variable[0]&lt;/code&gt;. And &lt;code&gt;y&lt;/code&gt; is a special identifier that refers to &lt;code&gt;a_secret_variable[1]&lt;/code&gt;.
+Since &lt;code&gt;a_secret_variable&lt;/code&gt; is a l-value reference to &lt;code&gt;an_array&lt;/code&gt;, mutating &lt;code&gt;a_secret_variable&lt;/code&gt; is equivalent to mutating &lt;code&gt;an_array&lt;/code&gt;. Therefore, this snippet will print &lt;code&gt;42,42&lt;/code&gt;.&lt;/p&gt;
+&lt;p&gt;Note that the number of special identifiers must match the size of your array! Your compiler will yield an error otherwise.&lt;/p&gt;
+&lt;h3&gt;Simple types:&lt;/h3&gt;
+&lt;p&gt;What I call simple types are types whose non-static members are publicly available. Typically a plain old C-like &lt;code&gt;struct&lt;/code&gt; would fit well into that category. 
+In the standard, this case happens only if the type is not already in the category "arrays" or "tuple-like types".&lt;/p&gt;
+&lt;p&gt;If your type falls into that "simple types" category, the end-result will be very similar to arrays. The difference is that the special identifiers will refer to the non-static members of your type. The special identifiers are referring each members of your type from up to down.&lt;/p&gt;
+&lt;p&gt;So if we have such code:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="k"&gt;struct&lt;/span&gt; &lt;span class="n"&gt;A&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="p"&gt;};&lt;/span&gt;
+
+&lt;span class="n"&gt;A&lt;/span&gt; &lt;span class="nf"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="mi"&gt;1337&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1337&lt;/span&gt;&lt;span class="p"&gt;};&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="k"&gt;auto&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+
+&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;cout&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;,&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="c1"&gt;// Prints 1337, 1337&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Let's observe what such a simple example becomes:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="k"&gt;struct&lt;/span&gt; &lt;span class="n"&gt;A&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;b&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="p"&gt;};&lt;/span&gt;
+
+&lt;span class="n"&gt;A&lt;/span&gt; &lt;span class="nf"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="mi"&gt;1337&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1337&lt;/span&gt;&lt;span class="p"&gt;};&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="k"&gt;auto&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;a_secret_variable&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+
+&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;cout&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;a_secret_variable&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;,&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;a_secret_variable&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;b&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;As you can see, &lt;code&gt;a&lt;/code&gt; is the first member of &lt;code&gt;A&lt;/code&gt;. &lt;code&gt;x&lt;/code&gt; being also first in the identifier list will refer to &lt;code&gt;a&lt;/code&gt;.
+Note that the number of special identifiers must also match the number of members available in your type!&lt;/p&gt;
+&lt;p&gt;There is a subtle catch here though. What would &lt;code&gt;decltype(x)&lt;/code&gt; yield as type (what the standard calls referenced type)? One would assume that this would be strictly the same as &lt;code&gt;decltype(a_secret_variable.a)&lt;/code&gt; which is equivalent to &lt;code&gt;int&lt;/code&gt;. The standard made a nice plot-twist here and &lt;code&gt;decltype(x)&lt;/code&gt; will, in rough terms, have a type equivalent to &lt;code&gt;decltype(a_secret_variable.a)&lt;/code&gt; &lt;strong&gt;plus&lt;/strong&gt; the &lt;code&gt;const&lt;/code&gt; or &lt;code&gt;volatile&lt;/code&gt; qualifiers attached to &lt;code&gt;a_secret_variable&lt;/code&gt;. In our case &lt;code&gt;a_secret_variable&lt;/code&gt; is &lt;code&gt;const&lt;/code&gt;, which result in &lt;code&gt;decltype(x)&lt;/code&gt; being equivalent to &lt;code&gt;const decltype(a_secret_variable.a)&lt;/code&gt; or in a simpler form &lt;code&gt;const int&lt;/code&gt;.
+C++ is like a box of chocolates... you never know what you're gonna get!&lt;/p&gt;
+&lt;h3&gt;Tuple-like types:&lt;/h3&gt;
+&lt;p&gt;The last kind of types you can bind are tuple-like types. In layman's terms, these types are similar to &lt;a href="https://en.cppreference.com/w/cpp/utility/tuple"&gt;std::tuple&lt;/a&gt; in the sense that you can access their members/values using &lt;code&gt;std::get&lt;/code&gt; or a member function &lt;code&gt;get&lt;/code&gt; on them. These types do not give a direct access to their members/values but still want to be part of the cool club of structured bindings. Ultimately, this led the standard to use type traits to describe how to access these members. &lt;/p&gt;
+&lt;h4&gt;Example with std::tuple:&lt;/h4&gt;
+&lt;p&gt;Let's start with a simple case that we will decompose in few steps:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;tuple&lt;/span&gt; &lt;span class="n"&gt;my_fancy_tuple&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;43&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;fiction&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;));&lt;/span&gt;
+&lt;span class="k"&gt;auto&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;my_fancy_tuple&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+&lt;span class="n"&gt;y&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;factory&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+
+&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;cout&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;,&amp;quot;&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="c1"&gt;// Prints 43,factory.&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;As always, your compiler will first introduce an anonymous variable:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;tuple&lt;/span&gt; &lt;span class="n"&gt;my_fancy_tuple&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;43&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;fiction&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;));&lt;/span&gt;
+&lt;span class="k"&gt;auto&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;a_secret_variable&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;my_fancy_tuple&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;As a sanity check, your compiler will check that your special identifiers like &lt;code&gt;x&lt;/code&gt; or &lt;code&gt;y&lt;/code&gt; are enough to cover all the values that your tuple-like type holds.
+To do so, it will do a "compile-time call" equivalent to &lt;code&gt;std​::​tuple_­size_v&amp;lt;std::remove_reference_t&amp;lt;decltype(a_secret_variable)&amp;gt;&amp;gt;​&lt;/code&gt;. &lt;a href="https://en.cppreference.com/w/cpp/utility/tuple/tuple_size"&gt;std::tuple_size&lt;/a&gt; is already defined for &lt;code&gt;std::tuple&lt;/code&gt; and will return &lt;code&gt;2&lt;/code&gt; in our example. Since we have two special identifiers and the size of the tuple is two, no members/values are left behind and the compiler allows us to move to the next step.&lt;/p&gt;
+&lt;p&gt;To be able to use special identifiers referring to values/members of &lt;code&gt;a_secret_variable&lt;/code&gt;, the compiler need to extract those with some calls to &lt;code&gt;std::get&lt;/code&gt; or a member function of your type named &lt;code&gt;get&lt;/code&gt;. It would be quite slow to repeat this extraction repeatedly, therefore the compiler will introduce a &lt;strong&gt;new set of anonymous variables&lt;/strong&gt; to store the result of those calls.
+The standard also provides a second customisation point by letting the creator of the tuple-like class decided which type these variables will have.
+This customisation point is called &lt;a href="https://en.cppreference.com/w/cpp/utility/tuple/tuple_element"&gt;std::tuple_element&lt;/a&gt;.
+Here is what this will look like in code:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;tuple&lt;/span&gt; &lt;span class="n"&gt;my_fancy_tuple&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;43&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;fiction&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;));&lt;/span&gt;
+&lt;span class="k"&gt;auto&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;a_secret_variable&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;my_fancy_tuple&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;tuple_element_t&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;remove_reference_t&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;decltype&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a_secret_variable&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;secret_x&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;my_fancy_tuple&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="c1"&gt;//                   ^ The type of the member with index 0                     ^ anonymous         ^ Gets the value of member 0.&lt;/span&gt;
+&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;tuple_element_t&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;remove_reference_t&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;decltype&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a_secret_variable&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&amp;gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;secret_y&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;my_fancy_tuple&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Given &lt;a href="https://en.cppreference.com/w/cpp/utility/tuple/tuple_element"&gt;std::tuple_element&lt;/a&gt; specialisation for &lt;code&gt;std::tuple&lt;/code&gt;, this results in:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;tuple&lt;/span&gt; &lt;span class="n"&gt;my_fancy_tuple&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;43&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;fiction&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;));&lt;/span&gt;
+&lt;span class="k"&gt;auto&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;a_secret_variable&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;my_fancy_tuple&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="kt"&gt;int&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;secret_x&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;my_fancy_tuple&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;secret_y&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;my_fancy_tuple&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;Note that the variables are defacto references ; more precisely l-value references in this case. This is to avoid any unnecessary copies of your data.
+So what if &lt;code&gt;get&lt;/code&gt; had returned anything else than l-value reference? The compiler would adapt itself and generate variables which are r-value references "&lt;code&gt;&amp;amp;&amp;amp;&lt;/code&gt;" with the all the benefit you have from those: it extends the lifetime of temporaries and permits mutability of those.&lt;/p&gt;
+&lt;p&gt;Afterwards, the compiler proceeds by associating to these new variables our special identifiers &lt;code&gt;x&lt;/code&gt; and &lt;code&gt;y&lt;/code&gt;. Once again, these special identifiers simply refer to &lt;code&gt;secret_x&lt;/code&gt; and &lt;code&gt;secret_y&lt;/code&gt; but are not proper variables. This leads us to this weird code as an output where &lt;code&gt;y&lt;/code&gt; would spawn out of nowhere but pretends to be &lt;code&gt;secret_y&lt;/code&gt;:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;tuple&lt;/span&gt; &lt;span class="n"&gt;my_fancy_tuple&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="mi"&gt;43&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="s"&gt;&amp;quot;fiction&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;));&lt;/span&gt;
+&lt;span class="k"&gt;auto&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;a_secret_variable&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;my_fancy_tuple&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="kt"&gt;int&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;secret_x&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;my_fancy_tuple&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;secret_y&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;my_fancy_tuple&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+
+&lt;span class="n"&gt;y&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;factory&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="c1"&gt;// y refers to secret_y and therefore mutate the variable that secret_y is bound to.&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;To further add to this complicated situation, the reference type of &lt;code&gt;y&lt;/code&gt; (the result of &lt;code&gt;decltype(y)&lt;/code&gt;) is also receiving its own treatment. 
+You would expect it to be same as &lt;code&gt;secret_y&lt;/code&gt; which is &lt;code&gt;std::string&amp;amp;&lt;/code&gt;, but the compiler is assigning the type resulting of &lt;code&gt;std::tuple_element&lt;/code&gt; instead.
+In our case, &lt;code&gt;std::tuple_element&lt;/code&gt; gave for the member at index 1 the type &lt;code&gt;std::string&lt;/code&gt;, so &lt;code&gt;decltype(y)&lt;/code&gt; will return &lt;code&gt;std::string&lt;/code&gt;.
+While slightly awkward, this gave us some types for &lt;code&gt;x&lt;/code&gt; and &lt;code&gt;y&lt;/code&gt; that would be similar to if we were accessing to the real members of the tuple directly!  &lt;/p&gt;
+&lt;h4&gt;Playing with a custom type:&lt;/h4&gt;
+&lt;p&gt;As you observed, if a type has a specialisation for &lt;code&gt;std::tuple_element&lt;/code&gt; and &lt;code&gt;std::tuple_size&lt;/code&gt; and has a &lt;code&gt;std::get&lt;/code&gt; overload or a &lt;code&gt;get&lt;/code&gt; member function, then it can be morphed into some structured bindings. So let's write a very dumb type with two members we want to expose this way:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="k"&gt;struct&lt;/span&gt; &lt;span class="n"&gt;A&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="n"&gt;A&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;x_&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;),&lt;/span&gt; &lt;span class="n"&gt;y_&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;move&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="p"&gt;{}&lt;/span&gt;
+
+    &lt;span class="k"&gt;template&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="kt"&gt;size_t&lt;/span&gt; &lt;span class="n"&gt;I&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
+    &lt;span class="c1"&gt;//                    ^ The index of the member you want to get.&lt;/span&gt;
+    &lt;span class="k"&gt;auto&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+        &lt;span class="c1"&gt;// Dispatch to the right member using if constexpr.&lt;/span&gt;
+        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="k"&gt;constexpr&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;I&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+            &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;x_&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="k"&gt;else&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+            &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;y_&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+
+    &lt;span class="k"&gt;template&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="kt"&gt;size_t&lt;/span&gt; &lt;span class="n"&gt;I&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; 
+    &lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="k"&gt;auto&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="c1"&gt;//                 ^ A const overload.&lt;/span&gt;
+        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="k"&gt;constexpr&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;I&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+            &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;x_&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="k"&gt;else&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+            &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;y_&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+
+&lt;span class="k"&gt;private&lt;/span&gt;&lt;span class="o"&gt;:&lt;/span&gt;
+    &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;x_&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt; &lt;span class="n"&gt;y_&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;span class="p"&gt;};&lt;/span&gt;
+
+&lt;span class="k"&gt;namespace&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="k"&gt;template&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&amp;gt;&lt;/span&gt;
+    &lt;span class="k"&gt;struct&lt;/span&gt; &lt;span class="n"&gt;tuple_size&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;A&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="o"&gt;:&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;integral_constant&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="kt"&gt;size_t&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;2&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;{};&lt;/span&gt;
+    &lt;span class="c1"&gt;//                ^          A always has 2 members        ^&lt;/span&gt;
+
+    &lt;span class="k"&gt;template&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&amp;gt;&lt;/span&gt;
+    &lt;span class="k"&gt;struct&lt;/span&gt; &lt;span class="n"&gt;tuple_element&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;A&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="c1"&gt;//                   ^ The member at index 0 has type int.&lt;/span&gt;
+        &lt;span class="k"&gt;using&lt;/span&gt; &lt;span class="n"&gt;type&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="kt"&gt;int&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="p"&gt;};&lt;/span&gt;
+
+    &lt;span class="k"&gt;template&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&amp;gt;&lt;/span&gt;
+    &lt;span class="k"&gt;struct&lt;/span&gt; &lt;span class="n"&gt;tuple_element&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;A&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="c1"&gt;// The other one has type std::string.&lt;/span&gt;
+        &lt;span class="k"&gt;using&lt;/span&gt; &lt;span class="n"&gt;type&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+    &lt;span class="p"&gt;};&lt;/span&gt;
+&lt;span class="p"&gt;}&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;As you can see, you don't need a diploma in rocket-science to have your types support structured bindings.
+A couple of lines gives enough clues to your compiler to be able to generate the needed boilerplate behind the scene.
+In that respect, the standard was quite well designed!&lt;/p&gt;
+&lt;p&gt;There are still two things I would like to focus your attention on.&lt;/p&gt;
+&lt;h5&gt;Handling const:&lt;/h5&gt;
+&lt;p&gt;What happen if we create a structured binding with &lt;code&gt;const auto&amp;amp;&lt;/code&gt; on our type? Such as:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="n"&gt;A&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;yo&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;};&lt;/span&gt;
+&lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="k"&gt;auto&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;If you followed carefully the steps on &lt;code&gt;std::tuple&lt;/code&gt;, you would notice that this will call &lt;code&gt;std::tuple_element&lt;/code&gt; and &lt;code&gt;std::tuple_size&lt;/code&gt; with &lt;code&gt;const A&lt;/code&gt; as a parameter.
+As you can see in my code, I did not specialise those two type-traits for &lt;code&gt;const A&lt;/code&gt;. Yet, this will work as it should!
+It turns out that the committee was friendly enough to supply a partial specialisation for any &lt;code&gt;const T&lt;/code&gt; out there.
+By default, these standard provided specialisations will recursively call your own specialisation with &lt;code&gt;T&lt;/code&gt; while adding &lt;code&gt;const&lt;/code&gt; where they should.
+That's neat!&lt;/p&gt;
+&lt;h5&gt;A very odd get:&lt;/h5&gt;
+&lt;p&gt;The last interesting tidbit is the following: what if we decided that our &lt;code&gt;get&lt;/code&gt; return &lt;code&gt;x_&lt;/code&gt; and &lt;code&gt;y_&lt;/code&gt; by value? How would that work?&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="k"&gt;struct&lt;/span&gt; &lt;span class="n"&gt;A&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="c1"&gt;// ...&lt;/span&gt;
+
+    &lt;span class="k"&gt;template&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="kt"&gt;size_t&lt;/span&gt; &lt;span class="n"&gt;I&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; 
+    &lt;span class="k"&gt;auto&lt;/span&gt; &lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+    &lt;span class="c1"&gt;// ^ by value&lt;/span&gt;
+        &lt;span class="k"&gt;if&lt;/span&gt; &lt;span class="k"&gt;constexpr&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;I&lt;/span&gt; &lt;span class="o"&gt;==&lt;/span&gt; &lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+            &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;x_&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="k"&gt;else&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+            &lt;span class="k"&gt;return&lt;/span&gt; &lt;span class="n"&gt;y_&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+        &lt;span class="p"&gt;}&lt;/span&gt;
+    &lt;span class="p"&gt;}&lt;/span&gt;
+
+    &lt;span class="c1"&gt;// ...&lt;/span&gt;
+&lt;span class="p"&gt;};&lt;/span&gt;
+
+&lt;span class="n"&gt;A&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;{&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="s"&gt;&amp;quot;yo&amp;quot;&lt;/span&gt;&lt;span class="p"&gt;};&lt;/span&gt;
+&lt;span class="k"&gt;const&lt;/span&gt; &lt;span class="k"&gt;auto&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="n"&gt;y&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;As I explained earlier, the standard is actually ready for that extremely hairy situation.
+Here the results from &lt;code&gt;get&lt;/code&gt; would be captured by some r-value references such as:&lt;/p&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="kt"&gt;int&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;secret_x&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;secret_a&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="mi"&gt;0&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt; 
+&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;string&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;secret_y&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;secret_a&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;get&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
+
+
+&lt;p&gt;The temporaries resulting from those hidden calls to &lt;code&gt;get&lt;/code&gt; would live until the end of their scope.
+I am not quite sure if this a genius move from the committee or if this came as by-product of C++'s complexity as I see no point in allowing such weird construction...
+With these horrifying thoughts, I let you reach the conclusion of this post!&lt;/p&gt;
+&lt;h2&gt;Conclusion:&lt;/h2&gt;
+&lt;p&gt;I promised a dumbed-down explanation of structured bindings but ended up writing substantially more than what the standard says.
+If you have to remember anything from this post, here are the key-points you should focus on:&lt;/p&gt;
+&lt;ul&gt;
+&lt;li&gt;The qualifiers (const, auto, &amp;amp;...) are applied to the entire variable behind your structured bindings and not the identifiers.&lt;/li&gt;
+&lt;li&gt;The rest of the boilerplate behind the scene does mostly what you would expect. The only caveat comes for &lt;code&gt;decltype(an_identifier)&lt;/code&gt; where it gets hairy. &lt;/li&gt;
+&lt;li&gt;You can bring the power of structured bindings to your types quite easily with few type traits. &lt;/li&gt;
+&lt;/ul&gt;</content><category term="C++"></category><category term="C++17"></category><category term="structured bindings."></category></entry><entry><title>Making a STL-compatible hash map from scratch - Part 3 - The wonderful world of iterators and allocators</title><link href="https://jguegant.github.io/blogs/tech/dense-hash-map3.html" rel="alternate"></link><published>2020-05-01T17:40:00+02:00</published><updated>2020-05-01T17:43:00+02:00</updated><author><name>Jean Guegant</name></author><id>tag:jguegant.github.io,2020-05-01:/blogs/tech/dense-hash-map3.html</id><summary type="html">&lt;p&gt;This post is part of a series of posts:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;&lt;a href="https://jguegant.github.io/blogs/tech/dense-hash-map.html"&gt;Part 1 - Beating std::unordered_map&lt;/a&gt;&lt;/li&gt;
 &lt;li&gt;&lt;a href="https://jguegant.github.io/blogs/tech/dense-hash-map2.html"&gt;Part 2 - Growth Policies &amp;amp; The Schrodinger std::pair&lt;/a&gt;&lt;/li&gt;
@@ -98,7 +360,7 @@ You can easily implement &lt;code&gt;cbegin&lt;/code&gt; and &lt;code&gt;cend&lt
 
 &lt;p&gt;Let's assume that &lt;code&gt;std::random_access_iterator&lt;/code&gt; had a &lt;strong&gt;compound requirement&lt;/strong&gt; that ensure your iterator has a prefix increment operator as follow:&lt;/p&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="k"&gt;template&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;It&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;
-&lt;span class="k"&gt;concept&lt;/span&gt; &lt;span class="n"&gt;random_access_iterator&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;requires&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;It&lt;/span&gt; &lt;span class="n"&gt;it&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
+&lt;span class="n"&gt;concept&lt;/span&gt; &lt;span class="n"&gt;random_access_iterator&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;requires&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;It&lt;/span&gt; &lt;span class="n"&gt;it&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;
     &lt;span class="c1"&gt;// ...&lt;/span&gt;
     &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="o"&gt;++&lt;/span&gt;&lt;span class="n"&gt;it&lt;/span&gt; &lt;span class="p"&gt;}&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;same_as&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="n"&gt;It&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="c1"&gt;// Ensure that we can apply `++` to it and that it would return a reference.&lt;/span&gt;
     &lt;span class="c1"&gt;// ...&lt;/span&gt;
@@ -940,12 +1202,12 @@ Let's &lt;a href="https://godbolt.org/"&gt;godbolt&lt;/a&gt; a bit!  &lt;/p&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="c1"&gt;// x86 assembly&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="err"&gt;//&lt;/span&gt; &lt;span class="nf"&gt;x86&lt;/span&gt; &lt;span class="no"&gt;assembly&lt;/span&gt;
 &lt;span class="nf"&gt;modulo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="no"&gt;int&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="no"&gt;int&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
-    &lt;span class="nf"&gt;mov&lt;/span&gt;     &lt;span class="no"&gt;eax&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="no"&gt;edi&lt;/span&gt;  &lt;span class="c1"&gt;// Prepare the hash into eax&lt;/span&gt;
-    &lt;span class="nf"&gt;cdq&lt;/span&gt;               &lt;span class="c1"&gt;// Prepare registers for an idiv operation. &lt;/span&gt;
-    &lt;span class="nf"&gt;idiv&lt;/span&gt;    &lt;span class="no"&gt;esi&lt;/span&gt;       &lt;span class="c1"&gt;// Divide by esi which contains bucket_count&lt;/span&gt;
-    &lt;span class="nf"&gt;mov&lt;/span&gt;     &lt;span class="no"&gt;eax&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="no"&gt;edx&lt;/span&gt;  &lt;span class="c1"&gt;// Get the modulo value that ends-up in edx and return it into eax&lt;/span&gt;
+    &lt;span class="nf"&gt;mov&lt;/span&gt;     &lt;span class="no"&gt;eax&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="no"&gt;edi&lt;/span&gt;  &lt;span class="err"&gt;//&lt;/span&gt; &lt;span class="no"&gt;Prepare&lt;/span&gt; &lt;span class="no"&gt;the&lt;/span&gt; &lt;span class="no"&gt;hash&lt;/span&gt; &lt;span class="no"&gt;into&lt;/span&gt; &lt;span class="no"&gt;eax&lt;/span&gt;
+    &lt;span class="nf"&gt;cdq&lt;/span&gt;               &lt;span class="err"&gt;//&lt;/span&gt; &lt;span class="no"&gt;Prepare&lt;/span&gt; &lt;span class="no"&gt;registers&lt;/span&gt; &lt;span class="no"&gt;for&lt;/span&gt; &lt;span class="no"&gt;an&lt;/span&gt; &lt;span class="no"&gt;idiv&lt;/span&gt; &lt;span class="no"&gt;operation.&lt;/span&gt; 
+    &lt;span class="no"&gt;idiv&lt;/span&gt;    &lt;span class="no"&gt;esi&lt;/span&gt;       &lt;span class="err"&gt;//&lt;/span&gt; &lt;span class="no"&gt;Divide&lt;/span&gt; &lt;span class="no"&gt;by&lt;/span&gt; &lt;span class="no"&gt;esi&lt;/span&gt; &lt;span class="no"&gt;which&lt;/span&gt; &lt;span class="no"&gt;contains&lt;/span&gt; &lt;span class="no"&gt;bucket_count&lt;/span&gt;
+    &lt;span class="nf"&gt;mov&lt;/span&gt;     &lt;span class="no"&gt;eax&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="no"&gt;edx&lt;/span&gt;  &lt;span class="err"&gt;//&lt;/span&gt; &lt;span class="no"&gt;Get&lt;/span&gt; &lt;span class="no"&gt;the&lt;/span&gt; &lt;span class="no"&gt;modulo&lt;/span&gt; &lt;span class="no"&gt;value&lt;/span&gt; &lt;span class="no"&gt;that&lt;/span&gt; &lt;span class="no"&gt;ends-up&lt;/span&gt; &lt;span class="no"&gt;in&lt;/span&gt; &lt;span class="no"&gt;edx&lt;/span&gt; &lt;span class="no"&gt;and&lt;/span&gt; &lt;span class="no"&gt;return&lt;/span&gt; &lt;span class="no"&gt;it&lt;/span&gt; &lt;span class="no"&gt;into&lt;/span&gt; &lt;span class="no"&gt;eax&lt;/span&gt;
     &lt;span class="nf"&gt;ret&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
@@ -960,11 +1222,11 @@ But, what if we made bucket_count a constant? Having more information at compile
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="c1"&gt;// x86&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="err"&gt;//&lt;/span&gt; &lt;span class="nf"&gt;x86&lt;/span&gt;
 &lt;span class="nf"&gt;modulo&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="no"&gt;int&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="no"&gt;int&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="nf"&gt;movsx&lt;/span&gt;   &lt;span class="no"&gt;rax&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="no"&gt;edi&lt;/span&gt;
     &lt;span class="nf"&gt;mov&lt;/span&gt;     &lt;span class="no"&gt;edx&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="no"&gt;edi&lt;/span&gt;
-    &lt;span class="nf"&gt;imul&lt;/span&gt;    &lt;span class="no"&gt;rax&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="no"&gt;rax&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1717986919&lt;/span&gt; &lt;span class="c1"&gt;// LOTS OF SHENANIGANS GOING HERE.&lt;/span&gt;
+    &lt;span class="nf"&gt;imul&lt;/span&gt;    &lt;span class="no"&gt;rax&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="no"&gt;rax&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;1717986919&lt;/span&gt; &lt;span class="err"&gt;//&lt;/span&gt; &lt;span class="no"&gt;LOTS&lt;/span&gt; &lt;span class="no"&gt;OF&lt;/span&gt; &lt;span class="no"&gt;SHENANIGANS&lt;/span&gt; &lt;span class="no"&gt;GOING&lt;/span&gt; &lt;span class="no"&gt;HERE.&lt;/span&gt;
     &lt;span class="nf"&gt;sar&lt;/span&gt;     &lt;span class="no"&gt;edx&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;31&lt;/span&gt;
     &lt;span class="nf"&gt;sar&lt;/span&gt;     &lt;span class="no"&gt;rax&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="mi"&gt;33&lt;/span&gt;
     &lt;span class="nf"&gt;sub&lt;/span&gt;     &lt;span class="no"&gt;eax&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="no"&gt;edx&lt;/span&gt;
@@ -990,7 +1252,7 @@ So what do we obtain in this conditions?&lt;/p&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="c1"&gt;// x86&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="err"&gt;//&lt;/span&gt; &lt;span class="nf"&gt;x86&lt;/span&gt;
 &lt;span class="nf"&gt;fast_module&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="no"&gt;int&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="no"&gt;int&lt;/span&gt;&lt;span class="p"&gt;):&lt;/span&gt;
     &lt;span class="nf"&gt;lea&lt;/span&gt;     &lt;span class="no"&gt;eax&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="p"&gt;[&lt;/span&gt;&lt;span class="no"&gt;rsi-1&lt;/span&gt;&lt;span class="p"&gt;]&lt;/span&gt;
     &lt;span class="nf"&gt;and&lt;/span&gt;     &lt;span class="no"&gt;eax&lt;/span&gt;&lt;span class="p"&gt;,&lt;/span&gt; &lt;span class="no"&gt;edi&lt;/span&gt;
@@ -1187,7 +1449,7 @@ The problem is that header files are:&lt;/p&gt;
 Wouldn't it be better if compilation units themselves could expose directly what they provide instead of using these hackish headers?
 This is exactly what modules try to solve!&lt;/p&gt;
 &lt;p&gt;So writing a very basic module becomes as simple as writing a &lt;code&gt;.cpp&lt;/code&gt; file with few annotations to expose what we want:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="k"&gt;export&lt;/span&gt; &lt;span class="k"&gt;module&lt;/span&gt; &lt;span class="n"&gt;my&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="k"&gt;module&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="c1"&gt;// This is the name of our module&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="k"&gt;export&lt;/span&gt; &lt;span class="n"&gt;module&lt;/span&gt; &lt;span class="n"&gt;my&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;module&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="c1"&gt;// This is the name of our module&lt;/span&gt;
 &lt;span class="k"&gt;export&lt;/span&gt; &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;e&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="mi"&gt;42&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="c1"&gt;// Expose a variable.&lt;/span&gt;
 
 &lt;span class="k"&gt;export&lt;/span&gt; &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="nf"&gt;bar&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; 
@@ -1201,7 +1463,7 @@ This is exactly what modules try to solve!&lt;/p&gt;
 
 &lt;p&gt;When compiling this &lt;code&gt;.cpp&lt;/code&gt; file, this will create two others files: an object file that contains binary code (OBJ) and a file for interfacing with that module called Binary Module Interface. Unlike a header file, the BMI file and its associated OBJ file can have a highly &lt;strong&gt;optimized representation&lt;/strong&gt; of what is available in the module. &lt;/p&gt;
 &lt;p&gt;As a user of a module into another compilation unit, you will pass this BMI file as parameter to your compiler and write an import statement:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="k"&gt;import&lt;/span&gt; &lt;span class="k"&gt;module&lt;/span&gt; &lt;span class="n"&gt;my&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="k"&gt;module&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="c1"&gt;// Ask the compiler to use that module in here.&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="n"&gt;import&lt;/span&gt; &lt;span class="n"&gt;module&lt;/span&gt; &lt;span class="n"&gt;my&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;module&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="c1"&gt;// Ask the compiler to use that module in here.&lt;/span&gt;
 
 &lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="nf"&gt;main&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt;  
     &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;cout&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;bar&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt; &lt;span class="c1"&gt;// This is using bar from the other module.&lt;/span&gt;
@@ -1735,12 +1997,12 @@ Take a look at this very simple piece of code:&lt;/p&gt;
 
 
 &lt;p&gt;Your never-satisfied compiler will refuse to compile it with the following error message:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="err"&gt;&amp;lt;source&amp;gt;: In instantiation of &amp;#39;void foo(T&amp;amp;&amp;amp;) [with T = A&amp;amp;]&amp;#39;:&lt;/span&gt;
-&lt;span class="err"&gt;&amp;lt;source&amp;gt;:10:8:   required from &amp;#39;void bar(T&amp;amp;&amp;amp;) [with T = A&amp;amp;]&amp;#39;&lt;/span&gt;
-&lt;span class="err"&gt;&amp;lt;source&amp;gt;:17:10:   required from here&lt;/span&gt;
-&lt;span class="err"&gt;&amp;lt;source&amp;gt;:5:7: error: &amp;#39;struct A&amp;#39; has no member named &amp;#39;print&amp;#39;&lt;/span&gt;
-&lt;span class="err"&gt;     t.print();&lt;/span&gt;
-&lt;span class="err"&gt;     ~~^~~~~&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;source&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="k"&gt;In&lt;/span&gt; &lt;span class="n"&gt;instantiation&lt;/span&gt; &lt;span class="k"&gt;of&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;void foo(T&amp;amp;&amp;amp;) [with T = A&amp;amp;]&amp;#39;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;
+&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;source&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;8&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;   &lt;span class="n"&gt;required&lt;/span&gt; &lt;span class="k"&gt;from&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;void bar(T&amp;amp;&amp;amp;) [with T = A&amp;amp;]&amp;#39;&lt;/span&gt;
+&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;source&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;17&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;   &lt;span class="n"&gt;required&lt;/span&gt; &lt;span class="k"&gt;from&lt;/span&gt; &lt;span class="n"&gt;here&lt;/span&gt;
+&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;source&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;5&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;7&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;struct A&amp;#39;&lt;/span&gt; &lt;span class="n"&gt;has&lt;/span&gt; &lt;span class="k"&gt;no&lt;/span&gt; &lt;span class="n"&gt;member&lt;/span&gt; &lt;span class="n"&gt;named&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;print&amp;#39;&lt;/span&gt;
+     &lt;span class="n"&gt;t&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;print&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
+     &lt;span class="o"&gt;~~^~~~~&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 
@@ -1751,7 +2013,7 @@ But most often when using functions provided by the Standard Library, your type 
 As a newcommer you will often struggle with your compiler vomiting a bizarre message of 100 lines when using templates, which is not the best first experience (to say the least). 
 Moreover, by looking at the signature of &lt;strong&gt;bar&lt;/strong&gt;, nothing tells you that the template parameter &lt;strong&gt;T&lt;/strong&gt; needs to have a &lt;strong&gt;print&lt;/strong&gt; member function. That's frustrating!&lt;/p&gt;
 &lt;p&gt;With concepts you can define in elegant way the constraints that your parameters must respect. Have a look at we could do with Concepts in this case:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="k"&gt;template&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="k"&gt;concept&lt;/span&gt; &lt;span class="kt"&gt;bool&lt;/span&gt; &lt;span class="n"&gt;IsPrintable&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;requires&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="c1"&gt;// Define a reusable concept &amp;quot;IsPrintable&amp;quot;.&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="k"&gt;template&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="nc"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;concept&lt;/span&gt; &lt;span class="kt"&gt;bool&lt;/span&gt; &lt;span class="n"&gt;IsPrintable&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;requires&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="p"&gt;{&lt;/span&gt; &lt;span class="c1"&gt;// Define a reusable concept &amp;quot;IsPrintable&amp;quot;.&lt;/span&gt;
     &lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;.&lt;/span&gt;&lt;span class="n"&gt;print&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt; &lt;span class="c1"&gt;// Any template parameter of T respecting &amp;quot;IsPrintable&amp;quot; must have a print function. &lt;/span&gt;
 &lt;span class="p"&gt;};&lt;/span&gt;
 
@@ -1768,17 +2030,17 @@ Moreover, by looking at the signature of &lt;strong&gt;bar&lt;/strong&gt;, nothi
 
 
 &lt;p&gt;Which would give us the following much more accurate error message:&lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="err"&gt;&amp;lt;source&amp;gt;:19:10: error: cannot call function &amp;#39;void bar(T&amp;amp;&amp;amp;) [with T = A&amp;amp;]&amp;#39;&lt;/span&gt;
-&lt;span class="err"&gt;     bar(a);&lt;/span&gt;
-&lt;span class="err"&gt;          ^&lt;/span&gt;
-&lt;span class="err"&gt;&amp;lt;source&amp;gt;:11:6: note:   constraints not satisfied&lt;/span&gt;
-&lt;span class="err"&gt; void bar(T&amp;amp;&amp;amp; t) {&lt;/span&gt;
-&lt;span class="err"&gt;      ^~~&lt;/span&gt;
-&lt;span class="err"&gt;&amp;lt;source&amp;gt;:1:33: note: within &amp;#39;template&amp;lt;class T&amp;gt; concept const bool IsPrintable&amp;lt;T&amp;gt; [with T = A&amp;amp;]&amp;#39;&lt;/span&gt;
-&lt;span class="err"&gt; template &amp;lt;class T&amp;gt; concept bool IsPrintable = requires (T a) {&lt;/span&gt;
-&lt;span class="err"&gt;                                 ^~~~~~~~~~~&lt;/span&gt;
-&lt;span class="err"&gt;&amp;lt;source&amp;gt;:1:33: note:     with &amp;#39;A&amp;amp; a&amp;#39;&lt;/span&gt;
-&lt;span class="err"&gt;&amp;lt;source&amp;gt;:1:33: note: the required expression &amp;#39;a.print()&amp;#39; would be ill-formed&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;source&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;19&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;10&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;error&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;cannot&lt;/span&gt; &lt;span class="k"&gt;call&lt;/span&gt; &lt;span class="k"&gt;function&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;void bar(T&amp;amp;&amp;amp;) [with T = A&amp;amp;]&amp;#39;&lt;/span&gt;
+     &lt;span class="n"&gt;bar&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;);&lt;/span&gt;
+          &lt;span class="o"&gt;^&lt;/span&gt;
+&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;source&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;11&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;6&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;note&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;   &lt;span class="k"&gt;constraints&lt;/span&gt; &lt;span class="k"&gt;not&lt;/span&gt; &lt;span class="n"&gt;satisfied&lt;/span&gt;
+ &lt;span class="n"&gt;void&lt;/span&gt; &lt;span class="n"&gt;bar&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class="n"&gt;t&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="err"&gt;{&lt;/span&gt;
+      &lt;span class="o"&gt;^~~&lt;/span&gt;
+&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;source&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;33&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;note&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;within&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;template&amp;lt;class T&amp;gt; concept const bool IsPrintable&amp;lt;T&amp;gt; [with T = A&amp;amp;]&amp;#39;&lt;/span&gt;
+ &lt;span class="k"&gt;template&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;class&lt;/span&gt; &lt;span class="n"&gt;T&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;concept&lt;/span&gt; &lt;span class="n"&gt;bool&lt;/span&gt; &lt;span class="n"&gt;IsPrintable&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;requires&lt;/span&gt; &lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;T&lt;/span&gt; &lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;)&lt;/span&gt; &lt;span class="err"&gt;{&lt;/span&gt;
+                                 &lt;span class="o"&gt;^~~~~~~~~~~&lt;/span&gt;
+&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;source&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;33&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;note&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;     &lt;span class="k"&gt;with&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;A&amp;amp; a&amp;#39;&lt;/span&gt;
+&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="k"&gt;source&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;1&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt;&lt;span class="mi"&gt;33&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;note&lt;/span&gt;&lt;span class="p"&gt;:&lt;/span&gt; &lt;span class="n"&gt;the&lt;/span&gt; &lt;span class="n"&gt;required&lt;/span&gt; &lt;span class="n"&gt;expression&lt;/span&gt; &lt;span class="s1"&gt;&amp;#39;a.print()&amp;#39;&lt;/span&gt; &lt;span class="n"&gt;would&lt;/span&gt; &lt;span class="n"&gt;be&lt;/span&gt; &lt;span class="n"&gt;ill&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="n"&gt;formed&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 
@@ -2720,7 +2982,7 @@ Thanks to my current employer &lt;a href="https://discover.king.com/about/"&gt;K
 &lt;/ul&gt;
 &lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;future&lt;/span&gt;&lt;span class="o"&gt;&amp;lt;&lt;/span&gt;&lt;span class="kt"&gt;int&lt;/span&gt;&lt;span class="o"&gt;&amp;gt;&lt;/span&gt; &lt;span class="n"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt;
 
-&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="k"&gt;co_await&lt;/span&gt; &lt;span class="n"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt; &lt;span class="c1"&gt;// The continuation is &amp;quot;generated&amp;quot; by the compiler using the keyword co_await.&lt;/span&gt;
+&lt;span class="kt"&gt;int&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;co_await&lt;/span&gt; &lt;span class="n"&gt;foo&lt;/span&gt;&lt;span class="p"&gt;();&lt;/span&gt; &lt;span class="c1"&gt;// The continuation is &amp;quot;generated&amp;quot; by the compiler using the keyword co_await.&lt;/span&gt;
 &lt;span class="n"&gt;std&lt;/span&gt;&lt;span class="o"&gt;::&lt;/span&gt;&lt;span class="n"&gt;cout&lt;/span&gt; &lt;span class="o"&gt;&amp;lt;&amp;lt;&lt;/span&gt; &lt;span class="n"&gt;x&lt;/span&gt;&lt;span class="p"&gt;;&lt;/span&gt; &lt;span class="c1"&gt;// Everything after co_await is implicitely part of the continuation.&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
@@ -3652,9 +3914,9 @@ If using types as keys seems odd for you, fear not! Here is the most rational ex
 &lt;span class="n"&gt;b&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;B&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
 &lt;span class="n"&gt;c&lt;/span&gt; &lt;span class="o"&gt;=&lt;/span&gt; &lt;span class="n"&gt;C&lt;/span&gt;&lt;span class="p"&gt;()&lt;/span&gt;
 
-&lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;serialize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="c1"&gt;# output: I am a A.&lt;/span&gt;
-&lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;serialize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;b&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="c1"&gt;# output: I am a B.&lt;/span&gt;
-&lt;span class="nb"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;serialize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;c&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="c1"&gt;# output: I am a C.&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;serialize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;a&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="c1"&gt;# output: I am a A.&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;serialize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;b&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="c1"&gt;# output: I am a B.&lt;/span&gt;
+&lt;span class="k"&gt;print&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;serialize&lt;/span&gt;&lt;span class="p"&gt;(&lt;/span&gt;&lt;span class="n"&gt;c&lt;/span&gt;&lt;span class="p"&gt;))&lt;/span&gt; &lt;span class="c1"&gt;# output: I am a C.&lt;/span&gt;
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 
@@ -4083,7 +4345,7 @@ Once again, let's explore the new features, and use them to build something wond
 &lt;p&gt;It works as long as the type is easily "guessable" by the compiler. We are coding in C++ after all, not OCaml! &lt;/p&gt;
 &lt;h6&gt;A feature for functional lovers:&lt;/h6&gt;
 &lt;p&gt;&lt;strong&gt;C++11&lt;/strong&gt; introduced &lt;a href="http://en.cppreference.com/w/cpp/language/lambda"&gt;lambdas&lt;/a&gt;. A lambda has the following syntax: &lt;/p&gt;
-&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;&lt;span class="err"&gt;[capture-list](params) -&amp;gt; non-mandatory-return-type { ...body... }&lt;/span&gt;
+&lt;div class="highlight"&gt;&lt;pre&gt;&lt;span&gt;&lt;/span&gt;&lt;code&gt;[&lt;span class="nv"&gt;capture&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="nv"&gt;list&lt;/span&gt;]&lt;span class="ss"&gt;(&lt;/span&gt;&lt;span class="nb"&gt;params&lt;/span&gt;&lt;span class="ss"&gt;)&lt;/span&gt; &lt;span class="o"&gt;-&amp;gt;&lt;/span&gt; &lt;span class="nv"&gt;non&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="nv"&gt;mandatory&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="k"&gt;return&lt;/span&gt;&lt;span class="o"&gt;-&lt;/span&gt;&lt;span class="nv"&gt;type&lt;/span&gt; { ...&lt;span class="nv"&gt;body&lt;/span&gt;... }
 &lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;
 
 

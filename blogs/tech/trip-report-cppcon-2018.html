@@ -184,12 +184,12 @@ Take a look at this very simple piece of code:</p>
 
 
 <p>Your never-satisfied compiler will refuse to compile it with the following error message:</p>
-<div class="highlight"><pre><span></span><code><span class="err">&lt;source&gt;: In instantiation of &#39;void foo(T&amp;&amp;) [with T = A&amp;]&#39;:</span>
-<span class="err">&lt;source&gt;:10:8:   required from &#39;void bar(T&amp;&amp;) [with T = A&amp;]&#39;</span>
-<span class="err">&lt;source&gt;:17:10:   required from here</span>
-<span class="err">&lt;source&gt;:5:7: error: &#39;struct A&#39; has no member named &#39;print&#39;</span>
-<span class="err">     t.print();</span>
-<span class="err">     ~~^~~~~</span>
+<div class="highlight"><pre><span></span><code><span class="o">&lt;</span><span class="k">source</span><span class="o">&gt;</span><span class="p">:</span> <span class="k">In</span> <span class="n">instantiation</span> <span class="k">of</span> <span class="s1">&#39;void foo(T&amp;&amp;) [with T = A&amp;]&#39;</span><span class="p">:</span>
+<span class="o">&lt;</span><span class="k">source</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">10</span><span class="p">:</span><span class="mi">8</span><span class="p">:</span>   <span class="n">required</span> <span class="k">from</span> <span class="s1">&#39;void bar(T&amp;&amp;) [with T = A&amp;]&#39;</span>
+<span class="o">&lt;</span><span class="k">source</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">17</span><span class="p">:</span><span class="mi">10</span><span class="p">:</span>   <span class="n">required</span> <span class="k">from</span> <span class="n">here</span>
+<span class="o">&lt;</span><span class="k">source</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">5</span><span class="p">:</span><span class="mi">7</span><span class="p">:</span> <span class="n">error</span><span class="p">:</span> <span class="s1">&#39;struct A&#39;</span> <span class="n">has</span> <span class="k">no</span> <span class="n">member</span> <span class="n">named</span> <span class="s1">&#39;print&#39;</span>
+     <span class="n">t</span><span class="p">.</span><span class="n">print</span><span class="p">();</span>
+     <span class="o">~~^~~~~</span>
 </code></pre></div>
 
 
@@ -200,7 +200,7 @@ But most often when using functions provided by the Standard Library, your type 
 As a newcommer you will often struggle with your compiler vomiting a bizarre message of 100 lines when using templates, which is not the best first experience (to say the least). 
 Moreover, by looking at the signature of <strong>bar</strong>, nothing tells you that the template parameter <strong>T</strong> needs to have a <strong>print</strong> member function. That's frustrating!</p>
 <p>With concepts you can define in elegant way the constraints that your parameters must respect. Have a look at we could do with Concepts in this case:</p>
-<div class="highlight"><pre><span></span><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span> <span class="k">concept</span> <span class="kt">bool</span> <span class="n">IsPrintable</span> <span class="o">=</span> <span class="k">requires</span> <span class="p">(</span><span class="n">T</span> <span class="n">a</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// Define a reusable concept &quot;IsPrintable&quot;.</span>
+<div class="highlight"><pre><span></span><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span> <span class="n">concept</span> <span class="kt">bool</span> <span class="n">IsPrintable</span> <span class="o">=</span> <span class="n">requires</span> <span class="p">(</span><span class="n">T</span> <span class="n">a</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// Define a reusable concept &quot;IsPrintable&quot;.</span>
     <span class="n">a</span><span class="p">.</span><span class="n">print</span><span class="p">();</span> <span class="c1">// Any template parameter of T respecting &quot;IsPrintable&quot; must have a print function. </span>
 <span class="p">};</span>
 
@@ -217,17 +217,17 @@ Moreover, by looking at the signature of <strong>bar</strong>, nothing tells you
 
 
 <p>Which would give us the following much more accurate error message:</p>
-<div class="highlight"><pre><span></span><code><span class="err">&lt;source&gt;:19:10: error: cannot call function &#39;void bar(T&amp;&amp;) [with T = A&amp;]&#39;</span>
-<span class="err">     bar(a);</span>
-<span class="err">          ^</span>
-<span class="err">&lt;source&gt;:11:6: note:   constraints not satisfied</span>
-<span class="err"> void bar(T&amp;&amp; t) {</span>
-<span class="err">      ^~~</span>
-<span class="err">&lt;source&gt;:1:33: note: within &#39;template&lt;class T&gt; concept const bool IsPrintable&lt;T&gt; [with T = A&amp;]&#39;</span>
-<span class="err"> template &lt;class T&gt; concept bool IsPrintable = requires (T a) {</span>
-<span class="err">                                 ^~~~~~~~~~~</span>
-<span class="err">&lt;source&gt;:1:33: note:     with &#39;A&amp; a&#39;</span>
-<span class="err">&lt;source&gt;:1:33: note: the required expression &#39;a.print()&#39; would be ill-formed</span>
+<div class="highlight"><pre><span></span><code><span class="o">&lt;</span><span class="k">source</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">19</span><span class="p">:</span><span class="mi">10</span><span class="p">:</span> <span class="n">error</span><span class="p">:</span> <span class="n">cannot</span> <span class="k">call</span> <span class="k">function</span> <span class="s1">&#39;void bar(T&amp;&amp;) [with T = A&amp;]&#39;</span>
+     <span class="n">bar</span><span class="p">(</span><span class="n">a</span><span class="p">);</span>
+          <span class="o">^</span>
+<span class="o">&lt;</span><span class="k">source</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">11</span><span class="p">:</span><span class="mi">6</span><span class="p">:</span> <span class="n">note</span><span class="p">:</span>   <span class="k">constraints</span> <span class="k">not</span> <span class="n">satisfied</span>
+ <span class="n">void</span> <span class="n">bar</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;&amp;</span> <span class="n">t</span><span class="p">)</span> <span class="err">{</span>
+      <span class="o">^~~</span>
+<span class="o">&lt;</span><span class="k">source</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">1</span><span class="p">:</span><span class="mi">33</span><span class="p">:</span> <span class="n">note</span><span class="p">:</span> <span class="n">within</span> <span class="s1">&#39;template&lt;class T&gt; concept const bool IsPrintable&lt;T&gt; [with T = A&amp;]&#39;</span>
+ <span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">concept</span> <span class="n">bool</span> <span class="n">IsPrintable</span> <span class="o">=</span> <span class="n">requires</span> <span class="p">(</span><span class="n">T</span> <span class="n">a</span><span class="p">)</span> <span class="err">{</span>
+                                 <span class="o">^~~~~~~~~~~</span>
+<span class="o">&lt;</span><span class="k">source</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">1</span><span class="p">:</span><span class="mi">33</span><span class="p">:</span> <span class="n">note</span><span class="p">:</span>     <span class="k">with</span> <span class="s1">&#39;A&amp; a&#39;</span>
+<span class="o">&lt;</span><span class="k">source</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">1</span><span class="p">:</span><span class="mi">33</span><span class="p">:</span> <span class="n">note</span><span class="p">:</span> <span class="n">the</span> <span class="n">required</span> <span class="n">expression</span> <span class="s1">&#39;a.print()&#39;</span> <span class="n">would</span> <span class="n">be</span> <span class="n">ill</span><span class="o">-</span><span class="n">formed</span>
 </code></pre></div>
 
 

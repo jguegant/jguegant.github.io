@@ -214,7 +214,7 @@ You can easily implement <code>cbegin</code> and <code>cend</code> in a similar 
 
 <p>Let's assume that <code>std::random_access_iterator</code> had a <strong>compound requirement</strong> that ensure your iterator has a prefix increment operator as follow:</p>
 <div class="highlight"><pre><span></span><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">It</span><span class="o">&gt;</span>
-<span class="k">concept</span> <span class="n">random_access_iterator</span> <span class="o">=</span> <span class="k">requires</span><span class="p">(</span><span class="n">It</span> <span class="n">it</span><span class="p">)</span> <span class="p">{</span>
+<span class="n">concept</span> <span class="n">random_access_iterator</span> <span class="o">=</span> <span class="n">requires</span><span class="p">(</span><span class="n">It</span> <span class="n">it</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">// ...</span>
     <span class="p">{</span> <span class="o">++</span><span class="n">it</span> <span class="p">}</span> <span class="o">-&gt;</span> <span class="n">std</span><span class="o">::</span><span class="n">same_as</span><span class="o">&lt;</span><span class="n">It</span><span class="o">&amp;&gt;</span><span class="p">;</span> <span class="c1">// Ensure that we can apply `++` to it and that it would return a reference.</span>
     <span class="c1">// ...</span>

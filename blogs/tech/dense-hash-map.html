@@ -231,12 +231,12 @@ Let's <a href="https://godbolt.org/">godbolt</a> a bit!  </p>
 </code></pre></div>
 
 
-<div class="highlight"><pre><span></span><code><span class="c1">// x86 assembly</span>
+<div class="highlight"><pre><span></span><code><span class="err">//</span> <span class="nf">x86</span> <span class="no">assembly</span>
 <span class="nf">modulo</span><span class="p">(</span><span class="no">int</span><span class="p">,</span> <span class="no">int</span><span class="p">):</span>
-    <span class="nf">mov</span>     <span class="no">eax</span><span class="p">,</span> <span class="no">edi</span>  <span class="c1">// Prepare the hash into eax</span>
-    <span class="nf">cdq</span>               <span class="c1">// Prepare registers for an idiv operation. </span>
-    <span class="nf">idiv</span>    <span class="no">esi</span>       <span class="c1">// Divide by esi which contains bucket_count</span>
-    <span class="nf">mov</span>     <span class="no">eax</span><span class="p">,</span> <span class="no">edx</span>  <span class="c1">// Get the modulo value that ends-up in edx and return it into eax</span>
+    <span class="nf">mov</span>     <span class="no">eax</span><span class="p">,</span> <span class="no">edi</span>  <span class="err">//</span> <span class="no">Prepare</span> <span class="no">the</span> <span class="no">hash</span> <span class="no">into</span> <span class="no">eax</span>
+    <span class="nf">cdq</span>               <span class="err">//</span> <span class="no">Prepare</span> <span class="no">registers</span> <span class="no">for</span> <span class="no">an</span> <span class="no">idiv</span> <span class="no">operation.</span> 
+    <span class="no">idiv</span>    <span class="no">esi</span>       <span class="err">//</span> <span class="no">Divide</span> <span class="no">by</span> <span class="no">esi</span> <span class="no">which</span> <span class="no">contains</span> <span class="no">bucket_count</span>
+    <span class="nf">mov</span>     <span class="no">eax</span><span class="p">,</span> <span class="no">edx</span>  <span class="err">//</span> <span class="no">Get</span> <span class="no">the</span> <span class="no">modulo</span> <span class="no">value</span> <span class="no">that</span> <span class="no">ends-up</span> <span class="no">in</span> <span class="no">edx</span> <span class="no">and</span> <span class="no">return</span> <span class="no">it</span> <span class="no">into</span> <span class="no">eax</span>
     <span class="nf">ret</span>
 </code></pre></div>
 
@@ -251,11 +251,11 @@ But, what if we made bucket_count a constant? Having more information at compile
 </code></pre></div>
 
 
-<div class="highlight"><pre><span></span><code><span class="c1">// x86</span>
+<div class="highlight"><pre><span></span><code><span class="err">//</span> <span class="nf">x86</span>
 <span class="nf">modulo</span><span class="p">(</span><span class="no">int</span><span class="p">,</span> <span class="no">int</span><span class="p">):</span>
     <span class="nf">movsx</span>   <span class="no">rax</span><span class="p">,</span> <span class="no">edi</span>
     <span class="nf">mov</span>     <span class="no">edx</span><span class="p">,</span> <span class="no">edi</span>
-    <span class="nf">imul</span>    <span class="no">rax</span><span class="p">,</span> <span class="no">rax</span><span class="p">,</span> <span class="mi">1717986919</span> <span class="c1">// LOTS OF SHENANIGANS GOING HERE.</span>
+    <span class="nf">imul</span>    <span class="no">rax</span><span class="p">,</span> <span class="no">rax</span><span class="p">,</span> <span class="mi">1717986919</span> <span class="err">//</span> <span class="no">LOTS</span> <span class="no">OF</span> <span class="no">SHENANIGANS</span> <span class="no">GOING</span> <span class="no">HERE.</span>
     <span class="nf">sar</span>     <span class="no">edx</span><span class="p">,</span> <span class="mi">31</span>
     <span class="nf">sar</span>     <span class="no">rax</span><span class="p">,</span> <span class="mi">33</span>
     <span class="nf">sub</span>     <span class="no">eax</span><span class="p">,</span> <span class="no">edx</span>
@@ -281,7 +281,7 @@ So what do we obtain in this conditions?</p>
 </code></pre></div>
 
 
-<div class="highlight"><pre><span></span><code><span class="c1">// x86</span>
+<div class="highlight"><pre><span></span><code><span class="err">//</span> <span class="nf">x86</span>
 <span class="nf">fast_module</span><span class="p">(</span><span class="no">int</span><span class="p">,</span> <span class="no">int</span><span class="p">):</span>
     <span class="nf">lea</span>     <span class="no">eax</span><span class="p">,</span> <span class="p">[</span><span class="no">rsi-1</span><span class="p">]</span>
     <span class="nf">and</span>     <span class="no">eax</span><span class="p">,</span> <span class="no">edi</span>

@@ -269,7 +269,7 @@ The problem is that header files are:</p>
 Wouldn't it be better if compilation units themselves could expose directly what they provide instead of using these hackish headers?
 This is exactly what modules try to solve!</p>
 <p>So writing a very basic module becomes as simple as writing a <code>.cpp</code> file with few annotations to expose what we want:</p>
-<div class="highlight"><pre><span></span><code><span class="k">export</span> <span class="k">module</span> <span class="n">my</span><span class="p">.</span><span class="k">module</span><span class="p">;</span> <span class="c1">// This is the name of our module</span>
+<div class="highlight"><pre><span></span><code><span class="k">export</span> <span class="n">module</span> <span class="n">my</span><span class="p">.</span><span class="n">module</span><span class="p">;</span> <span class="c1">// This is the name of our module</span>
 <span class="k">export</span> <span class="kt">int</span> <span class="n">e</span> <span class="o">=</span> <span class="mi">42</span><span class="p">;</span> <span class="c1">// Expose a variable.</span>
 
 <span class="k">export</span> <span class="kt">int</span> <span class="nf">bar</span><span class="p">()</span> <span class="p">{</span> 
@@ -283,7 +283,7 @@ This is exactly what modules try to solve!</p>
 
 <p>When compiling this <code>.cpp</code> file, this will create two others files: an object file that contains binary code (OBJ) and a file for interfacing with that module called Binary Module Interface. Unlike a header file, the BMI file and its associated OBJ file can have a highly <strong>optimized representation</strong> of what is available in the module. </p>
 <p>As a user of a module into another compilation unit, you will pass this BMI file as parameter to your compiler and write an import statement:</p>
-<div class="highlight"><pre><span></span><code><span class="k">import</span> <span class="k">module</span> <span class="n">my</span><span class="p">.</span><span class="k">module</span><span class="p">;</span> <span class="c1">// Ask the compiler to use that module in here.</span>
+<div class="highlight"><pre><span></span><code><span class="n">import</span> <span class="n">module</span> <span class="n">my</span><span class="p">.</span><span class="n">module</span><span class="p">;</span> <span class="c1">// Ask the compiler to use that module in here.</span>
 
 <span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>  
     <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">bar</span><span class="p">();</span> <span class="c1">// This is using bar from the other module.</span>
