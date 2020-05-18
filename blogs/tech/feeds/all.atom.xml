@@ -98,7 +98,7 @@ Note that the number of special identifiers must also match the number of member
 &lt;p&gt;There is a subtle catch here though. What would &lt;code&gt;decltype(x)&lt;/code&gt; yield as type (what the standard calls referenced type)? One would assume that this would be strictly the same as &lt;code&gt;decltype(a_secret_variable.a)&lt;/code&gt; which is equivalent to &lt;code&gt;int&lt;/code&gt;. The standard made a nice plot-twist here and &lt;code&gt;decltype(x)&lt;/code&gt; will, in rough terms, have a type equivalent to &lt;code&gt;decltype(a_secret_variable.a)&lt;/code&gt; &lt;strong&gt;plus&lt;/strong&gt; the &lt;code&gt;const&lt;/code&gt; or &lt;code&gt;volatile&lt;/code&gt; qualifiers attached to &lt;code&gt;a_secret_variable&lt;/code&gt;. In our case &lt;code&gt;a_secret_variable&lt;/code&gt; is &lt;code&gt;const&lt;/code&gt;, which result in &lt;code&gt;decltype(x)&lt;/code&gt; being equivalent to &lt;code&gt;const decltype(a_secret_variable.a)&lt;/code&gt; or in a simpler form &lt;code&gt;const int&lt;/code&gt;.
 C++ is like a box of chocolates... you never know what you're gonna get!&lt;/p&gt;
 &lt;p&gt;So why did the standard committee went into creating such "special identifiers" and not simply have proper reference variables?
-If you do so, you have multiple issues here, like:&lt;/p&gt;
+If you do so, you have multiple issues, like:&lt;/p&gt;
 &lt;ul&gt;
 &lt;li&gt;How would you handle bit fields? There is not such a thing as reference to bit fields.&lt;/li&gt;
 &lt;li&gt;Imagine that you were to capture those variables in a lambda &lt;code&gt;[=](){}&lt;/code&gt;. What should happen here? Shall this copy the entire &lt;code&gt;a_secret_variable&lt;/code&gt; or just the members of it?&lt;/li&gt;

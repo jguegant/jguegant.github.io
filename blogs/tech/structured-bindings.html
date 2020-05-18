@@ -215,7 +215,7 @@ Note that the number of special identifiers must also match the number of member
 <p>There is a subtle catch here though. What would <code>decltype(x)</code> yield as type (what the standard calls referenced type)? One would assume that this would be strictly the same as <code>decltype(a_secret_variable.a)</code> which is equivalent to <code>int</code>. The standard made a nice plot-twist here and <code>decltype(x)</code> will, in rough terms, have a type equivalent to <code>decltype(a_secret_variable.a)</code> <strong>plus</strong> the <code>const</code> or <code>volatile</code> qualifiers attached to <code>a_secret_variable</code>. In our case <code>a_secret_variable</code> is <code>const</code>, which result in <code>decltype(x)</code> being equivalent to <code>const decltype(a_secret_variable.a)</code> or in a simpler form <code>const int</code>.
 C++ is like a box of chocolates... you never know what you're gonna get!</p>
 <p>So why did the standard committee went into creating such "special identifiers" and not simply have proper reference variables?
-If you do so, you have multiple issues here, like:</p>
+If you do so, you have multiple issues, like:</p>
 <ul>
 <li>How would you handle bit fields? There is not such a thing as reference to bit fields.</li>
 <li>Imagine that you were to capture those variables in a lambda <code>[=](){}</code>. What should happen here? Shall this copy the entire <code>a_secret_variable</code> or just the members of it?</li>
