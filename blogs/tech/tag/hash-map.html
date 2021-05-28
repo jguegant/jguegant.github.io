@@ -8,12 +8,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="index, follow" />
 
-  <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro|Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,400;0,700;1,400&family=Source+Sans+Pro:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/stylesheet/style.min.css">
 
 
-  <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/pygments/monokai.min.css">
+    <link id="pygments-light-theme" rel="stylesheet" type="text/css"
+          href="https://jguegant.github.io/blogs/tech/theme/pygments/monokai.min.css">
+
+
   <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/font-awesome/css/fontawesome.css">
   <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/font-awesome/css/brands.css">
   <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/font-awesome/css/solid.css">
@@ -33,7 +36,8 @@
   ga('create', 'UA-68827527-1', 'auto');
   ga('send', 'pageview');
 </script>
-<!-- End Google Analytics -->
+<!-- End Google Analytics -->  
+
 
     <meta name="author" content="Jean Guegant" />
     <meta name="description" content="" />
@@ -45,23 +49,38 @@
 <meta property="og:url" content="https://jguegant.github.io/blogs/tech"/>
 <meta property="og:image" content="https://jguegant.github.io/blogs/tech/images/myself.png">
 
-  <title>Jean Guegant's Blog &ndash;     Tag hash map
-</title>
+  <title>Jean Guegant's Blog &ndash; Tag hash map</title>
 
 </head>
-<body>
+<body class="light-theme">
   <aside>
     <div>
       <a href="https://jguegant.github.io/blogs/tech">
         <img src="https://jguegant.github.io/blogs/tech/images/myself.png" alt="Jean Guegant" title="Jean Guegant">
       </a>
-      <h1><a href="https://jguegant.github.io/blogs/tech">Jean Guegant</a></h1>
 
-<p>Software Engineer - C++, security, game development and random thoughts.</p>      <nav>
+      <h1>
+        <a href="https://jguegant.github.io/blogs/tech">Jean Guegant</a>
+      </h1>
+
+<p>Software Engineer - C++, security, game development and random thoughts.</p>
+
+      <nav>
         <ul class="list">
 
-            <li><a target="_blank" href="https://jguegant.github.io/blogs/tech/pages/about.html#about">About</a></li>
-            <li><a target="_blank" href="https://jguegant.github.io/blogs/tech/pages/contact.html#contact">Contact</a></li>
+
+              <li>
+                <a target="_self"
+                   href="https://jguegant.github.io/blogs/tech/pages/about.html#about">
+                  About
+                </a>
+              </li>
+              <li>
+                <a target="_self"
+                   href="https://jguegant.github.io/blogs/tech/pages/contact.html#contact">
+                  Contact
+                </a>
+              </li>
 
         </ul>
       </nav>
@@ -69,31 +88,28 @@
       <ul class="social">
           <li>
             <a  class="sc-linkedin" href="https://se.linkedin.com/in/jguegant" target="_blank">
-            <i class="fab fa-linkedin">
-            </i>
-          </a></li>
+              <i class="fab fa-linkedin"></i>
+            </a>
+          </li>
           <li>
             <a  class="sc-github" href="https://github.com/Jiwan" target="_blank">
-            <i class="fab fa-github">
-            </i>
-          </a></li>
+              <i class="fab fa-github"></i>
+            </a>
+          </li>
       </ul>
     </div>
-
 
   </aside>
   <main>
 
     <nav>
-      <a href="https://jguegant.github.io/blogs/tech">    Home
-</a>
+      <a href="https://jguegant.github.io/blogs/tech">Home</a>
 
       <a href="https://jguegant.github.io/blogs/tech/archives.html">Archives</a>
       <a href="https://jguegant.github.io/blogs/tech/categories.html">Categories</a>
       <a href="https://jguegant.github.io/blogs/tech/tags.html">Tags</a>
 
-      <a href="https://jguegant.github.io/blogs/tech/feeds/all.atom.xml">    Atom
-</a>
+      <a href="https://jguegant.github.io/blogs/tech/feeds/all.atom.xml">Atom</a>
 
     </nav>
 
@@ -103,11 +119,9 @@
   <header>
     <h2><a href="https://jguegant.github.io/blogs/tech/dense-hash-map3.html#dense-hash-map3">Making a STL-compatible hash map from scratch - Part 3 - The wonderful world of iterators and allocators</a></h2>
     <p>
-          Posted on Fri 01 May 2020 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
+      Posted on Fri 01 May 2020 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
 
-
-          &#8226;     Tagged with
-
+          &#8226; Tagged with
               <a href="https://jguegant.github.io/blogs/tech/tag/c20.html">C++20</a>,              <a href="https://jguegant.github.io/blogs/tech/tag/c17.html">C++17</a>,              <a href="https://jguegant.github.io/blogs/tech/tag/hash-map.html">hash map</a>,              <a href="https://jguegant.github.io/blogs/tech/tag/unordered_map.html">unordered_map</a>,              <a href="https://jguegant.github.io/blogs/tech/tag/iterator.html">iterator</a>,              <a href="https://jguegant.github.io/blogs/tech/tag/allocator.html">allocator</a>
     </p>
   </header>
@@ -121,8 +135,10 @@
 </ul>
 <p>In the <a href="https://jguegant.github.io/blogs/tech/dense-hash-map2.html">previous post</a>, we prepared our data-structure to be able to store our …</p>
         <br>
-        <a class="btn" href="https://jguegant.github.io/blogs/tech/dense-hash-map3.html#dense-hash-map3">    Continue reading
-</a>
+        <a class="btn"
+           href="https://jguegant.github.io/blogs/tech/dense-hash-map3.html#dense-hash-map3">
+          Continue reading
+        </a>
   </div>
   <hr />
 </article>
@@ -130,11 +146,9 @@
   <header>
     <h2><a href="https://jguegant.github.io/blogs/tech/dense-hash-map2.html#dense-hash-map2">Making a STL-compatible hash map from scratch - Part 2 - Growth Policies & The Schrodinger std::pair</a></h2>
     <p>
-          Posted on Mon 13 April 2020 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
+      Posted on Mon 13 April 2020 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
 
-
-          &#8226;     Tagged with
-
+          &#8226; Tagged with
               <a href="https://jguegant.github.io/blogs/tech/tag/c17.html">C++17</a>,              <a href="https://jguegant.github.io/blogs/tech/tag/hash-map.html">hash map</a>,              <a href="https://jguegant.github.io/blogs/tech/tag/unordered_map.html">unordered_map.</a>
     </p>
   </header>
@@ -148,8 +162,10 @@
 </ul>
 <p>In the <a href="https://jguegant.github.io/blogs/tech/dense-hash-map.html">previous post</a>, we started a quest that consists in …</p>
         <br>
-        <a class="btn" href="https://jguegant.github.io/blogs/tech/dense-hash-map2.html#dense-hash-map2">    Continue reading
-</a>
+        <a class="btn"
+           href="https://jguegant.github.io/blogs/tech/dense-hash-map2.html#dense-hash-map2">
+          Continue reading
+        </a>
   </div>
   <hr />
 </article>
@@ -157,11 +173,9 @@
   <header>
     <h2><a href="https://jguegant.github.io/blogs/tech/dense-hash-map.html#dense-hash-map">Making a STL-compatible hash map from scratch - Part 1 - Beating std::unordered_map</a></h2>
     <p>
-          Posted on Mon 06 April 2020 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
+      Posted on Mon 06 April 2020 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
 
-
-          &#8226;     Tagged with
-
+          &#8226; Tagged with
               <a href="https://jguegant.github.io/blogs/tech/tag/c17.html">C++17</a>,              <a href="https://jguegant.github.io/blogs/tech/tag/hash-map.html">hash map</a>,              <a href="https://jguegant.github.io/blogs/tech/tag/unordered_map.html">unordered_map.</a>
     </p>
   </header>
@@ -177,8 +191,10 @@
 <h2>Trivia:</h2>
 <p>If C++ had an …</p>
         <br>
-        <a class="btn" href="https://jguegant.github.io/blogs/tech/dense-hash-map.html#dense-hash-map">    Continue reading
-</a>
+        <a class="btn"
+           href="https://jguegant.github.io/blogs/tech/dense-hash-map.html#dense-hash-map">
+          Continue reading
+        </a>
   </div>
 </article>
 
@@ -187,12 +203,12 @@
 
 
 
-
     <footer>
 <p>
-  &copy;  2015 - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>
+  &copy; 2015  - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/deed.en_US" target="_blank">Creative Commons Attribution-ShareAlike</a>
 </p>
-<p>    Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
+<p>
+Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
 </p><p>
   <a rel="license"
      href="http://creativecommons.org/licenses/by-sa/4.0/"
@@ -220,7 +236,6 @@
   "description": ""
 }
 </script>
-
 
 </body>
 </html>

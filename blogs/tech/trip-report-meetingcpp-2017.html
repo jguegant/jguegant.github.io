@@ -8,12 +8,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="index, follow" />
 
-  <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro|Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,400;0,700;1,400&family=Source+Sans+Pro:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/stylesheet/style.min.css">
 
 
-  <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/pygments/monokai.min.css">
+    <link id="pygments-light-theme" rel="stylesheet" type="text/css"
+          href="https://jguegant.github.io/blogs/tech/theme/pygments/monokai.min.css">
+
+
   <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/font-awesome/css/fontawesome.css">
   <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/font-awesome/css/brands.css">
   <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/font-awesome/css/solid.css">
@@ -33,7 +36,8 @@
   ga('create', 'UA-68827527-1', 'auto');
   ga('send', 'pageview');
 </script>
-<!-- End Google Analytics -->
+<!-- End Google Analytics -->  
+
 
 <meta name="author" content="Jean Guegant" />
 <meta name="description" content="Finally, after years of watching youtube videos on that topic, I made it to my first C++ international conference! Thanks to my current employer King, I went last week to Meeting C++ in Berlin, which is, as far as I know, the biggest C++ event in Europe. I really enjoyed …" />
@@ -58,19 +62,35 @@
   <title>Jean Guegant's Blog &ndash; Trip report - Meeting C++ 2017</title>
 
 </head>
-<body>
+<body class="light-theme">
   <aside>
     <div>
       <a href="https://jguegant.github.io/blogs/tech">
         <img src="https://jguegant.github.io/blogs/tech/images/myself.png" alt="Jean Guegant" title="Jean Guegant">
       </a>
-      <h1><a href="https://jguegant.github.io/blogs/tech">Jean Guegant</a></h1>
 
-<p>Software Engineer - C++, security, game development and random thoughts.</p>      <nav>
+      <h1>
+        <a href="https://jguegant.github.io/blogs/tech">Jean Guegant</a>
+      </h1>
+
+<p>Software Engineer - C++, security, game development and random thoughts.</p>
+
+      <nav>
         <ul class="list">
 
-            <li><a target="_blank" href="https://jguegant.github.io/blogs/tech/pages/about.html#about">About</a></li>
-            <li><a target="_blank" href="https://jguegant.github.io/blogs/tech/pages/contact.html#contact">Contact</a></li>
+
+              <li>
+                <a target="_self"
+                   href="https://jguegant.github.io/blogs/tech/pages/about.html#about">
+                  About
+                </a>
+              </li>
+              <li>
+                <a target="_self"
+                   href="https://jguegant.github.io/blogs/tech/pages/contact.html#contact">
+                  Contact
+                </a>
+              </li>
 
         </ul>
       </nav>
@@ -78,31 +98,28 @@
       <ul class="social">
           <li>
             <a  class="sc-linkedin" href="https://se.linkedin.com/in/jguegant" target="_blank">
-            <i class="fab fa-linkedin">
-            </i>
-          </a></li>
+              <i class="fab fa-linkedin"></i>
+            </a>
+          </li>
           <li>
             <a  class="sc-github" href="https://github.com/Jiwan" target="_blank">
-            <i class="fab fa-github">
-            </i>
-          </a></li>
+              <i class="fab fa-github"></i>
+            </a>
+          </li>
       </ul>
     </div>
-
 
   </aside>
   <main>
 
     <nav>
-      <a href="https://jguegant.github.io/blogs/tech">    Home
-</a>
+      <a href="https://jguegant.github.io/blogs/tech">Home</a>
 
       <a href="https://jguegant.github.io/blogs/tech/archives.html">Archives</a>
       <a href="https://jguegant.github.io/blogs/tech/categories.html">Categories</a>
       <a href="https://jguegant.github.io/blogs/tech/tags.html">Tags</a>
 
-      <a href="https://jguegant.github.io/blogs/tech/feeds/all.atom.xml">    Atom
-</a>
+      <a href="https://jguegant.github.io/blogs/tech/feeds/all.atom.xml">Atom</a>
 
     </nav>
 
@@ -111,8 +128,7 @@
       
     <h1 id="trip-report-meetingcpp-2017">Trip report - Meeting C++ 2017</h1>
     <p>
-          Posted on Thu 16 November 2017 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
-
+      Posted on Thu 16 November 2017 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
 
     </p>
   </header>
@@ -169,7 +185,6 @@ Thanks to my current employer <a href="https://discover.king.com/about/">King</a
 <span class="c1">// Due to &quot;par&quot;, this **might** execute the sort in parallel using a thread pool of some sort.</span>
 </code></pre></div>
 
-
 <ul>
 <li>The new <a href="http://en.cppreference.com/w/cpp/experimental/future">std::future</a> interface which permits to add continuations to the shared state using the <a href="http://en.cppreference.com/w/cpp/experimental/future/then">then member function</a>.</li>
 </ul>
@@ -182,17 +197,15 @@ Thanks to my current employer <a href="https://discover.king.com/about/">King</a
 <span class="p">});</span>
 </code></pre></div>
 
-
 <h3>Hopefully for C++20:</h3>
 <ul>
 <li>The stackless <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2017/n4680.pdf">coroutines</a> as implemented by MSVC and clang. This introduce two keywords <strong>co_await</strong> and <strong>co_yield</strong>. Considering the previous example using std::future, it could be rewritten in the following way:</li>
 </ul>
 <div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="n">future</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">foo</span><span class="p">();</span>
 
-<span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="n">co_await</span> <span class="n">foo</span><span class="p">();</span> <span class="c1">// The continuation is &quot;generated&quot; by the compiler using the keyword co_await.</span>
+<span class="kt">int</span> <span class="n">x</span> <span class="o">=</span> <span class="k">co_await</span> <span class="n">foo</span><span class="p">();</span> <span class="c1">// The continuation is &quot;generated&quot; by the compiler using the keyword co_await.</span>
 <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">x</span><span class="p">;</span> <span class="c1">// Everything after co_await is implicitely part of the continuation.</span>
 </code></pre></div>
-
 
 <ul>
 <li>A new <a href="http://en.cppreference.com/w/cpp/language/transactional_memory">synchronized keyword</a> applying the transactional memory concept on a group of statements.</li>
@@ -208,7 +221,6 @@ Thanks to my current employer <a href="https://discover.king.com/about/">King</a
 <span class="p">}</span>
 </code></pre></div>
 
-
 <p>As explained by <strong>Rainer Grimm</strong>, we will have the possibility to easily bring concurrency to our C++ codebases without ressorting to the low-level, and tricky to get right, features like thread and locks. While I appreciated the talk, it lacked a bit of novelty as I was already aware of most of the features.</p>
 <h2>[Talk] Strong types for strong interfaces - Johnathan Boccora -  💀 ★★★</h2>
 <ul>
@@ -218,8 +230,8 @@ Thanks to my current employer <a href="https://discover.king.com/about/">King</a
 <p>A <strong>must watch</strong>! Even when facing some technical issues,  <strong>Johnathan</strong> is very good speaker and I was quickly captivated by the topic of <strong>strong types</strong>. Jonathan is also a talented writer with his famous blog <a href="https://www.fluentcpp.com/">fluentcpp</a> (I would really suggest to have a look at it once in a while).</p>
 <p>As C++ developers, we heavily rely on the language's type system to express our intentions to other developers, to optimise our code and avoid shooting ourselves into our feet. Yet, we always reuse some <strong>types</strong> to express very different properties of our system. For instance to describe a person, you would use an <strong>int</strong> for her/his age and his/her weight. Did it ever come to you that the unit <strong>year</strong> (for age) should be a very different type than <strong>kg</strong> (for weight)? The concept of <strong>strong type</strong> would solve this problem by introducing new int-compatible types:</p>
 <div class="highlight"><pre><span></span><code> <span class="c1">// We need to have these empty tag types to create entirely new types and not just weakly-typed aliases.</span>
-<span class="k">using</span> <span class="n">kg</span> <span class="o">=</span> <span class="n">strong_type</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="k">struct</span> <span class="n">KgTag</span><span class="o">&gt;</span><span class="p">;</span>
-<span class="k">using</span> <span class="n">years</span> <span class="o">=</span> <span class="n">strong_type</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="k">struct</span> <span class="n">YearsTag</span><span class="o">&gt;</span><span class="p">;</span>
+<span class="k">using</span> <span class="n">kg</span> <span class="o">=</span> <span class="n">strong_type</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="k">struct</span> <span class="nc">KgTag</span><span class="o">&gt;</span><span class="p">;</span>
+<span class="k">using</span> <span class="n">years</span> <span class="o">=</span> <span class="n">strong_type</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="k">struct</span> <span class="nc">YearsTag</span><span class="o">&gt;</span><span class="p">;</span>
 
 <span class="kt">void</span> <span class="nf">unsafe_create_person</span><span class="p">(</span><span class="kt">int</span> <span class="n">age</span><span class="p">,</span> <span class="kt">int</span> <span class="n">weight</span><span class="p">);</span>
 <span class="kt">void</span> <span class="nf">create_person</span><span class="p">(</span><span class="n">years</span> <span class="n">age</span><span class="p">,</span> <span class="n">kg</span> <span class="n">weight</span><span class="p">);</span> <span class="c1">// Explicit interface.</span>
@@ -231,7 +243,6 @@ Thanks to my current employer <a href="https://discover.king.com/about/">King</a
 
 <span class="n">create_person</span><span class="p">(</span><span class="n">years</span><span class="p">(</span><span class="n">age</span><span class="p">),</span> <span class="n">kg</span><span class="p">(</span><span class="n">weight</span><span class="p">)));</span> <span class="c1">// Much less error-prone.</span>
 </code></pre></div>
-
 
 <p>As a bonus, <strong>strong types</strong> can actually affect positively the performances of your codebase as the compiler can agressively optimise without violating <a href="http://cellperformance.beyond3d.com/articles/2006/06/understanding-strict-aliasing.html">strict-aliasing rules</a>, since the types are now strictly unrelated.</p>
 <p>This concept is not new and is already used in <a href="http://en.cppreference.com/w/cpp/chrono">std::chrono</a> or <a href="http://www.boost.org/doc/libs/1_65_1/doc/html/boost_units.html">Boost.Unit</a>, but it was really refreshing to have an explanation with simple words and good examples! I am now very keen to use this in my personal projects and at work too.</p>
@@ -279,7 +290,6 @@ Thanks to my current employer <a href="https://discover.king.com/about/">King</a
 <span class="c1">// bob.push_back(6);</span>
 </code></pre></div>
 
-
 <p>This example is fairly trivial and there would be a high chance that you would reach the same assembly output using a simple <strong>for loop</strong>. But it is very interesting to notice that <strong>lambdas</strong> are reusable type-safe <strong>units of code</strong> that you transport, combine and "instantiate" at any time. Performance-wise, <strong>lambdas</strong> are pretty incredible according to Joel's measurement on his linear-algebra project. <strong>C++17</strong> <strong>constexpr lambdas</strong> could also help on that topic. One drawback might be the debugging complexity when navigating in nested lambdas. I still need to wrap my head around this new concept and I am eager to rewatch Joel's talk to explore it more!</p>
 <h2>[Keynote] Its complicated! - Kate Gregory - 💀 ★★★</h2>
 <ul>
@@ -300,7 +310,6 @@ Thanks to my current employer <a href="https://discover.king.com/about/">King</a
 <span class="n">f</span><span class="p">.</span><span class="n">then</span><span class="p">(</span><span class="n">another_executor</span><span class="p">,</span> <span class="p">[](</span><span class="kt">int</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span> <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">x</span><span class="p">;</span> <span class="p">});</span>
 </code></pre></div>
 
-
 <p>While <strong>executors</strong> are present in <a href="http://www.boost.org/doc/libs/1_65_1/doc/html/thread.html">Boost.Thread</a>, <strong>stlabs's</strong> <a href="http://stlab.cc/libraries/concurrency/channel/channel.html">channels</a> are unique to this <strong>future</strong> library. <strong>Channels</strong> are one of the Go language's favorite <a href="https://gobyexample.com/channels">toy</a>. It is a neat way to create communication between a <strong>sender</strong> and a <strong>receiver</strong> on different <strong>executors</strong>:</p>
 <div class="highlight"><pre><span></span><code><span class="k">auto</span> <span class="p">[</span><span class="n">sender</span><span class="p">,</span> <span class="n">receiver</span><span class="p">]</span> <span class="o">=</span> <span class="n">channel</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">receive_executor</span><span class="p">);</span> <span class="c1">// Create the link.</span>
 
@@ -312,7 +321,6 @@ Thanks to my current employer <a href="https://discover.king.com/about/">King</a
 <span class="n">sender</span><span class="p">(</span><span class="mi">42</span><span class="p">);</span> <span class="c1">// Sent 42 through the channel.</span>
 <span class="c1">// Receiver will print 42 when executing the task.</span>
 </code></pre></div>
-
 
 <p>I really like some of the features in <strong>stlabs</strong>, hopefully this could be incorporated into the <strong>C++</strong> standard (the executors are down in the pipe of the standardisation process).</p>
 <h3>[Talk] Introduction to proposed std::expected<T, E> - Niall Douglas - 💀💀💀 ★</h3>
@@ -326,11 +334,10 @@ Thanks to my current employer <a href="https://discover.king.com/about/">King</a
     <span class="k">return</span> <span class="mi">42</span><span class="p">;</span>
 <span class="p">}</span>
 
-<span class="k">auto</span> <span class="n">result</span> <span class="o">=</span> <span class="n">foo</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">);</span>
+<span class="k">auto</span> <span class="n">result</span> <span class="o">=</span> <span class="n">foo</span><span class="p">(</span><span class="mi">-1</span><span class="p">);</span>
 
 <span class="k">if</span> <span class="p">(</span><span class="o">!</span><span class="n">result</span><span class="p">)</span> <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">result</span><span class="p">.</span><span class="n">error</span><span class="p">().</span><span class="n">value</span><span class="p">();</span> <span class="c1">// Prints &quot; x &lt; 0&quot;.</span>
 </code></pre></div>
-
 
 <p><strong>std::expected</strong> starts to be cumbersome to use when combining or propogating returned results. To palliate this problem, <strong>std::expected</strong> exposes a <a href="https://en.wikipedia.org/wiki/Monad_(functional_programming)">Monad interface</a>, with the bind member function coming directly to your mind. If you are a Haskell user, <strong>std::expected</strong> should remind you of the <a href="https://en.wikibooks.org/wiki/Haskell/Understanding_monads/Maybe">Maybe Monad</a>. Using <strong>bind</strong> is still verbose and hopefully we obtain a dedicated keyword <strong>try</strong> to ease our pain.</p>
 <h2>[Talk] The most valuable values - Juan Pedro Bolívar Puente - 💀💀 ★★</h2>
@@ -355,7 +362,6 @@ Thanks to my current employer <a href="https://discover.king.com/about/">King</a
 <span class="n">z</span> <span class="o">=</span> <span class="n">y</span> <span class="o">+</span> <span class="n">x</span> <span class="c1">// When y or x is updated, z will be automatically updated.</span>
 </code></pre></div>
 
-
 <p>You may notice that I didn't write any <strong>C++</strong> code. By default <strong>C++</strong> would not permit to have expressions that update themselves by "magic" if one variable changes. You could write the update logic manually, but with a lot of long equations, this becomes very error prone. Instead <strong>André</strong> created a <a href="https://en.wikipedia.org/wiki/Domain-specific_language">DSL (Domain Specific Language)</a>, which is equivalent to create a language within <strong>C++</strong> itself. To define his DSL, <strong>André</strong> used <a href="https://en.wikipedia.org/wiki/Expression_templates">expression templates</a>. <strong>Expression templates</strong> are tricky creatures, which roughly consist in encapsulating <strong>C++</strong> expressions into a type at compile-time. This type will retain all the operators / functions (let's call them operations) that you applied in your expression. These operations can be queried at compile-time to generate other expression that you will execute at runtime. In <strong>André</strong>'s case, the encapsulated operations from his reactive equations would be used to automagically generate the update logic. To facilitate his task, <strong>André</strong> heavily relied on <a href="http://www.boost.org/doc/libs/1_65_1/doc/html/proto.html">Boost.Proto</a>. If you are versed in the art of meta-programming, this will certainely be entertaining to you!</p>
 <h2>[Talk] Free your functions - Klaus Iglberger - 💀 ★★★</h2>
 <ul>
@@ -364,35 +370,32 @@ Thanks to my current employer <a href="https://discover.king.com/about/">King</a
 </ul>
 <p>This was a glorious hymn to our beloved free functions by <a href="https://www.linkedin.com/in/klaus-iglberger-2133694/">Klaus Iglberger</a>. Programmers often resort to use <strong>member functions</strong> and inheritance to provide polyphormism in <strong>C++</strong>, often overlooking that <strong>free functions</strong> and <strong>overloading</strong> would be a smarter choice.</p>
 <p>Let's take a situation where you would need to implement a <strong>serialise</strong> function for a bunch of unrelated types. Would rather use the implementation <strong>1</strong>?</p>
-<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="n">serialisable</span> <span class="p">{</span>
+<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="nc">serialisable</span> <span class="p">{</span>
     <span class="k">virtual</span> <span class="o">~</span><span class="n">serialisable</span><span class="p">();</span>
-    <span class="k">virtual</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">serialise</span><span class="p">();</span>
+    <span class="k">virtual</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="nf">serialise</span><span class="p">();</span>
 <span class="p">};</span>
 
-<span class="k">struct</span> <span class="nl">A</span> <span class="p">:</span> <span class="n">serialisable</span> <span class="p">{</span>
-    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">serialise</span><span class="p">()</span> <span class="k">override</span> <span class="p">{</span> <span class="cm">/* return something... */</span> <span class="p">};</span>
+<span class="k">struct</span> <span class="nc">A</span> <span class="o">:</span> <span class="n">serialisable</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="nf">serialise</span><span class="p">()</span> <span class="k">override</span> <span class="p">{</span> <span class="cm">/* return something... */</span> <span class="p">};</span>
 <span class="p">};</span>
 
-<span class="k">struct</span> <span class="nl">B</span> <span class="p">:</span> <span class="n">serialisable</span> <span class="p">{</span>
-    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">serialise</span><span class="p">()</span> <span class="k">override</span> <span class="p">{</span> <span class="cm">/* return something... */</span> <span class="p">};</span>
+<span class="k">struct</span> <span class="nc">B</span> <span class="o">:</span> <span class="n">serialisable</span> <span class="p">{</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="nf">serialise</span><span class="p">()</span> <span class="k">override</span> <span class="p">{</span> <span class="cm">/* return something... */</span> <span class="p">};</span>
 <span class="p">};</span>
 </code></pre></div>
-
 
 <p>Or the solution <strong>2</strong>?</p>
-<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="n">A</span> <span class="p">{};</span>
-<span class="k">struct</span> <span class="n">B</span> <span class="p">{};</span>
+<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="nc">A</span> <span class="p">{};</span>
+<span class="k">struct</span> <span class="nc">B</span> <span class="p">{};</span>
 
-<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">serialise</span><span class="p">(</span><span class="k">const</span> <span class="n">A</span><span class="o">&amp;</span> <span class="n">a</span><span class="p">)</span> <span class="p">{</span> <span class="cm">/* return something... */</span> <span class="p">}</span>
-<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">serialise</span><span class="p">(</span><span class="k">const</span> <span class="n">B</span><span class="o">&amp;</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span> <span class="cm">/* return something... */</span> <span class="p">}</span>
+<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="nf">serialise</span><span class="p">(</span><span class="k">const</span> <span class="n">A</span><span class="o">&amp;</span> <span class="n">a</span><span class="p">)</span> <span class="p">{</span> <span class="cm">/* return something... */</span> <span class="p">}</span>
+<span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="nf">serialise</span><span class="p">(</span><span class="k">const</span> <span class="n">B</span><span class="o">&amp;</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span> <span class="cm">/* return something... */</span> <span class="p">}</span>
 </code></pre></div>
-
 
 <p>As <strong>Kate</strong> explained, it is complicated! If you are looking for <strong>runtime polyphormism</strong>, then you will certainely use the solution <strong>1</strong>. If not, the solution <strong>2</strong> is actually preferable. It has a lot of advantages that <strong>Klaus</strong> explained for one full hour. My favorite one being that you can extend your polyphormism to types that you do not own. Let's say that you want to serialise <strong>std::vector</strong>, you can simply write an overload for it:</p>
 <div class="highlight"><pre><span></span><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span>
 <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">serialise</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">T</span><span class="o">&gt;&amp;</span> <span class="n">v</span><span class="p">)</span> <span class="p">{</span> <span class="cm">/* return something... */</span> <span class="p">}</span>
 </code></pre></div>
-
 
 <p>In practice, nothing prevent you from mixing a both solutions to your needs. One counter-argument being that <strong>free functions</strong> have an ugly syntax: <code>v.serialise();</code> feels more natural than <code>serialize(v);</code>. That issue could have been solve with the <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2016/p0251r0.pdf">unified call syntax</a> proposal by <strong>Bjarne Stroustrup</strong> and <strong>Herb Sutter</strong>. Sadly, it was rejected by the <strong>C++</strong> committee.</p>
 <h2>[Talk] Reader-Write Lock versus Mutex - Understanding a Lost Bet - Jeffrey Mendelsohn - 💀💀💀 ★★</h2>
@@ -438,17 +441,17 @@ Thanks to my current employer <a href="https://discover.king.com/about/">King</a
     })();
 </script>
 <noscript>
-        Please enable JavaScript to view comments.
-
+    Please enable JavaScript to view comments.
 </noscript>
 <!-- End Disqus -->
 </article>
 
     <footer>
 <p>
-  &copy;  2015 - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>
+  &copy; 2015  - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/deed.en_US" target="_blank">Creative Commons Attribution-ShareAlike</a>
 </p>
-<p>    Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
+<p>
+Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
 </p><p>
   <a rel="license"
      href="http://creativecommons.org/licenses/by-sa/4.0/"
@@ -476,7 +479,6 @@ Thanks to my current employer <a href="https://discover.king.com/about/">King</a
   "description": ""
 }
 </script>
-
 
 </body>
 </html>

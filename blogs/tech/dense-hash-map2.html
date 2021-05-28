@@ -8,12 +8,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="index, follow" />
 
-  <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro|Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,400;0,700;1,400&family=Source+Sans+Pro:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/stylesheet/style.min.css">
 
 
-  <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/pygments/monokai.min.css">
+    <link id="pygments-light-theme" rel="stylesheet" type="text/css"
+          href="https://jguegant.github.io/blogs/tech/theme/pygments/monokai.min.css">
+
+
   <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/font-awesome/css/fontawesome.css">
   <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/font-awesome/css/brands.css">
   <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/font-awesome/css/solid.css">
@@ -33,7 +36,8 @@
   ga('create', 'UA-68827527-1', 'auto');
   ga('send', 'pageview');
 </script>
-<!-- End Google Analytics -->
+<!-- End Google Analytics -->  
+
 
 <meta name="author" content="Jean Guegant" />
 <meta name="description" content="This post is part of a series of posts: Part 1 - Beating std::unordered_map Part 2 - Growth Policies &amp; The Schrodinger std::pair (Current) Part 3 - The wonderful world of iterators and allocators Part 4 - An insertion maze (Coming Soon) In the previous post, we started a quest that consists in …" />
@@ -58,19 +62,35 @@
   <title>Jean Guegant's Blog &ndash; Making a STL-compatible hash map from scratch - Part 2 - Growth Policies &amp; The Schrodinger std::pair</title>
 
 </head>
-<body>
+<body class="light-theme">
   <aside>
     <div>
       <a href="https://jguegant.github.io/blogs/tech">
         <img src="https://jguegant.github.io/blogs/tech/images/myself.png" alt="Jean Guegant" title="Jean Guegant">
       </a>
-      <h1><a href="https://jguegant.github.io/blogs/tech">Jean Guegant</a></h1>
 
-<p>Software Engineer - C++, security, game development and random thoughts.</p>      <nav>
+      <h1>
+        <a href="https://jguegant.github.io/blogs/tech">Jean Guegant</a>
+      </h1>
+
+<p>Software Engineer - C++, security, game development and random thoughts.</p>
+
+      <nav>
         <ul class="list">
 
-            <li><a target="_blank" href="https://jguegant.github.io/blogs/tech/pages/about.html#about">About</a></li>
-            <li><a target="_blank" href="https://jguegant.github.io/blogs/tech/pages/contact.html#contact">Contact</a></li>
+
+              <li>
+                <a target="_self"
+                   href="https://jguegant.github.io/blogs/tech/pages/about.html#about">
+                  About
+                </a>
+              </li>
+              <li>
+                <a target="_self"
+                   href="https://jguegant.github.io/blogs/tech/pages/contact.html#contact">
+                  Contact
+                </a>
+              </li>
 
         </ul>
       </nav>
@@ -78,31 +98,28 @@
       <ul class="social">
           <li>
             <a  class="sc-linkedin" href="https://se.linkedin.com/in/jguegant" target="_blank">
-            <i class="fab fa-linkedin">
-            </i>
-          </a></li>
+              <i class="fab fa-linkedin"></i>
+            </a>
+          </li>
           <li>
             <a  class="sc-github" href="https://github.com/Jiwan" target="_blank">
-            <i class="fab fa-github">
-            </i>
-          </a></li>
+              <i class="fab fa-github"></i>
+            </a>
+          </li>
       </ul>
     </div>
-
 
   </aside>
   <main>
 
     <nav>
-      <a href="https://jguegant.github.io/blogs/tech">    Home
-</a>
+      <a href="https://jguegant.github.io/blogs/tech">Home</a>
 
       <a href="https://jguegant.github.io/blogs/tech/archives.html">Archives</a>
       <a href="https://jguegant.github.io/blogs/tech/categories.html">Categories</a>
       <a href="https://jguegant.github.io/blogs/tech/tags.html">Tags</a>
 
-      <a href="https://jguegant.github.io/blogs/tech/feeds/all.atom.xml">    Atom
-</a>
+      <a href="https://jguegant.github.io/blogs/tech/feeds/all.atom.xml">Atom</a>
 
     </nav>
 
@@ -111,8 +128,7 @@
       
     <h1 id="dense-hash-map2">Making a STL-compatible hash map from scratch - Part 2 - Growth Policies & The Schrodinger std::pair</h1>
     <p>
-          Posted on Mon 13 April 2020 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
-
+      Posted on Mon 13 April 2020 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
 
     </p>
   </header>
@@ -170,7 +186,6 @@ Just for that sake of consistency in the C++ ecosystem, I would advise to suppor
 │       └── dense_hash_map_tests.cpp
 </code></pre></div>
 
-
 <p>Note: as any C++ egomaniac would do when facing the hard issue of choosing a namespace for his/her project, I went for my initial "jg".</p>
 <h3>Our main class in dense_hash_map.hpp:</h3>
 <p>To be able to organise our code correctly, let's have look at the "dense" layout we saw in the last <a href="https://jguegant.github.io/blogs/tech/dense-hash-map.html">post</a>: </p>
@@ -196,7 +211,7 @@ Naturally, our <strong>two vectors</strong> will be some good old <code>std::vec
     <span class="c1">// Define some aliases to avoid further typing later on.</span>
     <span class="k">using</span> <span class="n">node_type</span> <span class="o">=</span> <span class="n">details</span><span class="o">::</span><span class="n">node</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span> <span class="n">T</span><span class="o">&gt;</span><span class="p">;</span> <span class="c1">// A node type that contains our key/value.</span>
     <span class="k">using</span> <span class="n">nodes_container_type</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">node_type</span><span class="o">&gt;</span><span class="p">;</span>
-    <span class="k">using</span> <span class="n">nodes_size_type</span> <span class="o">=</span> <span class="k">typename</span> <span class="n">nodes_container_type</span><span class="o">::</span><span class="n">size_type</span><span class="p">;</span>
+    <span class="k">using</span> <span class="n">nodes_size_type</span> <span class="o">=</span> <span class="k">typename</span> <span class="nc">nodes_container_type</span><span class="o">::</span><span class="n">size_type</span><span class="p">;</span>
     <span class="k">using</span> <span class="n">buckets_container_type</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">vector</span><span class="o">&lt;</span><span class="n">nodes_size_type</span><span class="o">&gt;</span><span class="p">;</span>
 
 <span class="k">public</span><span class="o">:</span>
@@ -208,11 +223,9 @@ Naturally, our <strong>two vectors</strong> will be some good old <code>std::vec
 <span class="p">};</span>
 </code></pre></div>
 
-
 <p>The <code>buckets_container_type</code> is dependent on the <code>size_type</code> of the <code>nodes_container_type</code>. In a <code>std::vector</code>, <code>size_type</code> is the type used for accessing elements using the subscript operator <code>operator[]</code>. It makes sense, since <strong>buckets_</strong> contains indices for <strong>nodes_</strong>. Traditionnaly, and to the <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2019/p1428r0.pdf">dismay of plenty</a>, <code>size_type</code> is <code>std::size_t</code> which is an unsigned integer. We will use the value of <code>std::numeric_limits&lt;nodes_size_type&gt;::max()</code> to represent an invalid index into <strong>nodes_</strong> or the end of our linked-lists:</p>
 <div class="highlight"><pre><span></span><code><span class="k">static</span> <span class="kr">inline</span> <span class="k">constexpr</span> <span class="n">nodes_size_type</span> <span class="n">node_end_index</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">numeric_limits</span><span class="o">&lt;</span><span class="n">nodes_size_type</span><span class="o">&gt;::</span><span class="n">max</span><span class="p">();</span>
 </code></pre></div>
-
 
 <p>For instance, <strong>buckets_</strong> will be initialized, at the construction of an empty <code>dense_hash_map</code>, with <code>node_end_index</code> since all the buckets are empty.</p>
 <p>If you were attentive, you would notice that there was also an extra template parameter <code>GrowthPolicy</code> to <code>dense_hash_map</code>. Let's have a closer look at it!</p>
@@ -220,9 +233,9 @@ Naturally, our <strong>two vectors</strong> will be some good old <code>std::vec
 <p>In the last <a href="https://jguegant.github.io/blogs/tech/dense-hash-map.html">post</a>, we discovered some bit-wise operation tricks to increase the speed when mapping a <strong>key</strong> to its <strong>bucket</strong>.
 We also saw that there were drawbacks in doing so. So instead of forcing this design choice on our <code>dense_hash_map</code> users, we can make this behaviour a <a href="https://en.wikipedia.org/wiki/Modern_C%2B%2B_Design#Policy-based_design">policy</a>. The default policy will be the <a href="https://github.com/Jiwan/dense_hash_map/blob/master/include/jg/details/power_of_two_growth_policy.hpp">power_of_two_growth_policy</a>:</p>
 <div class="highlight"><pre><span></span><code><span class="c1">// power_of_two_growth_policy.hpp</span>
-<span class="k">namespace</span> <span class="n">jg</span><span class="o">::</span><span class="n">details</span>
+<span class="k">namespace</span> <span class="nn">jg</span><span class="o">::</span><span class="nn">details</span>
 <span class="p">{</span>
-<span class="k">struct</span> <span class="n">power_of_two_growth_policy</span>
+<span class="k">struct</span> <span class="nc">power_of_two_growth_policy</span>
 <span class="p">{</span>
     <span class="c1">// Given a hash and the current capacity, use bit-wise trick to return the bucket index.</span>
     <span class="k">static</span> <span class="k">constexpr</span> <span class="k">auto</span> <span class="n">compute_index</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">hash</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">capacity</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span>
@@ -257,7 +270,6 @@ We also saw that there were drawbacks in doing so. So instead of forcing this de
 <span class="p">}</span>
 </code></pre></div>
 
-
 <p>All the growth policies will have to respect an implicit <a href="https://en.cppreference.com/w/cpp/language/constraints">C++ concept</a>: it must have the three static member functions <code>compute_index</code>, <code>compute_closest_capacity</code> and <code>minimum_capacity</code>. </p>
 <p>These specific <code>compute_index</code> and <code>minimum_capacity</code> functions are self-explanatory. But <code>compute_closest_capacity</code> is interesting: it tries to find the closest upper power of two given a random capacity.
 A clever way that achieve that task is to fill your capacity number in its bit representation with <code>1</code> starting from the right until you reach the highest bit already toggled on with <code>1</code>. Afterwards, you can just increment and tada... you get your upper power of two.
@@ -271,7 +283,6 @@ After filling starting from the right:
 And if we add one:
 0010 0000 (binary) == 32 (decimal)
 </code></pre></div>
-
 
 <p><code>compute_closest_capacity</code> is doing exactly that with the operator <code>|=</code> and some bit-shifting with the operator <code>&gt;&gt;</code>. It handles the case where we already have a power two by substracting one before processing the number. We also cap the minimum capacity to the highest power of two we can represent to avoid an overflow in the result.</p>
 <p>Note: you can also achieve a similar effect with some built-ins in your conpiler. For instance, GCC provides <a href="https://gcc.gnu.org/onlinedocs/gcc/Other-Builtins.html">__builtin_clz</a> which can be of great help.</p>
@@ -293,7 +304,6 @@ And if we add one:
 <span class="p">};</span>
 </code></pre></div>
 
-
 <p>So what's left of the first code snippet that we didn't dive into? The node type: <code>details::node&lt;Key, T&gt;</code>. By now, you should have a vague feeling that there is something is fishy with this one, it has its own class in the detail namespace. But is that so complicated to make a node holding a key/value pair?</p>
 <h2>Dealing with a const value_type:</h2>
 <p>So here is the deal, <code>std::unordered_map</code> has a peculiar <code>value_type</code> (<code>value_type</code> is the type you obtain as a reference when querying most containers in the standard library when using iterators) which is <code>std::pair&lt;const Key, T&gt;</code>. Whenever you supply a template argument <code>Key</code>, all the key/value pairs you obtain from <code>std::unordered_map</code> will have their first member, which is the key, stored as <code>const Key</code>. And, this, ladies and gentlemen, is can of giant worms ready to devore your last bits of sanity. So... let's open it!</p>
@@ -306,16 +316,14 @@ And if we add one:
 <span class="c1">// my_map after that would be in sad state.</span>
 </code></pre></div>
 
-
 <p>When mutating a key, your key will very likely have a new hash (unless you are the lucky winner of a collision...) which means that it probably belongs to a new bucket (unless both hashes belong to the same bucket...). Sadly, there is no way for your container to be aware that you mutated a <code>std::pair&lt;const Key, T&gt;</code> it gave you as reference, which implies that the container cannot handle properly the hash change. Its internal data-structure would be in a broken state rather quickly. By having a <code>const Key</code>, the standard shields itself from this issue: the key becomes immutable.</p>
 <p>Now, let's assume that our <code>details::node&lt;Key, T&gt;</code> has a <code>std::pair&lt;const Key, T&gt;</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Key</span><span class="p">,</span> <span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span>
-<span class="k">struct</span> <span class="n">node</span> <span class="p">{</span>
+<span class="k">struct</span> <span class="nc">node</span> <span class="p">{</span>
     <span class="n">nodes_size_type</span> <span class="n">next</span> <span class="o">=</span> <span class="n">node_end_index</span><span class="p">;</span> <span class="c1">// Next index of the node in the linked-list.</span>
     <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="k">const</span> <span class="n">Key</span><span class="p">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">pair</span><span class="p">;</span>          <span class="c1">// Our glorious pair.</span>
 <span class="p">};</span>
 </code></pre></div>
-
 
 <p>With our "dense" design, this becomes a <strong>performance issue</strong>. Our <code>std::pair&lt;const Key, T&gt;</code> will have its <strong>move-constructor</strong> and <strong>move-assignment operator</strong> disabled forever and ever, and so does the node type. All our nodes are stored in a packed vector <code>nodes_</code>, which sometimes reallocate itself and send all its content into a bigger buffer. Not being to able to <strong>move</strong> our objects accross memory is a huge bummer. We would have to copy them around. That's unacceptable! Even more irritating, <strong>std::unordered_map</strong> does not suffer from this as its design allocates each nodes separately.</p>
 <p>Big problems require big <strike>solutions</strike> hacks. Here are our two choices:</p>
@@ -329,7 +337,7 @@ And if we add one:
 <p>C++ offers at least two official ways to perform type-punning: <a href="https://en.cppreference.com/w/cpp/language/reinterpret_cast">reinterpret_cast</a> and <a href="https://en.cppreference.com/w/cpp/language/union">unions</a>.</p>
 <h5>reinterpret_cast:</h5>
 <p><strong>reinterpret_cast</strong> sounds quite attractive: "it is purely a compile-time directive which instructs the compiler to treat expression as if it had the type new_type". But if you read closely <a href="http://eel.is/c++draft/expr.reinterpret.cast#:cast,reinterpret">along the standard lines</a>, it has a very restricted usage. It is often used when casting to <code>const char*</code> (<code>const std::byte*</code>) to manipulate your types as raw data. But even doing so is harder than you expect. A fun-fact is that the classic pattern in many C++ code-base of reinterpret_casting a memory buffer to a <a href="https://en.cppreference.com/w/cpp/named_req/PODType">POD</a> is actually not <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0593r2.html">allowed</a>:</p>
-<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="n">A</span> <span class="p">{</span>
+<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="nc">A</span> <span class="p">{</span>
     <span class="kt">int</span> <span class="n">x</span><span class="p">;</span>
 <span class="p">};</span>
 
@@ -339,7 +347,6 @@ And if we add one:
 <span class="k">const</span> <span class="n">A</span><span class="o">*</span> <span class="n">my_a</span> <span class="o">=</span> <span class="k">reinterpret_cast</span><span class="o">&lt;</span><span class="k">const</span> <span class="n">A</span><span class="o">*&gt;</span><span class="p">(</span><span class="n">network_buffer</span><span class="p">);</span>
 </code></pre></div>
 
-
 <p>Clearly, <strong>reinterpret_cast</strong> is not our friend here. <a href="https://en.cppreference.com/w/cpp/language/reinterpret_cast">cppreference</a> even gently warn us:</p>
 <div class="highlight"><pre><span></span><code>The behavior is undefined unless one of the following is true:
 - AliasedType and DynamicType are similar.
@@ -347,16 +354,15 @@ And if we add one:
 std::pair&lt;int, int&gt; and std::pair&lt;const int, int&gt; are not similar.
 </code></pre></div>
 
-
 <h5>union:</h5>
 <p>We are left with C++'s <a href="https://en.cppreference.com/w/cpp/language/union">unions</a> to perform our type-punning. Let's write one:</p>
 <div class="highlight"><pre><span></span><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Key</span><span class="p">,</span> <span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span>
-<span class="k">union</span> <span class="n">union_key_value_pair</span>
+<span class="k">union</span> <span class="nc">union_key_value_pair</span>
 <span class="p">{</span>
     <span class="k">using</span> <span class="n">pair_t</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span> <span class="n">T</span><span class="o">&gt;</span><span class="p">;</span>
     <span class="k">using</span> <span class="n">const_key_pair_t</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="k">const</span> <span class="n">Key</span><span class="p">,</span> <span class="n">T</span><span class="o">&gt;</span><span class="p">;</span>
 
-    <span class="k">template</span> <span class="o">&lt;</span><span class="n">class</span><span class="p">...</span> <span class="n">Args</span><span class="o">&gt;</span>
+    <span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span><span class="p">...</span> <span class="n">Args</span><span class="o">&gt;</span>
     <span class="n">union_key_value_pair</span><span class="p">(</span><span class="n">Args</span><span class="o">&amp;&amp;</span><span class="p">...</span> <span class="n">args</span><span class="p">)</span> <span class="o">:</span> 
         <span class="n">pair_</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">Args</span><span class="o">&gt;</span><span class="p">(</span><span class="n">args</span><span class="p">)...)</span> <span class="c1">// Construct the active member.</span>
     <span class="p">{}</span>
@@ -389,7 +395,6 @@ std::pair&lt;int, int&gt; and std::pair&lt;const int, int&gt; are not similar.
 <span class="p">};</span>
 </code></pre></div>
 
-
 <p>Unions have this concept of an <strong>active member</strong>: the latest member you constructed. You can only have one active member at a time for a union.
 In our case, the active member will always be <code>pair_</code>, a <code>std::pair&lt;Key, T&gt;</code>, since this is how we truly want to store the pair.
 It is also why we defined all the special members (copy/move constructors/assignment operators) in terms of the <code>pair_</code> member.
@@ -405,11 +410,11 @@ Here we have to make a hard choice, to follow or not to follow the standard. Ple
 <p>We decided to listen to the standard and will stick to the <strong>standard-layout structs</strong> rule. In this scenario, we will conditionally enable our <code>union_key_value_pair</code> optimisation:</p>
 <div class="highlight"><pre><span></span><code><span class="c1">// Our safe fallback to store key/value pairs.</span>
 <span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Key</span><span class="p">,</span> <span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span>
-<span class="k">struct</span> <span class="n">safe_key_value_pair</span>
+<span class="k">struct</span> <span class="nc">safe_key_value_pair</span>
 <span class="p">{</span>
     <span class="k">using</span> <span class="n">const_key_pair_t</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="o">&lt;</span><span class="k">const</span> <span class="n">Key</span><span class="p">,</span> <span class="n">T</span><span class="o">&gt;</span><span class="p">;</span>
 
-    <span class="k">template</span> <span class="o">&lt;</span><span class="n">class</span><span class="p">...</span> <span class="n">Args</span><span class="o">&gt;</span>
+    <span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span><span class="p">...</span> <span class="n">Args</span><span class="o">&gt;</span>
     <span class="n">safe_key_value_pair</span><span class="p">(</span><span class="n">Args</span><span class="o">&amp;&amp;</span><span class="p">...</span> <span class="n">args</span><span class="p">)</span> <span class="o">:</span> <span class="n">const_key_pair_</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">Args</span><span class="o">&gt;</span><span class="p">(</span><span class="n">args</span><span class="p">)...)</span> <span class="p">{}</span>
 
     <span class="c1">// Accessors to the two members.</span>
@@ -437,12 +442,11 @@ Here we have to make a hard choice, to follow or not to follow the standard. Ple
 <span class="o">&gt;</span><span class="p">;</span>
 </code></pre></div>
 
-
 <p>We start by defining a safe container <code>safe_key_value_pair</code>. This container is <strong>not a union</strong> and has only one member of type <code>std::pair&lt;const Key, T&gt;</code>.
 The accessors to the "two members" are behind the scene redirecting to only one member. This type will always perform a copy when moved accross memory, but hey... at least it is safe. Now, when you are crafting your node type, you can use the meta-function <code>key_value_pair_t</code> that checks whether your pair is of <strong>standard-layout</strong> and if we should optimise or not the storage. If the pair's type has a <strong>standard-layout</strong>, we can use the optimised union <code>union_key_value_pair</code>, if not, we fallback to <code>safe_key_value_pair</code>. </p>
 <p>Finally, if we are so zealous about the standard, we can always add an extra safety net to <code>union_key_value_pair</code>:</p>
 <div class="highlight"><pre><span></span><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Key</span><span class="p">,</span> <span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span>
-<span class="k">union</span> <span class="n">union_key_value_pair</span>
+<span class="k">union</span> <span class="nc">union_key_value_pair</span>
 <span class="p">{</span>
     <span class="k">static_assert</span><span class="p">(</span>
         <span class="n">offsetof</span><span class="p">(</span><span class="n">pair_t</span><span class="p">,</span> <span class="n">first</span><span class="p">)</span> <span class="o">==</span> <span class="n">offsetof</span><span class="p">(</span><span class="n">const_key_pair_t</span><span class="p">,</span> <span class="n">first</span><span class="p">)</span> <span class="o">&amp;&amp;</span>
@@ -451,7 +455,6 @@ The accessors to the "two members" are behind the scene redirecting to only one 
     <span class="c1">// ...</span>
 <span class="p">}</span>
 </code></pre></div>
-
 
 <p>This <a href="https://en.cppreference.com/w/cpp/language/static_assert">static_assert</a> ensure that the <code>first</code> and <code>second</code> members are truly located in the same memory area in both <code>std::pair&lt;Key, T&gt;</code> and <code>std::pair&lt;const Key, T&gt;</code>. Even if one of the three main standard library implementation were to sabotage our <code>union_key_value_pair</code> by shuffling members, we would be warned about it!</p>
 <p><strong>0 - To dodge the standard: </strong></p>
@@ -480,7 +483,6 @@ Our last move will be a gesture towards our strict friends, we will wrap all our
 
 <span class="cp">#endif</span>
 </code></pre></div>
-
 
 <p>/!\ On a more serious note: you should really be aware of the undefined behaviour of this solution. If your application is used in critical operations, you should refrain yourself from defying the standard. On the other hand, if your application is non-critical (or have a rock-solid release process), you could give a try on the fast type punning. Choose wisely!</p>
 <h2>Conclusion:</h2>
@@ -511,17 +513,17 @@ We also have a <strong>Schrodinger std::pair</strong> at our disposal to move ou
     })();
 </script>
 <noscript>
-        Please enable JavaScript to view comments.
-
+    Please enable JavaScript to view comments.
 </noscript>
 <!-- End Disqus -->
 </article>
 
     <footer>
 <p>
-  &copy;  2015 - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>
+  &copy; 2015  - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/deed.en_US" target="_blank">Creative Commons Attribution-ShareAlike</a>
 </p>
-<p>    Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
+<p>
+Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
 </p><p>
   <a rel="license"
      href="http://creativecommons.org/licenses/by-sa/4.0/"
@@ -549,7 +551,6 @@ We also have a <strong>Schrodinger std::pair</strong> at our disposal to move ou
   "description": ""
 }
 </script>
-
 
 </body>
 </html>

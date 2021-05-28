@@ -8,12 +8,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="index, follow" />
 
-  <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro|Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,400;0,700;1,400&family=Source+Sans+Pro:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/stylesheet/style.min.css">
 
 
-  <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/pygments/monokai.min.css">
+    <link id="pygments-light-theme" rel="stylesheet" type="text/css"
+          href="https://jguegant.github.io/blogs/tech/theme/pygments/monokai.min.css">
+
+
   <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/font-awesome/css/fontawesome.css">
   <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/font-awesome/css/brands.css">
   <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/font-awesome/css/solid.css">
@@ -33,7 +36,8 @@
   ga('create', 'UA-68827527-1', 'auto');
   ga('send', 'pageview');
 </script>
-<!-- End Google Analytics -->
+<!-- End Google Analytics -->  
+
 
 <meta name="author" content="Jean Guegant" />
 <meta name="description" content="New year, new conference! This time, my employer, King, helped me to organize a first pilgrimage to CppCon for me and another colleague. You cannot fathom how enthusiastic I was to finally making it there! Although I might be a bit late on the &#34;trip-report-race&#34;, I think that it is …" />
@@ -58,19 +62,35 @@
   <title>Jean Guegant's Blog &ndash; Trip report - CppCon 2018</title>
 
 </head>
-<body>
+<body class="light-theme">
   <aside>
     <div>
       <a href="https://jguegant.github.io/blogs/tech">
         <img src="https://jguegant.github.io/blogs/tech/images/myself.png" alt="Jean Guegant" title="Jean Guegant">
       </a>
-      <h1><a href="https://jguegant.github.io/blogs/tech">Jean Guegant</a></h1>
 
-<p>Software Engineer - C++, security, game development and random thoughts.</p>      <nav>
+      <h1>
+        <a href="https://jguegant.github.io/blogs/tech">Jean Guegant</a>
+      </h1>
+
+<p>Software Engineer - C++, security, game development and random thoughts.</p>
+
+      <nav>
         <ul class="list">
 
-            <li><a target="_blank" href="https://jguegant.github.io/blogs/tech/pages/about.html#about">About</a></li>
-            <li><a target="_blank" href="https://jguegant.github.io/blogs/tech/pages/contact.html#contact">Contact</a></li>
+
+              <li>
+                <a target="_self"
+                   href="https://jguegant.github.io/blogs/tech/pages/about.html#about">
+                  About
+                </a>
+              </li>
+              <li>
+                <a target="_self"
+                   href="https://jguegant.github.io/blogs/tech/pages/contact.html#contact">
+                  Contact
+                </a>
+              </li>
 
         </ul>
       </nav>
@@ -78,31 +98,28 @@
       <ul class="social">
           <li>
             <a  class="sc-linkedin" href="https://se.linkedin.com/in/jguegant" target="_blank">
-            <i class="fab fa-linkedin">
-            </i>
-          </a></li>
+              <i class="fab fa-linkedin"></i>
+            </a>
+          </li>
           <li>
             <a  class="sc-github" href="https://github.com/Jiwan" target="_blank">
-            <i class="fab fa-github">
-            </i>
-          </a></li>
+              <i class="fab fa-github"></i>
+            </a>
+          </li>
       </ul>
     </div>
-
 
   </aside>
   <main>
 
     <nav>
-      <a href="https://jguegant.github.io/blogs/tech">    Home
-</a>
+      <a href="https://jguegant.github.io/blogs/tech">Home</a>
 
       <a href="https://jguegant.github.io/blogs/tech/archives.html">Archives</a>
       <a href="https://jguegant.github.io/blogs/tech/categories.html">Categories</a>
       <a href="https://jguegant.github.io/blogs/tech/tags.html">Tags</a>
 
-      <a href="https://jguegant.github.io/blogs/tech/feeds/all.atom.xml">    Atom
-</a>
+      <a href="https://jguegant.github.io/blogs/tech/feeds/all.atom.xml">Atom</a>
 
     </nav>
 
@@ -111,8 +128,7 @@
       
     <h1 id="trip-report-cppcon-2018">Trip report - CppCon 2018</h1>
     <p>
-          Posted on Sun 07 October 2018 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
-
+      Posted on Sun 07 October 2018 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
 
     </p>
   </header>
@@ -174,7 +190,7 @@ Take a look at this very simple piece of code:</p>
     <span class="n">foo</span><span class="p">(</span><span class="n">t</span><span class="p">);</span>
 <span class="p">}</span>
 
-<span class="k">struct</span> <span class="n">A</span> <span class="p">{};</span>
+<span class="k">struct</span> <span class="nc">A</span> <span class="p">{};</span>
 
 <span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>
     <span class="n">A</span> <span class="n">a</span><span class="p">;</span>
@@ -182,16 +198,14 @@ Take a look at this very simple piece of code:</p>
 <span class="p">}</span>
 </code></pre></div>
 
-
 <p>Your never-satisfied compiler will refuse to compile it with the following error message:</p>
-<div class="highlight"><pre><span></span><code><span class="o">&lt;</span><span class="k">source</span><span class="o">&gt;</span><span class="p">:</span> <span class="k">In</span> <span class="n">instantiation</span> <span class="k">of</span> <span class="s1">&#39;void foo(T&amp;&amp;) [with T = A&amp;]&#39;</span><span class="p">:</span>
-<span class="o">&lt;</span><span class="k">source</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">10</span><span class="p">:</span><span class="mi">8</span><span class="p">:</span>   <span class="n">required</span> <span class="k">from</span> <span class="s1">&#39;void bar(T&amp;&amp;) [with T = A&amp;]&#39;</span>
-<span class="o">&lt;</span><span class="k">source</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">17</span><span class="p">:</span><span class="mi">10</span><span class="p">:</span>   <span class="n">required</span> <span class="k">from</span> <span class="n">here</span>
-<span class="o">&lt;</span><span class="k">source</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">5</span><span class="p">:</span><span class="mi">7</span><span class="p">:</span> <span class="n">error</span><span class="p">:</span> <span class="s1">&#39;struct A&#39;</span> <span class="n">has</span> <span class="k">no</span> <span class="n">member</span> <span class="n">named</span> <span class="s1">&#39;print&#39;</span>
-     <span class="n">t</span><span class="p">.</span><span class="n">print</span><span class="p">();</span>
+<div class="highlight"><pre><span></span><code><span class="o">&lt;</span><span class="nt">source</span><span class="o">&gt;:</span> <span class="nt">In</span> <span class="nt">instantiation</span> <span class="nt">of</span> <span class="s1">&#39;void foo(T&amp;&amp;) </span><span class="cp">[</span><span class="k">with</span> <span class="n">T</span><span class="o"> =</span> <span class="nx">A</span><span class="o">&amp;</span><span class="cp">]</span><span class="s1">&#39;</span><span class="o">:</span>
+<span class="o">&lt;</span><span class="nt">source</span><span class="o">&gt;</span><span class="p">:</span><span class="nd">10</span><span class="p">:</span><span class="nd">8</span><span class="o">:</span>   <span class="nt">required</span> <span class="nt">from</span> <span class="s1">&#39;void bar(T&amp;&amp;) </span><span class="cp">[</span><span class="k">with</span> <span class="n">T</span><span class="o"> =</span> <span class="nx">A</span><span class="o">&amp;</span><span class="cp">]</span><span class="s1">&#39;</span>
+<span class="o">&lt;</span><span class="nt">source</span><span class="o">&gt;</span><span class="p">:</span><span class="nd">17</span><span class="p">:</span><span class="nd">10</span><span class="o">:</span>   <span class="nt">required</span> <span class="nt">from</span> <span class="nt">here</span>
+<span class="o">&lt;</span><span class="nt">source</span><span class="o">&gt;</span><span class="p">:</span><span class="nd">5</span><span class="p">:</span><span class="nd">7</span><span class="o">:</span> <span class="nt">error</span><span class="o">:</span> <span class="s1">&#39;struct A&#39;</span> <span class="nt">has</span> <span class="nt">no</span> <span class="nt">member</span> <span class="nt">named</span> <span class="s1">&#39;print&#39;</span>
+     <span class="nt">t</span><span class="p">.</span><span class="nc">print</span><span class="o">();</span>
      <span class="o">~~^~~~~</span>
 </code></pre></div>
-
 
 <p>This is an horrifying warning message as we often see nowadays.
 Your compiler do warn you about the absence of a <strong>print</strong> method in <strong>A</strong> far down in <strong>foo</strong>!
@@ -200,7 +214,7 @@ But most often when using functions provided by the Standard Library, your type 
 As a newcommer you will often struggle with your compiler vomiting a bizarre message of 100 lines when using templates, which is not the best first experience (to say the least). 
 Moreover, by looking at the signature of <strong>bar</strong>, nothing tells you that the template parameter <strong>T</strong> needs to have a <strong>print</strong> member function. That's frustrating!</p>
 <p>With concepts you can define in elegant way the constraints that your parameters must respect. Have a look at we could do with Concepts in this case:</p>
-<div class="highlight"><pre><span></span><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span> <span class="n">concept</span> <span class="kt">bool</span> <span class="n">IsPrintable</span> <span class="o">=</span> <span class="n">requires</span> <span class="p">(</span><span class="n">T</span> <span class="n">a</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// Define a reusable concept &quot;IsPrintable&quot;.</span>
+<div class="highlight"><pre><span></span><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span> <span class="k">concept</span> <span class="nc">bool</span> <span class="n">IsPrintable</span> <span class="o">=</span> <span class="k">requires</span> <span class="p">(</span><span class="n">T</span> <span class="n">a</span><span class="p">)</span> <span class="p">{</span> <span class="c1">// Define a reusable concept &quot;IsPrintable&quot;.</span>
     <span class="n">a</span><span class="p">.</span><span class="n">print</span><span class="p">();</span> <span class="c1">// Any template parameter of T respecting &quot;IsPrintable&quot; must have a print function. </span>
 <span class="p">};</span>
 
@@ -215,21 +229,19 @@ Moreover, by looking at the signature of <strong>bar</strong>, nothing tells you
 <span class="p">}</span>
 </code></pre></div>
 
-
 <p>Which would give us the following much more accurate error message:</p>
-<div class="highlight"><pre><span></span><code><span class="o">&lt;</span><span class="k">source</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">19</span><span class="p">:</span><span class="mi">10</span><span class="p">:</span> <span class="n">error</span><span class="p">:</span> <span class="n">cannot</span> <span class="k">call</span> <span class="k">function</span> <span class="s1">&#39;void bar(T&amp;&amp;) [with T = A&amp;]&#39;</span>
+<div class="highlight"><pre><span></span><code><span class="o">&lt;</span><span class="n">source</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">19</span><span class="p">:</span><span class="mi">10</span><span class="p">:</span> <span class="n">error</span><span class="p">:</span> <span class="n">cannot</span> <span class="n">call</span> <span class="n">function</span> <span class="s1">&#39;void bar(T&amp;&amp;) [with T = A&amp;]&#39;</span>
      <span class="n">bar</span><span class="p">(</span><span class="n">a</span><span class="p">);</span>
           <span class="o">^</span>
-<span class="o">&lt;</span><span class="k">source</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">11</span><span class="p">:</span><span class="mi">6</span><span class="p">:</span> <span class="n">note</span><span class="p">:</span>   <span class="k">constraints</span> <span class="k">not</span> <span class="n">satisfied</span>
- <span class="n">void</span> <span class="n">bar</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;&amp;</span> <span class="n">t</span><span class="p">)</span> <span class="err">{</span>
+<span class="o">&lt;</span><span class="n">source</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">11</span><span class="p">:</span><span class="mi">6</span><span class="p">:</span> <span class="n">note</span><span class="p">:</span>   <span class="n">constraints</span> <span class="ow">not</span> <span class="n">satisfied</span>
+ <span class="n">void</span> <span class="n">bar</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;&amp;</span> <span class="n">t</span><span class="p">)</span> <span class="p">{</span>
       <span class="o">^~~</span>
-<span class="o">&lt;</span><span class="k">source</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">1</span><span class="p">:</span><span class="mi">33</span><span class="p">:</span> <span class="n">note</span><span class="p">:</span> <span class="n">within</span> <span class="s1">&#39;template&lt;class T&gt; concept const bool IsPrintable&lt;T&gt; [with T = A&amp;]&#39;</span>
- <span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">concept</span> <span class="n">bool</span> <span class="n">IsPrintable</span> <span class="o">=</span> <span class="n">requires</span> <span class="p">(</span><span class="n">T</span> <span class="n">a</span><span class="p">)</span> <span class="err">{</span>
+<span class="o">&lt;</span><span class="n">source</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">1</span><span class="p">:</span><span class="mi">33</span><span class="p">:</span> <span class="n">note</span><span class="p">:</span> <span class="n">within</span> <span class="s1">&#39;template&lt;class T&gt; concept const bool IsPrintable&lt;T&gt; [with T = A&amp;]&#39;</span>
+ <span class="n">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">concept</span> <span class="nb nb-Type">bool</span> <span class="n">IsPrintable</span> <span class="o">=</span> <span class="n">requires</span> <span class="p">(</span><span class="n">T</span> <span class="n">a</span><span class="p">)</span> <span class="p">{</span>
                                  <span class="o">^~~~~~~~~~~</span>
-<span class="o">&lt;</span><span class="k">source</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">1</span><span class="p">:</span><span class="mi">33</span><span class="p">:</span> <span class="n">note</span><span class="p">:</span>     <span class="k">with</span> <span class="s1">&#39;A&amp; a&#39;</span>
-<span class="o">&lt;</span><span class="k">source</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">1</span><span class="p">:</span><span class="mi">33</span><span class="p">:</span> <span class="n">note</span><span class="p">:</span> <span class="n">the</span> <span class="n">required</span> <span class="n">expression</span> <span class="s1">&#39;a.print()&#39;</span> <span class="n">would</span> <span class="n">be</span> <span class="n">ill</span><span class="o">-</span><span class="n">formed</span>
+<span class="o">&lt;</span><span class="n">source</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">1</span><span class="p">:</span><span class="mi">33</span><span class="p">:</span> <span class="n">note</span><span class="p">:</span>     <span class="n">with</span> <span class="s1">&#39;A&amp; a&#39;</span>
+<span class="o">&lt;</span><span class="n">source</span><span class="o">&gt;</span><span class="p">:</span><span class="mi">1</span><span class="p">:</span><span class="mi">33</span><span class="p">:</span> <span class="n">note</span><span class="p">:</span> <span class="n">the</span> <span class="n">required</span> <span class="n">expression</span> <span class="s1">&#39;a.print()&#39;</span> <span class="n">would</span> <span class="n">be</span> <span class="n">ill</span><span class="o">-</span><span class="n">formed</span>
 </code></pre></div>
-
 
 <p>Some sceptical gurus will tell you that this can be emulated with some witch-crafted <a href="https://jguegant.github.io/blogs/tech/sfinae-introduction.html">SFINAEs</a>. 
 Concepts were not on my christmas wish-list for <strong>C++</strong> this year, but I have to admit that Bjarne's talk hipped me a lot! </p>
@@ -261,27 +273,26 @@ So here I was, ready to learn more about these mystical beasts!</p>
 <p><strong>Allocators</strong> in C++ are rather infamous for their over-engineered interface, which is not useful 99.42% of the time. This even forced the committee to come-up, in <strong>C++17</strong>, with a lighter interface called <a href="https://youtu.be/v3dz-AKOVL8">PMR</a>. But this time, the good old full-blown interface found a very clever usage in Bob's hands. Indeed, <a href="https://en.cppreference.com/w/cpp/memory/allocator_traits">std::allocator_traits</a> has a nice type property <strong>pointer</strong>. Which means that the Standard offers a nice <a href="https://quuxplusone.github.io/blog/2018/03/19/customization-points-for-functions/">customization point</a> to switch normal pointers <strong>T*</strong> for a given allocator to a type that acts like a pointer would. These wanna-be pointers are what you call <strong>fancy pointers</strong>. Somehow, you can think of <strong>fancy pointers</strong> as more generalized concept of <a href="https://en.wikipedia.org/wiki/Smart_pointer">smart pointers</a>.   </p>
 <p>Now let's say that you would like to serialise to / deserialise from binary a container-like object (vector, list...) with a bunch of <a href="https://msdn.microsoft.com/en-us/library/mt767760.aspx?f=255&amp;MSPPError=-2147217396">trivial objects</a> inside and send it through a network. Providing that you are targeting one and only one architecture, which is often the case for servers, you may be able to use <a href="https://en.cppreference.com/w/cpp/string/byte/memcpy">std::memcpy</a> to transfer the representation of this container into a <strong>char*</strong> buffer. Then, the whole buffer can be wired to another machine. At the endpoint, to deserialise the container from that buffer you can re-use <strong>std::memcpy</strong> to copy back the binary representation into a container (<a href="https://www.reddit.com/r/cpp/comments/5fk3wn/undefined_behavior_with_reinterpret_cast/">note that you cannot rely reinterpret_cast in C++ for that purpose</a>...). This will work smoothly as long as none of the stored PODs have pointers as members referencing each others! Pointers are usually not valid as soon as you cross the boundary of a process or a machine. This huge drawback can be avoided by introducing <strong>fancy pointers</strong> to your code-base. </p>
 <p>As an example on how to fix that issue, Bob brings <strong>offset_ptr</strong> to the table, which permits to express some reference between two elements using their distance from each others:</p>
-<div class="highlight"><pre><span></span><code><span class="n">struct</span> <span class="n">obj</span>
-<span class="err">{</span>
-    <span class="n">value_type</span> <span class="n">v</span><span class="p">;</span>
-    <span class="n">offset_ptr</span><span class="o">&lt;</span><span class="n">value_type</span><span class="o">&gt;</span> <span class="n">p</span><span class="p">;</span> <span class="o">//</span> <span class="n">optional</span>
-<span class="err">}</span><span class="p">;</span> 
+<div class="highlight"><pre><span></span><code><span class="c">struct obj</span>
+<span class="c">{</span>
+<span class="c">    value_type v;</span>
+<span class="c">    offset_ptr</span><span class="nv">&lt;</span><span class="c">value_type</span><span class="nv">&gt;</span><span class="c"> p; // optional</span>
+<span class="c">}; </span>
 
-<span class="n">Example</span> <span class="k">of</span> <span class="n">the</span> <span class="n">layout</span> <span class="k">of</span> <span class="n">a</span> <span class="n">container</span> <span class="k">of</span> <span class="n">objs</span><span class="p">:</span>
+<span class="c">Example of the layout of a container of objs:</span>
 
-                               <span class="o">-</span><span class="mi">2</span>
-                <span class="o">+</span><span class="c1">-----------------------------+</span>
-                <span class="o">|</span>        <span class="mi">1</span>                    <span class="o">|</span>
-                <span class="o">|</span>     <span class="o">+</span><span class="c1">-----+                 |</span>
- <span class="o">+</span><span class="c1">--------------v-----------v--------------------------------+</span>
- <span class="o">|</span>  <span class="n">v</span>  <span class="o">|</span>  <span class="n">p</span>  <span class="o">|</span>  <span class="n">v</span>  <span class="o">|</span>  <span class="n">p</span>  <span class="o">|</span>  <span class="n">v</span>  <span class="o">|</span>  <span class="n">p</span>  <span class="o">|</span>  <span class="n">V</span>  <span class="o">|</span>  <span class="n">p</span>  <span class="o">|</span>  <span class="n">v</span>  <span class="o">|</span>  <span class="n">p</span>  <span class="o">|</span>
- <span class="o">+</span><span class="c1">-----------------------------------------------------------+</span>
-          <span class="o">|</span>                             <span class="o">^</span>
-          <span class="o">|</span>                             <span class="o">|</span>
-          <span class="o">+</span><span class="c1">-----------------------------+</span>
-                       <span class="mi">3</span>
+<span class="c">                               </span><span class="nb">-</span><span class="c">2</span>
+<span class="c">                </span><span class="nb">+-----------------------------+</span><span class="c"></span>
+<span class="c">                |        1                    |</span>
+<span class="c">                |     </span><span class="nb">+-----+</span><span class="c">                 |</span>
+<span class="c"> </span><span class="nb">+--------------</span><span class="c">v</span><span class="nb">-----------</span><span class="c">v</span><span class="nb">--------------------------------+</span><span class="c"></span>
+<span class="c"> |  v  |  p  |  v  |  p  |  v  |  p  |  V  |  p  |  v  |  p  |</span>
+<span class="c"> </span><span class="nb">+-----------------------------------------------------------+</span><span class="c"></span>
+<span class="c">          |                             ^</span>
+<span class="c">          |                             |</span>
+<span class="c">          </span><span class="nb">+-----------------------------+</span><span class="c"></span>
+<span class="c">                       3</span>
 </code></pre></div>
-
 
 <p>With a bit of boilerplate, this <strong>offset_ptr</strong> can be handled by a custom allocator that can be injected into a container, making different address mappings a non-issue.
 I find this solution pretty elegant and is a good showcase on how extensible the Standard Library is. </p>
@@ -291,7 +302,7 @@ I find this solution pretty elegant and is a good showcase on how extensible the
 <li>Video: <a href="">coming soon</a></li>
 </ul>
 <p>It is commonly admitted that returning by value seldom has a performance impact in C++. Two mechanisms <a href="https://en.wikipedia.org/wiki/Copy_elision#Return_value_optimization">(N)RVO</a> and <a href="http://thbecker.net/articles/rvalue_references/section_02.html">move semantics</a> will most likely kick in to avoid unecessary copies:</p>
-<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="n">A</span>
+<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="nc">A</span>
 <span class="p">{</span>
 <span class="c1">// ... some members</span>
 <span class="p">};</span>
@@ -305,7 +316,6 @@ I find this solution pretty elegant and is a good showcase on how extensible the
 <span class="n">A</span> <span class="n">a</span> <span class="o">=</span> <span class="n">foo</span><span class="p">();</span> <span class="c1">// The return value is directly constructed in a&#39;s stack location (RVO), can fall back onto the move-constructor otherwise. </span>
 </code></pre></div>
 
-
 <p>As time goes by, the C++ standard has stronger and stronger guarantees that copy ellision (RVO) will happen in these situations.
 At the same time, forcefully moving the return value can a pretty huge pessimisation and is taught as an anti-pattern:</p>
 <div class="highlight"><pre><span></span><code><span class="n">A</span> <span class="nf">foo</span><span class="p">()</span> <span class="p">{</span>
@@ -314,7 +324,6 @@ At the same time, forcefully moving the return value can a pretty huge pessimisa
     <span class="k">return</span> <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">a</span><span class="p">);</span> <span class="c1">// Will hinder the compiler to choose RVO instead of move constructor.</span>
 <span class="p">}</span>
 </code></pre></div>
-
 
 <p>In the worst case scenario, if the object has no move-constructor, the compiler might resort to use the copy constructor, which could have been avoided with RVO.</p>
 <p>Now in the <strong>C++ land</strong> nothing really holds true if you look closer at some corner cases. And the "no-move-on-return-values" rule mentioned right above can be debated for that reason. Arthur was valiant enough to inquire into this topic and found few cases where a call to <strong>std::move</strong> will BE an optimization. Notably, if you return a value with a type convertible to the function's return type thanks to an <a href="https://en.cppreference.com/w/cpp/language/cast_operator">explicit conversion operator</a>, you should apply <strong>std::move</strong>. Arthur introduced a new warning in clang <a href="https://reviews.llvm.org/D43322">-Wreturn-std-move</a> to avoid this pitfall. I will gadly turn that warning on as soon as I can.</p>
@@ -328,7 +337,7 @@ At the same time, forcefully moving the return value can a pretty huge pessimisa
 <p><strong>Kris</strong> started with a good ol' implementation designed around a giant switch case roughly similar to this code:</p>
 <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">connection</span> <span class="p">{</span>
     <span class="c1">// ...</span>
-    <span class="kt">void</span> <span class="n">update</span><span class="p">(</span><span class="n">event</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
+    <span class="kt">void</span> <span class="nf">update</span><span class="p">(</span><span class="n">event</span> <span class="n">e</span><span class="p">)</span> <span class="p">{</span>
         <span class="k">switch</span><span class="p">(</span><span class="n">state_</span><span class="p">)</span> <span class="p">{</span>
             <span class="k">case</span> <span class="nl">connecting</span><span class="p">:</span>
                 <span class="k">if</span> <span class="p">(</span><span class="n">e</span> <span class="o">&amp;&amp;</span> <span class="n">e</span><span class="o">-&gt;</span><span class="n">type</span> <span class="o">==</span> <span class="n">event_type</span><span class="o">::</span><span class="n">established</span><span class="p">)</span> <span class="p">{</span>
@@ -357,13 +366,12 @@ At the same time, forcefully moving the return value can a pretty huge pessimisa
 <span class="p">};</span>
 </code></pre></div>
 
-
 <p>Surely, this implementation will perform rather decently, but at the cost of being extremely hard to maintain if the amount of states increase. Sadly, a lot of code-bases for games or networking have plenty of these ugly state machines sprinkled around. <strong>C++</strong> is all about <strong>zero-cost abstractions</strong>, which means that if you want to avoid some serious posttraumatic stress disorders after working on such projects, you may want to look at other choices than switch.</p>
 <p>Therefore, <strong>Kris</strong> jumped onto other implementations. One of the them is using <a href="https://en.cppreference.com/w/cpp/utility/variant">std::variant</a> which reminded me a lot a blog post from <a href="https://khuttun.github.io/2017/02/04/implementing-state-machines-with-std-variant.html">Kalle Huttunen</a>. <strong>std::variant</strong> will permit you to isolate the variables necessary for your different states and will enforce a stricter handling of your state with <a href="https://en.cppreference.com/w/cpp/utility/variant/visit">std::visit</a>. In my opinion this solution is huge improvement compared to using a switch and does not require the introduction of an external library into your project. As I will explain later, <strong>std::variant</strong> may or may not have a slight performance impact.</p>
 <p>After dwelling with two oldish and rather slow Boost libraries that can help to design state machines, Kris presented us his work. I have to admit that the <a href="https://en.wikipedia.org/wiki/Domain-specific_language">DSL</a> provided by his library looks very pleasant to use: </p>
 <div class="highlight"><pre><span></span><code><span class="c1">// Coming straight from Kris&#39;s slides:</span>
 <span class="n">sml</span><span class="o">::</span><span class="n">sm</span> <span class="n">connection</span> <span class="o">=</span> <span class="p">[]{</span>
-    <span class="k">using</span> <span class="k">namespace</span> <span class="n">sml</span><span class="p">;</span>
+    <span class="k">using</span> <span class="k">namespace</span> <span class="nn">sml</span><span class="p">;</span>
     <span class="k">return</span> <span class="n">transition_table</span><span class="p">{</span>
         <span class="o">*</span> <span class="s">&quot;Disconnected&quot;</span><span class="n">_s</span> <span class="o">+</span> <span class="n">event</span><span class="o">&lt;</span><span class="n">connect</span><span class="o">&gt;</span> <span class="o">/</span> <span class="n">establish</span> <span class="o">=</span> <span class="s">&quot;Connecting&quot;</span><span class="n">_s</span><span class="p">,</span>
         <span class="s">&quot;Connecting&quot;</span><span class="n">_s</span> <span class="o">+</span> <span class="n">event</span><span class="o">&lt;</span><span class="n">established</span><span class="o">&gt;</span> <span class="o">=</span> <span class="s">&quot;Connected&quot;</span><span class="n">_s</span><span class="p">,</span>
@@ -373,7 +381,6 @@ At the same time, forcefully moving the return value can a pretty huge pessimisa
     <span class="p">};</span>
 <span class="p">};</span>
 </code></pre></div>
-
 
 <p><strong>Boost.DI</strong> is performing very well according to Kris and is on par with the switch solution according to his benchmark.
 <strong>Boost.DI</strong> offers different dispatch strategies to get the current state:  <strong>recursive branching</strong>, <a href="https://mpark.github.io/programming/2015/07/07/variant-visitation/">jump table</a>, <a href="https://en.cppreference.com/w/cpp/language/fold">fold expressions</a>... It turns out that the <strong>recursive branching</strong> is amongst the fastest, yelding results as close as the giant switch strategy. I am not so surprised by these results, since we observed a similar pattern at work with our custom implementation of <strong>std::visit</strong>. As far as I know, <strong>clang</strong> and <strong>gcc</strong> visit their <strong>std::variant</strong> using a <strong>jump table</strong>, which may explain the slight performance drop compared to a giant switch. These are good news though, it means that there is room to improve the Quality of Implementation (QoI) of <strong>std::visit</strong> in our favorite libraries.  </p>
@@ -395,7 +402,7 @@ At the same time, forcefully moving the return value can a pretty huge pessimisa
 While templates are powerfull, the syntax to manipulate types appears alienesque to most of the human coders. 
 <strong>Constexpr-based metaprogramming</strong> looks a lot more natural and having proper containers was the last missing part of the puzzle to use that syntax for reflection. 
 If you are in doubt, have a look at this very short example from Louis: </p>
-<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="n">my_struct</span>
+<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="nc">my_struct</span>
 <span class="p">{</span>
     <span class="kt">int</span> <span class="n">x</span><span class="p">;</span>
     <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">y</span><span class="p">;</span>
@@ -415,7 +422,6 @@ If you are in doubt, have a look at this very short example from Louis: </p>
 <span class="k">using</span> <span class="n">type</span> <span class="o">=</span> <span class="n">unreflexpr</span><span class="p">(</span><span class="n">x_meta</span><span class="p">.</span><span class="n">get_reflected_type</span><span class="p">());</span> <span class="c1">// Get that actual type of x.</span>
 </code></pre></div>
 
-
 <p>If you want to have a better understanding on the proposed syntax, have a look at <a href="http://www.open-std.org/jtc1/sc22/wg21/docs/papers/2018/p0953r0.html">P0962R0</a>.</p>
 <h3>[Keynote] Thoughts on a More Powerful and Simpler C++ (5 of N) - Herb Sutter - 💀💀 ★★★:</h3>
 <ul>
@@ -429,7 +435,7 @@ It might not sound like a thrilling talk... but that would be under-appreciating
 If such lifetime rules are adjusted correctly, your code should be bulletproof when it comes to a huge range of bugs related to memory: user after free, dandling pointers...
 Some languages like <strong>Rust</strong> even make it a core concept of the language. Arguably, Herb's lifetimes will be slightly more relaxed (no annotations on everything) and more natural to use, at the price of not covering some extreme cases. 
 Let's have a look at what these so-called lifetimes may protect you from:</p>
-<div class="highlight"><pre><span></span><code><span class="kt">int</span><span class="o">&amp;</span> <span class="n">foo</span><span class="p">()</span> <span class="p">{</span>
+<div class="highlight"><pre><span></span><code><span class="kt">int</span><span class="o">&amp;</span> <span class="nf">foo</span><span class="p">()</span> <span class="p">{</span>
     <span class="kt">int</span> <span class="n">a</span><span class="p">;</span>
     <span class="k">return</span> <span class="n">a</span><span class="p">;</span> <span class="c1">// Oups I am returning a reference to a local variable that will die right after that function execution.</span>
     <span class="c1">// Some compilers may warn you about it, some may not! </span>
@@ -441,7 +447,6 @@ Let's have a look at what these so-called lifetimes may protect you from:</p>
 <span class="p">}</span>
 </code></pre></div>
 
-
 <p>After applying the rules elaborated by Herb and his crew, the lifetime of <strong>a</strong> would be dimmed as ending at the end of foo and the compiler would yield a strong warning or a plain error.
 Here <a href="https://en.cppreference.com/w/cpp/utility/functional/reference_wrapper">std::reference</a> is considered as a pointer/reference type and will be highly scrutinised by the compiler.
 If you combine the lifetimes and the concepts, your compiler or linter may be able to discover the pointer types automagically!</p>
@@ -451,7 +456,6 @@ If you combine the lifetimes and the concepts, your compiler or linter may be ab
 
 <span class="n">my_obj</span><span class="p">.</span><span class="n">x</span><span class="o">-&gt;</span><span class="n">bla</span> <span class="o">=</span> <span class="mi">42</span><span class="p">;</span> <span class="c1">// lifetime warning: using a moved-from obj is seldom a good idea.</span>
 </code></pre></div>
-
 
 <p>All these smart lifetime rules are often based on recommendations that you may find in <a href="https://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines">C++ Core Guidelines</a>.
 Having them enforced within your projects is amazing. I am eager to try the clang implementation of it. Later in the day <strong>Matthias Gehre</strong> and <strong>Gabor Horvath</strong> did show us the internals of clang that will support this new feature.</p>
@@ -493,7 +497,6 @@ Here is what the CTAD lipstick looks like on <a href="https://en.cppreference.co
 <span class="k">auto</span> <span class="n">p4</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">pair</span><span class="p">(</span><span class="mi">42</span><span class="p">,</span> <span class="s">&quot;test&quot;</span><span class="p">);</span> <span class="c1">// Another way to construct following the always auto rule.</span>
 </code></pre></div>
 
-
 <p>In many instances, you do not have to update your class template to benefit from CTAD.
 But when you do, one must understand how to help the compiler using some deduction guides.
 <strong>STL</strong>'s (known as Stephan T. Lavavej) dedicated and still dedicate his life to maintain the <strong>STL</strong> (also known as Standard Template Library) for MSVC.
@@ -503,7 +506,7 @@ When instantiating a given class, all the deduction guides follow the overload r
 The return type of the chosen deduction guide, will be the one used by the following steps.
 Now this sounds very wordy, but it is actually fairly trivial to write:</p>
 <div class="highlight"><pre><span></span><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span> 
-<span class="k">struct</span> <span class="n">foo</span>          <span class="c1">// A trivial class template.    </span>
+<span class="k">struct</span> <span class="nc">foo</span>          <span class="c1">// A trivial class template.    </span>
 <span class="p">{</span>
     <span class="n">foo</span><span class="p">(</span><span class="n">T</span><span class="o">&amp;&amp;</span> <span class="n">t</span><span class="p">)</span> <span class="p">{}</span>   <span class="c1">// Do something with t...</span>
 <span class="p">};</span>
@@ -514,7 +517,6 @@ Now this sounds very wordy, but it is actually fairly trivial to write:</p>
 <span class="kt">int</span> <span class="n">a</span> <span class="o">=</span> <span class="mi">42</span><span class="p">;</span>
 <span class="k">auto</span> <span class="n">bar</span> <span class="o">=</span> <span class="n">foo</span><span class="p">(</span><span class="n">a</span><span class="p">);</span> <span class="c1">// Bar will be foo&lt;int&amp;&gt; thanks to the CTAD and this deduction guide.</span>
 </code></pre></div>
-
 
 <p>I chose this example as it has two interesting tidbits. First you will notice that I apply a transformation on <strong>T</strong> in the return type: the template parameter becomes a <strong>T*</strong>.
 It turns out that you can do a lot more in this place: you can invoke <s>satan</s> some traits or inject a SFINAE expression (Oh my...! I really have to push that idea further).
@@ -539,7 +541,6 @@ It covered the sections you can find within an application (.data, .text, ...), 
      15257: symbol=abort;  lookup in file=wc [0]
      15257: symbol=abort;  lookup in file=/lib/x86_64-linux-gnu/libc.so.6 [0]
 </code></pre></div>
-
 
 <p>Here we know the <strong>getenv</strong> resides within the libc.so library which is the C runtime library.</p>
 <h3>[Other]:</h3>
@@ -580,17 +581,17 @@ If not, be sure to find me at some other C++ conferences in Europe (Meeting C++,
     })();
 </script>
 <noscript>
-        Please enable JavaScript to view comments.
-
+    Please enable JavaScript to view comments.
 </noscript>
 <!-- End Disqus -->
 </article>
 
     <footer>
 <p>
-  &copy;  2015 - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>
+  &copy; 2015  - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/deed.en_US" target="_blank">Creative Commons Attribution-ShareAlike</a>
 </p>
-<p>    Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
+<p>
+Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
 </p><p>
   <a rel="license"
      href="http://creativecommons.org/licenses/by-sa/4.0/"
@@ -618,7 +619,6 @@ If not, be sure to find me at some other C++ conferences in Europe (Meeting C++,
   "description": ""
 }
 </script>
-
 
 </body>
 </html>

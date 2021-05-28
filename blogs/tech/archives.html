@@ -8,12 +8,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="index, follow" />
 
-  <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro|Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,400;0,700;1,400&family=Source+Sans+Pro:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/stylesheet/style.min.css">
 
 
-  <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/pygments/monokai.min.css">
+    <link id="pygments-light-theme" rel="stylesheet" type="text/css"
+          href="https://jguegant.github.io/blogs/tech/theme/pygments/monokai.min.css">
+
+
   <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/font-awesome/css/fontawesome.css">
   <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/font-awesome/css/brands.css">
   <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/font-awesome/css/solid.css">
@@ -33,7 +36,8 @@
   ga('create', 'UA-68827527-1', 'auto');
   ga('send', 'pageview');
 </script>
-<!-- End Google Analytics -->
+<!-- End Google Analytics -->  
+
 
     <meta name="author" content="Jean Guegant" />
     <meta name="description" content="" />
@@ -45,23 +49,38 @@
 <meta property="og:url" content="https://jguegant.github.io/blogs/tech"/>
 <meta property="og:image" content="https://jguegant.github.io/blogs/tech/images/myself.png">
 
-  <title>Jean Guegant's Blog &ndash;     Archives
-</title>
+  <title>Jean Guegant's Blog &ndash; Archives</title>
 
 </head>
-<body>
+<body class="light-theme">
   <aside>
     <div>
       <a href="https://jguegant.github.io/blogs/tech">
         <img src="https://jguegant.github.io/blogs/tech/images/myself.png" alt="Jean Guegant" title="Jean Guegant">
       </a>
-      <h1><a href="https://jguegant.github.io/blogs/tech">Jean Guegant</a></h1>
 
-<p>Software Engineer - C++, security, game development and random thoughts.</p>      <nav>
+      <h1>
+        <a href="https://jguegant.github.io/blogs/tech">Jean Guegant</a>
+      </h1>
+
+<p>Software Engineer - C++, security, game development and random thoughts.</p>
+
+      <nav>
         <ul class="list">
 
-            <li><a target="_blank" href="https://jguegant.github.io/blogs/tech/pages/about.html#about">About</a></li>
-            <li><a target="_blank" href="https://jguegant.github.io/blogs/tech/pages/contact.html#contact">Contact</a></li>
+
+              <li>
+                <a target="_self"
+                   href="https://jguegant.github.io/blogs/tech/pages/about.html#about">
+                  About
+                </a>
+              </li>
+              <li>
+                <a target="_self"
+                   href="https://jguegant.github.io/blogs/tech/pages/contact.html#contact">
+                  Contact
+                </a>
+              </li>
 
         </ul>
       </nav>
@@ -69,80 +88,123 @@
       <ul class="social">
           <li>
             <a  class="sc-linkedin" href="https://se.linkedin.com/in/jguegant" target="_blank">
-            <i class="fab fa-linkedin">
-            </i>
-          </a></li>
+              <i class="fab fa-linkedin"></i>
+            </a>
+          </li>
           <li>
             <a  class="sc-github" href="https://github.com/Jiwan" target="_blank">
-            <i class="fab fa-github">
-            </i>
-          </a></li>
+              <i class="fab fa-github"></i>
+            </a>
+          </li>
       </ul>
     </div>
-
 
   </aside>
   <main>
 
     <nav>
-      <a href="https://jguegant.github.io/blogs/tech">    Home
-</a>
+      <a href="https://jguegant.github.io/blogs/tech">Home</a>
 
       <a href="https://jguegant.github.io/blogs/tech/archives.html">Archives</a>
       <a href="https://jguegant.github.io/blogs/tech/categories.html">Categories</a>
       <a href="https://jguegant.github.io/blogs/tech/tags.html">Tags</a>
 
-      <a href="https://jguegant.github.io/blogs/tech/feeds/all.atom.xml">    Atom
-</a>
+      <a href="https://jguegant.github.io/blogs/tech/feeds/all.atom.xml">Atom</a>
 
     </nav>
 
 <article class="single">
   <header>
-    <h1 id="archives">    Archives
-</h1>
+    <h1 id="archives">Archives</h1>
   </header>
   <div>
     <dl>
-      <dt>Sun 17 May 2020</dt>
-      <dd><a href="https://jguegant.github.io/blogs/tech/structured-bindings.html">Let's unravel the secrets behind C++17's structured bindings</a></dd>
-      <dt>Fri 01 May 2020</dt>
-      <dd><a href="https://jguegant.github.io/blogs/tech/dense-hash-map3.html">Making a STL-compatible hash map from scratch - Part 3 - The wonderful world of iterators and allocators</a></dd>
-      <dt>Mon 13 April 2020</dt>
-      <dd><a href="https://jguegant.github.io/blogs/tech/dense-hash-map2.html">Making a STL-compatible hash map from scratch - Part 2 - Growth Policies & The Schrodinger std::pair</a></dd>
-      <dt>Mon 06 April 2020</dt>
-      <dd><a href="https://jguegant.github.io/blogs/tech/dense-hash-map.html">Making a STL-compatible hash map from scratch - Part 1 - Beating std::unordered_map</a></dd>
-      <dt>Fri 29 November 2019</dt>
-      <dd><a href="https://jguegant.github.io/blogs/tech/trip-report-meetingcpp-2019.html">Trip report - Meeting C++ 2019</a></dd>
-      <dt>Sun 18 November 2018</dt>
-      <dd><a href="https://jguegant.github.io/blogs/tech/performing-try-emplace.html">How to make your maps, try_emplace and smart pointers play nicely with each others in C++17.</a></dd>
-      <dt>Sun 07 October 2018</dt>
-      <dd><a href="https://jguegant.github.io/blogs/tech/trip-report-cppcon-2018.html">Trip report - CppCon 2018</a></dd>
-      <dt>Sat 19 May 2018</dt>
-      <dd><a href="https://jguegant.github.io/blogs/tech/meta-crush-saga.html">Meta Crush Saga: a C++17 compile-time game</a></dd>
-      <dt>Sat 07 April 2018</dt>
-      <dd><a href="https://jguegant.github.io/blogs/tech/distributed-c++-meetup-0x02.html">Distributed C++ Meetup 0x02</a></dd>
-      <dt>Tue 20 March 2018</dt>
-      <dd><a href="https://jguegant.github.io/blogs/tech/distributed-c++-meetup.html">Distributed C++ Meetup</a></dd>
-      <dt>Thu 16 November 2017</dt>
-      <dd><a href="https://jguegant.github.io/blogs/tech/trip-report-meetingcpp-2017.html">Trip report - Meeting C++ 2017</a></dd>
-      <dt>Mon 20 February 2017</dt>
-      <dd><a href="https://jguegant.github.io/blogs/tech/c++-stockholm-0x02.html">C++ Stockholm 0x02</a></dd>
-      <dt>Mon 01 February 2016</dt>
-      <dd><a href="https://jguegant.github.io/blogs/tech/thread-safe-multi-type-map.html">An introduction to C++'s variadic templates: a thread-safe multi-type map</a></dd>
-      <dt>Sat 31 October 2015</dt>
-      <dd><a href="https://jguegant.github.io/blogs/tech/sfinae-introduction.html">An introduction to C++'s SFINAE concept: compile-time introspection of a class member</a></dd>
-      <dt>Sat 17 October 2015</dt>
-      <dd><a href="https://jguegant.github.io/blogs/tech/first-post.html">Why starting this blog?</a></dd>
+
+          <dt>Sun 17 May 2020</dt>
+
+        <dd>
+          <a href="https://jguegant.github.io/blogs/tech/structured-bindings.html">Let's unravel the secrets behind C++17's structured bindings</a>
+        </dd>
+          <dt>Fri 01 May 2020</dt>
+
+        <dd>
+          <a href="https://jguegant.github.io/blogs/tech/dense-hash-map3.html">Making a STL-compatible hash map from scratch - Part 3 - The wonderful world of iterators and allocators</a>
+        </dd>
+          <dt>Mon 13 April 2020</dt>
+
+        <dd>
+          <a href="https://jguegant.github.io/blogs/tech/dense-hash-map2.html">Making a STL-compatible hash map from scratch - Part 2 - Growth Policies & The Schrodinger std::pair</a>
+        </dd>
+          <dt>Mon 06 April 2020</dt>
+
+        <dd>
+          <a href="https://jguegant.github.io/blogs/tech/dense-hash-map.html">Making a STL-compatible hash map from scratch - Part 1 - Beating std::unordered_map</a>
+        </dd>
+          <dt>Fri 29 November 2019</dt>
+
+        <dd>
+          <a href="https://jguegant.github.io/blogs/tech/trip-report-meetingcpp-2019.html">Trip report - Meeting C++ 2019</a>
+        </dd>
+          <dt>Sun 18 November 2018</dt>
+
+        <dd>
+          <a href="https://jguegant.github.io/blogs/tech/performing-try-emplace.html">How to make your maps, try_emplace and smart pointers play nicely with each others in C++17.</a>
+        </dd>
+          <dt>Sun 07 October 2018</dt>
+
+        <dd>
+          <a href="https://jguegant.github.io/blogs/tech/trip-report-cppcon-2018.html">Trip report - CppCon 2018</a>
+        </dd>
+          <dt>Sat 19 May 2018</dt>
+
+        <dd>
+          <a href="https://jguegant.github.io/blogs/tech/meta-crush-saga.html">Meta Crush Saga: a C++17 compile-time game</a>
+        </dd>
+          <dt>Sat 07 April 2018</dt>
+
+        <dd>
+          <a href="https://jguegant.github.io/blogs/tech/distributed-c++-meetup-0x02.html">Distributed C++ Meetup 0x02</a>
+        </dd>
+          <dt>Tue 20 March 2018</dt>
+
+        <dd>
+          <a href="https://jguegant.github.io/blogs/tech/distributed-c++-meetup.html">Distributed C++ Meetup</a>
+        </dd>
+          <dt>Thu 16 November 2017</dt>
+
+        <dd>
+          <a href="https://jguegant.github.io/blogs/tech/trip-report-meetingcpp-2017.html">Trip report - Meeting C++ 2017</a>
+        </dd>
+          <dt>Mon 20 February 2017</dt>
+
+        <dd>
+          <a href="https://jguegant.github.io/blogs/tech/c++-stockholm-0x02.html">C++ Stockholm 0x02</a>
+        </dd>
+          <dt>Mon 01 February 2016</dt>
+
+        <dd>
+          <a href="https://jguegant.github.io/blogs/tech/thread-safe-multi-type-map.html">An introduction to C++'s variadic templates: a thread-safe multi-type map</a>
+        </dd>
+          <dt>Sat 31 October 2015</dt>
+
+        <dd>
+          <a href="https://jguegant.github.io/blogs/tech/sfinae-introduction.html">An introduction to C++'s SFINAE concept: compile-time introspection of a class member</a>
+        </dd>
+          <dt>Sat 17 October 2015</dt>
+
+        <dd>
+          <a href="https://jguegant.github.io/blogs/tech/first-post.html">Why starting this blog?</a>
+        </dd>
     </dl>
   </div>
 </article>
 
     <footer>
 <p>
-  &copy;  2015 - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>
+  &copy; 2015  - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/deed.en_US" target="_blank">Creative Commons Attribution-ShareAlike</a>
 </p>
-<p>    Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
+<p>
+Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
 </p><p>
   <a rel="license"
      href="http://creativecommons.org/licenses/by-sa/4.0/"
@@ -170,7 +232,6 @@
   "description": ""
 }
 </script>
-
 
 </body>
 </html>

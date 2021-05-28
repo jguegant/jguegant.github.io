@@ -8,12 +8,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="index, follow" />
 
-  <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro|Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,400;0,700;1,400&family=Source+Sans+Pro:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/stylesheet/style.min.css">
 
 
-  <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/pygments/monokai.min.css">
+    <link id="pygments-light-theme" rel="stylesheet" type="text/css"
+          href="https://jguegant.github.io/blogs/tech/theme/pygments/monokai.min.css">
+
+
   <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/font-awesome/css/fontawesome.css">
   <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/font-awesome/css/brands.css">
   <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/font-awesome/css/solid.css">
@@ -33,7 +36,8 @@
   ga('create', 'UA-68827527-1', 'auto');
   ga('send', 'pageview');
 </script>
-<!-- End Google Analytics -->
+<!-- End Google Analytics -->  
+
 
 <meta name="author" content="Jean Guegant" />
 <meta name="description" content="This post is part of a planned series of posts: Part 1 - Beating std::unordered_map (Current) Part 2 - Growth Policies &amp; The Schrodinger std::pair Part 3 - The wonderful world of iterators and allocators Part 4 - An insertion maze (Coming Soon) Part 1 - Beating std::unordered_map Trivia: If C++ had an …" />
@@ -58,19 +62,35 @@
   <title>Jean Guegant's Blog &ndash; Making a STL-compatible hash map from scratch - Part 1 - Beating std::unordered_map</title>
 
 </head>
-<body>
+<body class="light-theme">
   <aside>
     <div>
       <a href="https://jguegant.github.io/blogs/tech">
         <img src="https://jguegant.github.io/blogs/tech/images/myself.png" alt="Jean Guegant" title="Jean Guegant">
       </a>
-      <h1><a href="https://jguegant.github.io/blogs/tech">Jean Guegant</a></h1>
 
-<p>Software Engineer - C++, security, game development and random thoughts.</p>      <nav>
+      <h1>
+        <a href="https://jguegant.github.io/blogs/tech">Jean Guegant</a>
+      </h1>
+
+<p>Software Engineer - C++, security, game development and random thoughts.</p>
+
+      <nav>
         <ul class="list">
 
-            <li><a target="_blank" href="https://jguegant.github.io/blogs/tech/pages/about.html#about">About</a></li>
-            <li><a target="_blank" href="https://jguegant.github.io/blogs/tech/pages/contact.html#contact">Contact</a></li>
+
+              <li>
+                <a target="_self"
+                   href="https://jguegant.github.io/blogs/tech/pages/about.html#about">
+                  About
+                </a>
+              </li>
+              <li>
+                <a target="_self"
+                   href="https://jguegant.github.io/blogs/tech/pages/contact.html#contact">
+                  Contact
+                </a>
+              </li>
 
         </ul>
       </nav>
@@ -78,31 +98,28 @@
       <ul class="social">
           <li>
             <a  class="sc-linkedin" href="https://se.linkedin.com/in/jguegant" target="_blank">
-            <i class="fab fa-linkedin">
-            </i>
-          </a></li>
+              <i class="fab fa-linkedin"></i>
+            </a>
+          </li>
           <li>
             <a  class="sc-github" href="https://github.com/Jiwan" target="_blank">
-            <i class="fab fa-github">
-            </i>
-          </a></li>
+              <i class="fab fa-github"></i>
+            </a>
+          </li>
       </ul>
     </div>
-
 
   </aside>
   <main>
 
     <nav>
-      <a href="https://jguegant.github.io/blogs/tech">    Home
-</a>
+      <a href="https://jguegant.github.io/blogs/tech">Home</a>
 
       <a href="https://jguegant.github.io/blogs/tech/archives.html">Archives</a>
       <a href="https://jguegant.github.io/blogs/tech/categories.html">Categories</a>
       <a href="https://jguegant.github.io/blogs/tech/tags.html">Tags</a>
 
-      <a href="https://jguegant.github.io/blogs/tech/feeds/all.atom.xml">    Atom
-</a>
+      <a href="https://jguegant.github.io/blogs/tech/feeds/all.atom.xml">Atom</a>
 
     </nav>
 
@@ -111,8 +128,7 @@
       
     <h1 id="dense-hash-map">Making a STL-compatible hash map from scratch - Part 1 - Beating std::unordered_map</h1>
     <p>
-          Posted on Mon 06 April 2020 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
-
+      Posted on Mon 06 April 2020 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
 
     </p>
   </header>
@@ -207,7 +223,6 @@ This is the kind of danger I am speaking of:</p>
 <span class="n">chuck_ref</span><span class="p">.</span><span class="n">punch_your_face</span><span class="p">();</span> <span class="c1">// One should never try to retain &quot;chuck norris&quot; as a ref.</span>
 </code></pre></div>
 
-
 <p>Due to the call to erase, "chuck norris" is moved into the first slot of the internal vector, which ultimately makes chuck's address change.
 Accessing "chuck norris" with a previously acquired reference becomes a danger.
 While this can surprise at first, it is no different than trying to retain a reference to a value in a vector.
@@ -230,16 +245,14 @@ Let's <a href="https://godbolt.org/">godbolt</a> a bit!  </p>
 <span class="p">}</span>
 </code></pre></div>
 
-
-<div class="highlight"><pre><span></span><code><span class="err">//</span> <span class="nf">x86</span> <span class="no">assembly</span>
+<div class="highlight"><pre><span></span><code><span class="c1">// x86 assembly</span>
 <span class="nf">modulo</span><span class="p">(</span><span class="no">int</span><span class="p">,</span> <span class="no">int</span><span class="p">):</span>
-    <span class="nf">mov</span>     <span class="no">eax</span><span class="p">,</span> <span class="no">edi</span>  <span class="err">//</span> <span class="no">Prepare</span> <span class="no">the</span> <span class="no">hash</span> <span class="no">into</span> <span class="no">eax</span>
-    <span class="nf">cdq</span>               <span class="err">//</span> <span class="no">Prepare</span> <span class="no">registers</span> <span class="no">for</span> <span class="no">an</span> <span class="no">idiv</span> <span class="no">operation.</span> 
-    <span class="no">idiv</span>    <span class="no">esi</span>       <span class="err">//</span> <span class="no">Divide</span> <span class="no">by</span> <span class="no">esi</span> <span class="no">which</span> <span class="no">contains</span> <span class="no">bucket_count</span>
-    <span class="nf">mov</span>     <span class="no">eax</span><span class="p">,</span> <span class="no">edx</span>  <span class="err">//</span> <span class="no">Get</span> <span class="no">the</span> <span class="no">modulo</span> <span class="no">value</span> <span class="no">that</span> <span class="no">ends-up</span> <span class="no">in</span> <span class="no">edx</span> <span class="no">and</span> <span class="no">return</span> <span class="no">it</span> <span class="no">into</span> <span class="no">eax</span>
+    <span class="nf">mov</span>     <span class="no">eax</span><span class="p">,</span> <span class="no">edi</span>  <span class="c1">// Prepare the hash into eax</span>
+    <span class="nf">cdq</span>               <span class="c1">// Prepare registers for an idiv operation. </span>
+    <span class="nf">idiv</span>    <span class="no">esi</span>       <span class="c1">// Divide by esi which contains bucket_count</span>
+    <span class="nf">mov</span>     <span class="no">eax</span><span class="p">,</span> <span class="no">edx</span>  <span class="c1">// Get the modulo value that ends-up in edx and return it into eax</span>
     <span class="nf">ret</span>
 </code></pre></div>
-
 
 <p>So far things look rather good. The <code>idiv</code> operation seems to do most of the work by itself. 
 But, what if we made bucket_count a constant? Having more information at compile-time should help the compiler, isn't it?</p>
@@ -250,12 +263,11 @@ But, what if we made bucket_count a constant? Having more information at compile
 <span class="p">}</span>
 </code></pre></div>
 
-
-<div class="highlight"><pre><span></span><code><span class="err">//</span> <span class="nf">x86</span>
+<div class="highlight"><pre><span></span><code><span class="c1">// x86</span>
 <span class="nf">modulo</span><span class="p">(</span><span class="no">int</span><span class="p">,</span> <span class="no">int</span><span class="p">):</span>
     <span class="nf">movsx</span>   <span class="no">rax</span><span class="p">,</span> <span class="no">edi</span>
     <span class="nf">mov</span>     <span class="no">edx</span><span class="p">,</span> <span class="no">edi</span>
-    <span class="nf">imul</span>    <span class="no">rax</span><span class="p">,</span> <span class="no">rax</span><span class="p">,</span> <span class="mi">1717986919</span> <span class="err">//</span> <span class="no">LOTS</span> <span class="no">OF</span> <span class="no">SHENANIGANS</span> <span class="no">GOING</span> <span class="no">HERE.</span>
+    <span class="nf">imul</span>    <span class="no">rax</span><span class="p">,</span> <span class="no">rax</span><span class="p">,</span> <span class="mi">1717986919</span> <span class="c1">// LOTS OF SHENANIGANS GOING HERE.</span>
     <span class="nf">sar</span>     <span class="no">edx</span><span class="p">,</span> <span class="mi">31</span>
     <span class="nf">sar</span>     <span class="no">rax</span><span class="p">,</span> <span class="mi">33</span>
     <span class="nf">sub</span>     <span class="no">eax</span><span class="p">,</span> <span class="no">edx</span>
@@ -264,7 +276,6 @@ But, what if we made bucket_count a constant? Having more information at compile
     <span class="nf">mov</span>     <span class="no">eax</span><span class="p">,</span> <span class="no">edi</span>
     <span class="nf">ret</span>
 </code></pre></div>
-
 
 <p>Interesting! The compiler is spitting a lot more operations. Wouldn't it be simpler to keep <code>idiv</code> here? A single operation... <br>
 Believe it or not, your compiler is as smart as a whip and wouldn't do this extra work without significant gains.
@@ -280,14 +291,12 @@ So what do we obtain in this conditions?</p>
 <span class="p">}</span>
 </code></pre></div>
 
-
-<div class="highlight"><pre><span></span><code><span class="err">//</span> <span class="nf">x86</span>
+<div class="highlight"><pre><span></span><code><span class="c1">// x86</span>
 <span class="nf">fast_module</span><span class="p">(</span><span class="no">int</span><span class="p">,</span> <span class="no">int</span><span class="p">):</span>
     <span class="nf">lea</span>     <span class="no">eax</span><span class="p">,</span> <span class="p">[</span><span class="no">rsi-1</span><span class="p">]</span>
     <span class="nf">and</span>     <span class="no">eax</span><span class="p">,</span> <span class="no">edi</span>
     <span class="nf">ret</span>
 </code></pre></div>
-
 
 <p>Not only we have less operations, but <code>lea</code> (compute a memory address) and <code>and</code> have much less associated cost than <code>idiv</code>.
 This micro-optimisation may look a bit far-fetched, but it actually matters a lot, as proved by <a href="https://www.youtube.com/watch?v=M2fKMP47slQ">Malte Skarupke</a>, when it comes to lookup operations.</p>
@@ -313,7 +322,6 @@ Let's assume that you have some bit flags (flag sets) as a key:</p>
 
     <span class="n">jg</span><span class="o">::</span><span class="n">dense_hash_map</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">,</span> <span class="kt">int</span><span class="o">&gt;</span> <span class="n">my_map</span><span class="p">;</span> <span class="c1">// A map with a buckets container of size 4 (2 ^ 2).</span>
 </code></pre></div>
-
 
 <p>Now, if you were to take these two flag sets and feed them directly to the modulo operation of the map, they would end-up in the same bucket simply because both of them have <code>a_precious_flag</code> and <code>another_flag</code> on. This gives way too much importance to the bits that <code>a_precious_flag</code> and <code>another_flag</code> represent.
 The fact that we are using a power two (4 in this case) will always make the lower bits very significant.
@@ -350,17 +358,17 @@ The hacks used are not even too difficult to grasp, so where is the difficulty i
     })();
 </script>
 <noscript>
-        Please enable JavaScript to view comments.
-
+    Please enable JavaScript to view comments.
 </noscript>
 <!-- End Disqus -->
 </article>
 
     <footer>
 <p>
-  &copy;  2015 - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>
+  &copy; 2015  - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/deed.en_US" target="_blank">Creative Commons Attribution-ShareAlike</a>
 </p>
-<p>    Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
+<p>
+Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
 </p><p>
   <a rel="license"
      href="http://creativecommons.org/licenses/by-sa/4.0/"
@@ -388,7 +396,6 @@ The hacks used are not even too difficult to grasp, so where is the difficulty i
   "description": ""
 }
 </script>
-
 
 </body>
 </html>

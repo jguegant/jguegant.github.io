@@ -8,12 +8,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="index, follow" />
 
-  <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro|Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,400;0,700;1,400&family=Source+Sans+Pro:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/stylesheet/style.min.css">
 
 
-  <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/pygments/monokai.min.css">
+    <link id="pygments-light-theme" rel="stylesheet" type="text/css"
+          href="https://jguegant.github.io/blogs/tech/theme/pygments/monokai.min.css">
+
+
   <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/font-awesome/css/fontawesome.css">
   <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/font-awesome/css/brands.css">
   <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/font-awesome/css/solid.css">
@@ -33,7 +36,8 @@
   ga('create', 'UA-68827527-1', 'auto');
   ga('send', 'pageview');
 </script>
-<!-- End Google Analytics -->
+<!-- End Google Analytics -->  
+
 
     <meta name="author" content="Jean Guegant" />
     <meta name="description" content="" />
@@ -45,23 +49,38 @@
 <meta property="og:url" content="https://jguegant.github.io/blogs/tech"/>
 <meta property="og:image" content="https://jguegant.github.io/blogs/tech/images/myself.png">
 
-  <title>Jean Guegant's Blog &ndash;     Posts by Jean Guegant
-:</title>
+  <title>Jean Guegant's Blog &ndash; Posts by Jean Guegant:</title>
 
 </head>
-<body>
+<body class="light-theme">
   <aside>
     <div>
       <a href="https://jguegant.github.io/blogs/tech">
         <img src="https://jguegant.github.io/blogs/tech/images/myself.png" alt="Jean Guegant" title="Jean Guegant">
       </a>
-      <h1><a href="https://jguegant.github.io/blogs/tech">Jean Guegant</a></h1>
 
-<p>Software Engineer - C++, security, game development and random thoughts.</p>      <nav>
+      <h1>
+        <a href="https://jguegant.github.io/blogs/tech">Jean Guegant</a>
+      </h1>
+
+<p>Software Engineer - C++, security, game development and random thoughts.</p>
+
+      <nav>
         <ul class="list">
 
-            <li><a target="_blank" href="https://jguegant.github.io/blogs/tech/pages/about.html#about">About</a></li>
-            <li><a target="_blank" href="https://jguegant.github.io/blogs/tech/pages/contact.html#contact">Contact</a></li>
+
+              <li>
+                <a target="_self"
+                   href="https://jguegant.github.io/blogs/tech/pages/about.html#about">
+                  About
+                </a>
+              </li>
+              <li>
+                <a target="_self"
+                   href="https://jguegant.github.io/blogs/tech/pages/contact.html#contact">
+                  Contact
+                </a>
+              </li>
 
         </ul>
       </nav>
@@ -69,31 +88,28 @@
       <ul class="social">
           <li>
             <a  class="sc-linkedin" href="https://se.linkedin.com/in/jguegant" target="_blank">
-            <i class="fab fa-linkedin">
-            </i>
-          </a></li>
+              <i class="fab fa-linkedin"></i>
+            </a>
+          </li>
           <li>
             <a  class="sc-github" href="https://github.com/Jiwan" target="_blank">
-            <i class="fab fa-github">
-            </i>
-          </a></li>
+              <i class="fab fa-github"></i>
+            </a>
+          </li>
       </ul>
     </div>
-
 
   </aside>
   <main>
 
     <nav>
-      <a href="https://jguegant.github.io/blogs/tech">    Home
-</a>
+      <a href="https://jguegant.github.io/blogs/tech">Home</a>
 
       <a href="https://jguegant.github.io/blogs/tech/archives.html">Archives</a>
       <a href="https://jguegant.github.io/blogs/tech/categories.html">Categories</a>
       <a href="https://jguegant.github.io/blogs/tech/tags.html">Tags</a>
 
-      <a href="https://jguegant.github.io/blogs/tech/feeds/all.atom.xml">    Atom
-</a>
+      <a href="https://jguegant.github.io/blogs/tech/feeds/all.atom.xml">Atom</a>
 
     </nav>
 
@@ -103,11 +119,9 @@
   <header>
     <h2><a href="https://jguegant.github.io/blogs/tech/structured-bindings.html#structured-bindings">Let's unravel the secrets behind C++17's structured bindings</a></h2>
     <p>
-          Posted on Sun 17 May 2020 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
+      Posted on Sun 17 May 2020 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
 
-
-          &#8226;     Tagged with
-
+          &#8226; Tagged with
               <a href="https://jguegant.github.io/blogs/tech/tag/c17.html">C++17</a>,              <a href="https://jguegant.github.io/blogs/tech/tag/structured-bindings.html">structured bindings.</a>
     </p>
   </header>
@@ -116,8 +130,10 @@
 <p>I had a good intuition on how structured bindings worked when C++17 came out. The feature is quite intuitive to use and provides great help.
 But it is not until recently that I actually read <a href="http://eel.is/c++draft/dcl.struct.bind">the part of the standard</a> that describes how this truly works under the …</p>
         <br>
-        <a class="btn" href="https://jguegant.github.io/blogs/tech/structured-bindings.html#structured-bindings">    Continue reading
-</a>
+        <a class="btn"
+           href="https://jguegant.github.io/blogs/tech/structured-bindings.html#structured-bindings">
+          Continue reading
+        </a>
   </div>
   <hr />
 </article>
@@ -125,11 +141,9 @@ But it is not until recently that I actually read <a href="http://eel.is/c++draf
   <header>
     <h2><a href="https://jguegant.github.io/blogs/tech/dense-hash-map3.html#dense-hash-map3">Making a STL-compatible hash map from scratch - Part 3 - The wonderful world of iterators and allocators</a></h2>
     <p>
-          Posted on Fri 01 May 2020 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
+      Posted on Fri 01 May 2020 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
 
-
-          &#8226;     Tagged with
-
+          &#8226; Tagged with
               <a href="https://jguegant.github.io/blogs/tech/tag/c20.html">C++20</a>,              <a href="https://jguegant.github.io/blogs/tech/tag/c17.html">C++17</a>,              <a href="https://jguegant.github.io/blogs/tech/tag/hash-map.html">hash map</a>,              <a href="https://jguegant.github.io/blogs/tech/tag/unordered_map.html">unordered_map</a>,              <a href="https://jguegant.github.io/blogs/tech/tag/iterator.html">iterator</a>,              <a href="https://jguegant.github.io/blogs/tech/tag/allocator.html">allocator</a>
     </p>
   </header>
@@ -143,8 +157,10 @@ But it is not until recently that I actually read <a href="http://eel.is/c++draf
 </ul>
 <p>In the <a href="https://jguegant.github.io/blogs/tech/dense-hash-map2.html">previous post</a>, we prepared our data-structure to be able to store our …</p>
         <br>
-        <a class="btn" href="https://jguegant.github.io/blogs/tech/dense-hash-map3.html#dense-hash-map3">    Continue reading
-</a>
+        <a class="btn"
+           href="https://jguegant.github.io/blogs/tech/dense-hash-map3.html#dense-hash-map3">
+          Continue reading
+        </a>
   </div>
   <hr />
 </article>
@@ -152,11 +168,9 @@ But it is not until recently that I actually read <a href="http://eel.is/c++draf
   <header>
     <h2><a href="https://jguegant.github.io/blogs/tech/dense-hash-map2.html#dense-hash-map2">Making a STL-compatible hash map from scratch - Part 2 - Growth Policies & The Schrodinger std::pair</a></h2>
     <p>
-          Posted on Mon 13 April 2020 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
+      Posted on Mon 13 April 2020 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
 
-
-          &#8226;     Tagged with
-
+          &#8226; Tagged with
               <a href="https://jguegant.github.io/blogs/tech/tag/c17.html">C++17</a>,              <a href="https://jguegant.github.io/blogs/tech/tag/hash-map.html">hash map</a>,              <a href="https://jguegant.github.io/blogs/tech/tag/unordered_map.html">unordered_map.</a>
     </p>
   </header>
@@ -170,8 +184,10 @@ But it is not until recently that I actually read <a href="http://eel.is/c++draf
 </ul>
 <p>In the <a href="https://jguegant.github.io/blogs/tech/dense-hash-map.html">previous post</a>, we started a quest that consists in …</p>
         <br>
-        <a class="btn" href="https://jguegant.github.io/blogs/tech/dense-hash-map2.html#dense-hash-map2">    Continue reading
-</a>
+        <a class="btn"
+           href="https://jguegant.github.io/blogs/tech/dense-hash-map2.html#dense-hash-map2">
+          Continue reading
+        </a>
   </div>
   <hr />
 </article>
@@ -179,11 +195,9 @@ But it is not until recently that I actually read <a href="http://eel.is/c++draf
   <header>
     <h2><a href="https://jguegant.github.io/blogs/tech/dense-hash-map.html#dense-hash-map">Making a STL-compatible hash map from scratch - Part 1 - Beating std::unordered_map</a></h2>
     <p>
-          Posted on Mon 06 April 2020 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
+      Posted on Mon 06 April 2020 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
 
-
-          &#8226;     Tagged with
-
+          &#8226; Tagged with
               <a href="https://jguegant.github.io/blogs/tech/tag/c17.html">C++17</a>,              <a href="https://jguegant.github.io/blogs/tech/tag/hash-map.html">hash map</a>,              <a href="https://jguegant.github.io/blogs/tech/tag/unordered_map.html">unordered_map.</a>
     </p>
   </header>
@@ -199,8 +213,10 @@ But it is not until recently that I actually read <a href="http://eel.is/c++draf
 <h2>Trivia:</h2>
 <p>If C++ had an …</p>
         <br>
-        <a class="btn" href="https://jguegant.github.io/blogs/tech/dense-hash-map.html#dense-hash-map">    Continue reading
-</a>
+        <a class="btn"
+           href="https://jguegant.github.io/blogs/tech/dense-hash-map.html#dense-hash-map">
+          Continue reading
+        </a>
   </div>
   <hr />
 </article>
@@ -208,11 +224,9 @@ But it is not until recently that I actually read <a href="http://eel.is/c++draf
   <header>
     <h2><a href="https://jguegant.github.io/blogs/tech/trip-report-meetingcpp-2019.html#trip-report-meetingcpp-2019">Trip report - Meeting C++ 2019</a></h2>
     <p>
-          Posted on Fri 29 November 2019 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
+      Posted on Fri 29 November 2019 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
 
-
-          &#8226;     Tagged with
-
+          &#8226; Tagged with
               <a href="https://jguegant.github.io/blogs/tech/tag/c.html">C++</a>,              <a href="https://jguegant.github.io/blogs/tech/tag/event.html">event</a>,              <a href="https://jguegant.github.io/blogs/tech/tag/meetingcpp.html">meetingcpp</a>
     </p>
   </header>
@@ -222,8 +236,10 @@ Me and a few colleagues have been travelling across the old continent to attend 
 Fully backed by our employer, <a href="https://discover.king.com/about/">King</a>, we were able to enjoy a yearly dose of C++ talks at an excellent venue.
 I …</p>
         <br>
-        <a class="btn" href="https://jguegant.github.io/blogs/tech/trip-report-meetingcpp-2019.html#trip-report-meetingcpp-2019">    Continue reading
-</a>
+        <a class="btn"
+           href="https://jguegant.github.io/blogs/tech/trip-report-meetingcpp-2019.html#trip-report-meetingcpp-2019">
+          Continue reading
+        </a>
   </div>
   <hr />
 </article>
@@ -231,11 +247,9 @@ I …</p>
   <header>
     <h2><a href="https://jguegant.github.io/blogs/tech/performing-try-emplace.html#performing-try-emplace">How to make your maps, try_emplace and smart pointers play nicely with each others in C++17.</a></h2>
     <p>
-          Posted on Sun 18 November 2018 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
+      Posted on Sun 18 November 2018 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
 
-
-          &#8226;     Tagged with
-
+          &#8226; Tagged with
               <a href="https://jguegant.github.io/blogs/tech/tag/c17.html">C++17</a>,              <a href="https://jguegant.github.io/blogs/tech/tag/stdmap.html">std::map</a>,              <a href="https://jguegant.github.io/blogs/tech/tag/stdunordered_map.html">std::unordered_map.</a>
     </p>
   </header>
@@ -245,8 +259,10 @@ I …</p>
 While this class had interesting internals (a sort of dense hash map) and performed really well, its interface was not up to standard both literally and metaphorically.
 After much of lipstick applied to …</p>
         <br>
-        <a class="btn" href="https://jguegant.github.io/blogs/tech/performing-try-emplace.html#performing-try-emplace">    Continue reading
-</a>
+        <a class="btn"
+           href="https://jguegant.github.io/blogs/tech/performing-try-emplace.html#performing-try-emplace">
+          Continue reading
+        </a>
   </div>
   <hr />
 </article>
@@ -254,11 +270,9 @@ After much of lipstick applied to …</p>
   <header>
     <h2><a href="https://jguegant.github.io/blogs/tech/trip-report-cppcon-2018.html#trip-report-cppcon-2018">Trip report - CppCon 2018</a></h2>
     <p>
-          Posted on Sun 07 October 2018 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
+      Posted on Sun 07 October 2018 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
 
-
-          &#8226;     Tagged with
-
+          &#8226; Tagged with
               <a href="https://jguegant.github.io/blogs/tech/tag/c.html">C++</a>,              <a href="https://jguegant.github.io/blogs/tech/tag/event.html">event</a>,              <a href="https://jguegant.github.io/blogs/tech/tag/cppcon.html">cppcon</a>
     </p>
   </header>
@@ -268,8 +282,10 @@ This time, my employer, <a href="https://discover.king.com/about/">King</a>, hel
 You cannot fathom how enthusiastic I was to finally making it there!
 Although I might be a bit late on the "trip-report-race", I think that it is …</p>
         <br>
-        <a class="btn" href="https://jguegant.github.io/blogs/tech/trip-report-cppcon-2018.html#trip-report-cppcon-2018">    Continue reading
-</a>
+        <a class="btn"
+           href="https://jguegant.github.io/blogs/tech/trip-report-cppcon-2018.html#trip-report-cppcon-2018">
+          Continue reading
+        </a>
   </div>
   <hr />
 </article>
@@ -277,11 +293,9 @@ Although I might be a bit late on the "trip-report-race", I think that it is …
   <header>
     <h2><a href="https://jguegant.github.io/blogs/tech/meta-crush-saga.html#meta-crush-saga">Meta Crush Saga: a C++17 compile-time game</a></h2>
     <p>
-          Posted on Sat 19 May 2018 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
+      Posted on Sat 19 May 2018 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
 
-
-          &#8226;     Tagged with
-
+          &#8226; Tagged with
               <a href="https://jguegant.github.io/blogs/tech/tag/c17.html">C++17</a>,              <a href="https://jguegant.github.io/blogs/tech/tag/tmp.html">TMP</a>,              <a href="https://jguegant.github.io/blogs/tech/tag/meta-programming.html">meta programming</a>,              <a href="https://jguegant.github.io/blogs/tech/tag/constexpr.html">constexpr</a>
     </p>
   </header>
@@ -289,8 +303,10 @@ Although I might be a bit late on the "trip-report-race", I think that it is …
       <h2>Trivia:</h2>
 <p>As a quest to obtain the highly coveted title of <strong>Lead Senior C++ Over-Engineer</strong>, I decided last year to rewrite the game I work on during daytime (Candy Crush Saga) using the quintessence of modern C++ (C++17). And... thus was born <a href="https://github.com/Jiwan/meta_crush_saga">Meta Crush Saga</a>: a <strong>compile-time game</strong>. I …</p>
         <br>
-        <a class="btn" href="https://jguegant.github.io/blogs/tech/meta-crush-saga.html#meta-crush-saga">    Continue reading
-</a>
+        <a class="btn"
+           href="https://jguegant.github.io/blogs/tech/meta-crush-saga.html#meta-crush-saga">
+          Continue reading
+        </a>
   </div>
   <hr />
 </article>
@@ -298,19 +314,19 @@ Although I might be a bit late on the "trip-report-race", I think that it is …
   <header>
     <h2><a href="https://jguegant.github.io/blogs/tech/distributed-c++-meetup-0x02.html#distributed-c++-meetup-0x02">Distributed C++ Meetup 0x02</a></h2>
     <p>
-          Posted on Sat 07 April 2018 in <a href="https://jguegant.github.io/blogs/tech/category/news.html">News</a>
+      Posted on Sat 07 April 2018 in <a href="https://jguegant.github.io/blogs/tech/category/news.html">News</a>
 
-
-          &#8226;     Tagged with
-
+          &#8226; Tagged with
               <a href="https://jguegant.github.io/blogs/tech/tag/c-stockholm-london-berlin-distributed-meetup.html">C++ Stockholm London Berlin Distributed Meetup</a>
     </p>
   </header>
   <div>
       <p>Here is a quick follow-up of the event I announced in my previous <a href="https://jguegant.github.io/blogs/tech/distributed-c++-meetup.html">post</a>: the <strong>Distributed C++ Meetup 0x02</strong>. A quick explanation for those too lazy to click a link or scroll down a bit to read my previous post (not judging you here, I would do the same); the …</p>
         <br>
-        <a class="btn" href="https://jguegant.github.io/blogs/tech/distributed-c++-meetup-0x02.html#distributed-c++-meetup-0x02">    Continue reading
-</a>
+        <a class="btn"
+           href="https://jguegant.github.io/blogs/tech/distributed-c++-meetup-0x02.html#distributed-c++-meetup-0x02">
+          Continue reading
+        </a>
   </div>
   <hr />
 </article>
@@ -318,37 +334,36 @@ Although I might be a bit late on the "trip-report-race", I think that it is …
   <header>
     <h2><a href="https://jguegant.github.io/blogs/tech/distributed-c++-meetup.html#distributed-c++-meetup">Distributed C++ Meetup</a></h2>
     <p>
-          Posted on Tue 20 March 2018 in <a href="https://jguegant.github.io/blogs/tech/category/news.html">News</a>
+      Posted on Tue 20 March 2018 in <a href="https://jguegant.github.io/blogs/tech/category/news.html">News</a>
 
-
-          &#8226;     Tagged with
-
+          &#8226; Tagged with
               <a href="https://jguegant.github.io/blogs/tech/tag/c-stockholm-london-berlin-distributed-meetup.html">C++ Stockholm London Berlin Distributed Meetup</a>
     </p>
   </header>
   <div>
       <p>As mentioned in an early <a href="https://jguegant.github.io/blogs/tech/c++-stockholm-0x02.html">post</a>, I am active member of a C++ Meetup group in Stockholm: <a href="https://www.meetup.com/swedencpp/">SwedenCpp</a>. Last year me and the main organizer of <strong>SwedenCpp</strong> came up with the idea to gather different Meetup groups from Europe for a special event. Knowing that we are not as famous …</p>
         <br>
-        <a class="btn" href="https://jguegant.github.io/blogs/tech/distributed-c++-meetup.html#distributed-c++-meetup">    Continue reading
-</a>
+        <a class="btn"
+           href="https://jguegant.github.io/blogs/tech/distributed-c++-meetup.html#distributed-c++-meetup">
+          Continue reading
+        </a>
   </div>
 </article>
 
   <div class="pagination">
     <a class="btn float-left" href="https://jguegant.github.io/blogs/tech/author/jean-guegant2.html">
-      <i class="fa fa-angle-left"></i>     Older Posts
-
+      <i class="fa fa-angle-left"></i> Older Posts
     </a>
   </div>
 
 
 
-
     <footer>
 <p>
-  &copy;  2015 - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>
+  &copy; 2015  - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/deed.en_US" target="_blank">Creative Commons Attribution-ShareAlike</a>
 </p>
-<p>    Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
+<p>
+Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
 </p><p>
   <a rel="license"
      href="http://creativecommons.org/licenses/by-sa/4.0/"
@@ -376,7 +391,6 @@ Although I might be a bit late on the "trip-report-race", I think that it is …
   "description": ""
 }
 </script>
-
 
 </body>
 </html>

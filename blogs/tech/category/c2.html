@@ -8,12 +8,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="index, follow" />
 
-  <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro|Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,400;0,700;1,400&family=Source+Sans+Pro:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/stylesheet/style.min.css">
 
 
-  <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/pygments/monokai.min.css">
+    <link id="pygments-light-theme" rel="stylesheet" type="text/css"
+          href="https://jguegant.github.io/blogs/tech/theme/pygments/monokai.min.css">
+
+
   <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/font-awesome/css/fontawesome.css">
   <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/font-awesome/css/brands.css">
   <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/font-awesome/css/solid.css">
@@ -33,7 +36,8 @@
   ga('create', 'UA-68827527-1', 'auto');
   ga('send', 'pageview');
 </script>
-<!-- End Google Analytics -->
+<!-- End Google Analytics -->  
+
 
     <meta name="author" content="Jean Guegant" />
     <meta name="description" content="" />
@@ -45,23 +49,38 @@
 <meta property="og:url" content="https://jguegant.github.io/blogs/tech"/>
 <meta property="og:image" content="https://jguegant.github.io/blogs/tech/images/myself.png">
 
-  <title>Jean Guegant's Blog &ndash;     Category C++
-</title>
+  <title>Jean Guegant's Blog &ndash; Category C++</title>
 
 </head>
-<body>
+<body class="light-theme">
   <aside>
     <div>
       <a href="https://jguegant.github.io/blogs/tech">
         <img src="https://jguegant.github.io/blogs/tech/images/myself.png" alt="Jean Guegant" title="Jean Guegant">
       </a>
-      <h1><a href="https://jguegant.github.io/blogs/tech">Jean Guegant</a></h1>
 
-<p>Software Engineer - C++, security, game development and random thoughts.</p>      <nav>
+      <h1>
+        <a href="https://jguegant.github.io/blogs/tech">Jean Guegant</a>
+      </h1>
+
+<p>Software Engineer - C++, security, game development and random thoughts.</p>
+
+      <nav>
         <ul class="list">
 
-            <li><a target="_blank" href="https://jguegant.github.io/blogs/tech/pages/about.html#about">About</a></li>
-            <li><a target="_blank" href="https://jguegant.github.io/blogs/tech/pages/contact.html#contact">Contact</a></li>
+
+              <li>
+                <a target="_self"
+                   href="https://jguegant.github.io/blogs/tech/pages/about.html#about">
+                  About
+                </a>
+              </li>
+              <li>
+                <a target="_self"
+                   href="https://jguegant.github.io/blogs/tech/pages/contact.html#contact">
+                  Contact
+                </a>
+              </li>
 
         </ul>
       </nav>
@@ -69,31 +88,28 @@
       <ul class="social">
           <li>
             <a  class="sc-linkedin" href="https://se.linkedin.com/in/jguegant" target="_blank">
-            <i class="fab fa-linkedin">
-            </i>
-          </a></li>
+              <i class="fab fa-linkedin"></i>
+            </a>
+          </li>
           <li>
             <a  class="sc-github" href="https://github.com/Jiwan" target="_blank">
-            <i class="fab fa-github">
-            </i>
-          </a></li>
+              <i class="fab fa-github"></i>
+            </a>
+          </li>
       </ul>
     </div>
-
 
   </aside>
   <main>
 
     <nav>
-      <a href="https://jguegant.github.io/blogs/tech">    Home
-</a>
+      <a href="https://jguegant.github.io/blogs/tech">Home</a>
 
       <a href="https://jguegant.github.io/blogs/tech/archives.html">Archives</a>
       <a href="https://jguegant.github.io/blogs/tech/categories.html">Categories</a>
       <a href="https://jguegant.github.io/blogs/tech/tags.html">Tags</a>
 
-      <a href="https://jguegant.github.io/blogs/tech/feeds/all.atom.xml">    Atom
-</a>
+      <a href="https://jguegant.github.io/blogs/tech/feeds/all.atom.xml">Atom</a>
 
     </nav>
 
@@ -103,40 +119,38 @@
   <header>
     <h2><a href="https://jguegant.github.io/blogs/tech/sfinae-introduction.html#sfinae-introduction">An introduction to C++'s SFINAE concept: compile-time introspection of a class member</a></h2>
     <p>
-          Posted on Sat 31 October 2015 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
+      Posted on Sat 31 October 2015 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
 
-
-          &#8226;     Tagged with
-
+          &#8226; Tagged with
               <a href="https://jguegant.github.io/blogs/tech/tag/c11.html">C++11</a>,              <a href="https://jguegant.github.io/blogs/tech/tag/c14.html">C++14</a>,              <a href="https://jguegant.github.io/blogs/tech/tag/tmp.html">TMP</a>,              <a href="https://jguegant.github.io/blogs/tech/tag/meta-programming.html">meta programming</a>
     </p>
   </header>
   <div>
       <!-- http://stackoverflow.com/questions/18570285/using-sfinae-to-detect-a-member-function -->
-
 <h3>Trivia:</h3>
 <p>As a C++ enthusiast, I usually follow the annual C++ conference <a href="http://cppcon.org/">cppconf</a> or at least try to keep myself up-to-date with the major events that happen there. One way to catch up, if you can't afford a plane ticket or the ticket, is to follow the <a href="https://www.youtube.com/channel/UCMlGfpWw-RUdWX_JbLCukXg">youtube channel</a> dedicated …</p>
         <br>
-        <a class="btn" href="https://jguegant.github.io/blogs/tech/sfinae-introduction.html#sfinae-introduction">    Continue reading
-</a>
+        <a class="btn"
+           href="https://jguegant.github.io/blogs/tech/sfinae-introduction.html#sfinae-introduction">
+          Continue reading
+        </a>
   </div>
 </article>
 
   <div class="pagination">
     <a class="btn float-right" href="https://jguegant.github.io/blogs/tech/category/c.html">
-          Newer Posts
- <i class="fa fa-angle-right"></i>
+      Newer Posts <i class="fa fa-angle-right"></i>
     </a>
   </div>
 
 
 
-
     <footer>
 <p>
-  &copy;  2015 - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>
+  &copy; 2015  - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/deed.en_US" target="_blank">Creative Commons Attribution-ShareAlike</a>
 </p>
-<p>    Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
+<p>
+Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
 </p><p>
   <a rel="license"
      href="http://creativecommons.org/licenses/by-sa/4.0/"
@@ -164,7 +178,6 @@
   "description": ""
 }
 </script>
-
 
 </body>
 </html>

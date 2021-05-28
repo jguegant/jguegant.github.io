@@ -8,12 +8,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="index, follow" />
 
-  <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro|Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,400;0,700;1,400&family=Source+Sans+Pro:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/stylesheet/style.min.css">
 
 
-  <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/pygments/monokai.min.css">
+    <link id="pygments-light-theme" rel="stylesheet" type="text/css"
+          href="https://jguegant.github.io/blogs/tech/theme/pygments/monokai.min.css">
+
+
   <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/font-awesome/css/fontawesome.css">
   <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/font-awesome/css/brands.css">
   <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/font-awesome/css/solid.css">
@@ -33,7 +36,8 @@
   ga('create', 'UA-68827527-1', 'auto');
   ga('send', 'pageview');
 </script>
-<!-- End Google Analytics -->
+<!-- End Google Analytics -->  
+
 
 <meta name="author" content="Jean Guegant" />
 <meta name="description" content="Time to go back to the roots! Me and a few colleagues have been travelling across the old continent to attend the renowned Meeting C++ conference in Berlin. Fully backed by our employer, King, we were able to enjoy a yearly dose of C++ talks at an excellent venue. I …" />
@@ -58,19 +62,35 @@
   <title>Jean Guegant's Blog &ndash; Trip report - Meeting C++ 2019</title>
 
 </head>
-<body>
+<body class="light-theme">
   <aside>
     <div>
       <a href="https://jguegant.github.io/blogs/tech">
         <img src="https://jguegant.github.io/blogs/tech/images/myself.png" alt="Jean Guegant" title="Jean Guegant">
       </a>
-      <h1><a href="https://jguegant.github.io/blogs/tech">Jean Guegant</a></h1>
 
-<p>Software Engineer - C++, security, game development and random thoughts.</p>      <nav>
+      <h1>
+        <a href="https://jguegant.github.io/blogs/tech">Jean Guegant</a>
+      </h1>
+
+<p>Software Engineer - C++, security, game development and random thoughts.</p>
+
+      <nav>
         <ul class="list">
 
-            <li><a target="_blank" href="https://jguegant.github.io/blogs/tech/pages/about.html#about">About</a></li>
-            <li><a target="_blank" href="https://jguegant.github.io/blogs/tech/pages/contact.html#contact">Contact</a></li>
+
+              <li>
+                <a target="_self"
+                   href="https://jguegant.github.io/blogs/tech/pages/about.html#about">
+                  About
+                </a>
+              </li>
+              <li>
+                <a target="_self"
+                   href="https://jguegant.github.io/blogs/tech/pages/contact.html#contact">
+                  Contact
+                </a>
+              </li>
 
         </ul>
       </nav>
@@ -78,31 +98,28 @@
       <ul class="social">
           <li>
             <a  class="sc-linkedin" href="https://se.linkedin.com/in/jguegant" target="_blank">
-            <i class="fab fa-linkedin">
-            </i>
-          </a></li>
+              <i class="fab fa-linkedin"></i>
+            </a>
+          </li>
           <li>
             <a  class="sc-github" href="https://github.com/Jiwan" target="_blank">
-            <i class="fab fa-github">
-            </i>
-          </a></li>
+              <i class="fab fa-github"></i>
+            </a>
+          </li>
       </ul>
     </div>
-
 
   </aside>
   <main>
 
     <nav>
-      <a href="https://jguegant.github.io/blogs/tech">    Home
-</a>
+      <a href="https://jguegant.github.io/blogs/tech">Home</a>
 
       <a href="https://jguegant.github.io/blogs/tech/archives.html">Archives</a>
       <a href="https://jguegant.github.io/blogs/tech/categories.html">Categories</a>
       <a href="https://jguegant.github.io/blogs/tech/tags.html">Tags</a>
 
-      <a href="https://jguegant.github.io/blogs/tech/feeds/all.atom.xml">    Atom
-</a>
+      <a href="https://jguegant.github.io/blogs/tech/feeds/all.atom.xml">Atom</a>
 
     </nav>
 
@@ -111,8 +128,7 @@
       
     <h1 id="trip-report-meetingcpp-2019">Trip report - Meeting C++ 2019</h1>
     <p>
-          Posted on Fri 29 November 2019 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
-
+      Posted on Fri 29 November 2019 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
 
     </p>
   </header>
@@ -197,7 +213,6 @@ It is highly convenient! </li>
 <span class="p">}</span>
 </code></pre></div>
 
-
 <p>In this example, we are displaying the time in "New York" every two weeks, starting from the 9th of January, for the year 2019, when it is 18.00 in "London".
 As Howard pointed out, this is far from being trivial to do by hand: both the UK and USA have different daylight savings rules.</p>
 <p>Some people may complain of the <strong>verbosity</strong>. Firstly, I find the code very readable even without prior knowledge of this new part of <code>&lt;chrono&gt;</code>
@@ -269,7 +284,7 @@ The problem is that header files are:</p>
 Wouldn't it be better if compilation units themselves could expose directly what they provide instead of using these hackish headers?
 This is exactly what modules try to solve!</p>
 <p>So writing a very basic module becomes as simple as writing a <code>.cpp</code> file with few annotations to expose what we want:</p>
-<div class="highlight"><pre><span></span><code><span class="k">export</span> <span class="n">module</span> <span class="n">my</span><span class="p">.</span><span class="n">module</span><span class="p">;</span> <span class="c1">// This is the name of our module</span>
+<div class="highlight"><pre><span></span><code><span class="k">export</span> <span class="k">module</span> <span class="n">my</span><span class="p">.</span><span class="k">module</span><span class="p">;</span> <span class="c1">// This is the name of our module</span>
 <span class="k">export</span> <span class="kt">int</span> <span class="n">e</span> <span class="o">=</span> <span class="mi">42</span><span class="p">;</span> <span class="c1">// Expose a variable.</span>
 
 <span class="k">export</span> <span class="kt">int</span> <span class="nf">bar</span><span class="p">()</span> <span class="p">{</span> 
@@ -280,16 +295,14 @@ This is exactly what modules try to solve!</p>
 <span class="kt">int</span> <span class="nf">foo</span><span class="p">(</span><span class="kt">int</span> <span class="n">x</span><span class="p">){</span> <span class="k">return</span> <span class="n">x</span><span class="p">;</span> <span class="p">}</span> <span class="c1">// No export keyword == no exposition.</span>
 </code></pre></div>
 
-
 <p>When compiling this <code>.cpp</code> file, this will create two others files: an object file that contains binary code (OBJ) and a file for interfacing with that module called Binary Module Interface. Unlike a header file, the BMI file and its associated OBJ file can have a highly <strong>optimized representation</strong> of what is available in the module. </p>
 <p>As a user of a module into another compilation unit, you will pass this BMI file as parameter to your compiler and write an import statement:</p>
-<div class="highlight"><pre><span></span><code><span class="n">import</span> <span class="n">module</span> <span class="n">my</span><span class="p">.</span><span class="n">module</span><span class="p">;</span> <span class="c1">// Ask the compiler to use that module in here.</span>
+<div class="highlight"><pre><span></span><code><span class="k">import</span> <span class="k">module</span> <span class="n">my</span><span class="p">.</span><span class="k">module</span><span class="p">;</span> <span class="c1">// Ask the compiler to use that module in here.</span>
 
 <span class="kt">int</span> <span class="nf">main</span><span class="p">()</span> <span class="p">{</span>  
     <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">bar</span><span class="p">();</span> <span class="c1">// This is using bar from the other module.</span>
 <span class="p">}</span>
 </code></pre></div>
-
 
 <p>And voilà! These are the new C++ module in all their glory.
 Except that it gets quite a lot more complicated when you are mixing old header includes, namespaces, special support for standard headers...
@@ -307,7 +320,7 @@ Well, even without these three features, C++20 still has plenty to offer. This i
 <h4>Designated initialisers</h4>
 <p>Let's imagine that you have a <code>struct</code> with quite a few members in it. Now let's pretend that we want to initialize this structure with a few variables using the <a href="https://en.cppreference.com/w/cpp/language/aggregate_initialization">aggregate initilization from C++11</a>.
 What are the chances that you assign the correct members from the first try? </p>
-<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="n">my_struct</span> 
+<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="nc">my_struct</span> 
 <span class="p">{</span>
     <span class="kt">int</span> <span class="n">a1</span><span class="p">;</span>
     <span class="kt">int</span> <span class="n">b</span><span class="p">;</span>
@@ -321,12 +334,10 @@ What are the chances that you assign the correct members from the first try? </p
 <span class="n">my_struct</span> <span class="n">s</span><span class="p">{</span><span class="mi">42</span><span class="p">,</span> <span class="mi">43</span><span class="p">,</span> <span class="mi">1337</span><span class="p">,</span> <span class="mi">54</span><span class="p">,</span> <span class="cm">/*...*/</span><span class="p">};</span>
 </code></pre></div>
 
-
 <p>I tell you, the chances are low. You will have to double-check the <code>struct</code> definition more than once to order things accurately!
 So what if you could specify which member you designate? This is where C++20 comes to save the day:</p>
 <div class="highlight"><pre><span></span><code><span class="n">my_struct</span> <span class="n">s</span><span class="p">{.</span><span class="n">a1</span><span class="o">=</span><span class="mi">42</span><span class="p">,</span> <span class="p">.</span><span class="n">b</span><span class="o">=</span><span class="mi">43</span><span class="p">,</span> <span class="p">.</span><span class="n">a2</span><span class="o">=</span><span class="mi">1337</span><span class="p">,</span> <span class="p">.</span><span class="n">b2</span><span class="o">=</span><span class="mi">54</span><span class="p">,</span> <span class="cm">/*...*/</span><span class="p">};</span>
 </code></pre></div>
-
 
 <p>I can hear YOU the C programmer, this has been in C99 for a while...
 And you will also point with your smug face that you must respect the order (by appearance in the definition) of the members when using C++'s designated initializers unlike C.
@@ -335,14 +346,13 @@ What this is feature is about is 1) <strong>safety</strong> 2) a nice way to get
 <h4>Improved lambdas</h4>
 <p>If you want to capture a <strong>parameter pack</strong> within a lambda before C++20, you will have to be <a href="https://stackoverflow.com/questions/47496358/c-lambdas-how-to-capture-variadic-parameter-pack-from-the-upper-scope">extremely creative</a>. This is even more frustrating that lambdas are great to combine with templates.
 This very tedious task becomes trivial in C++20:</p>
-<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="o">&lt;</span><span class="n">class</span><span class="p">...</span> <span class="n">Args</span><span class="o">&gt;</span>
+<div class="highlight"><pre><span></span><code><span class="k">template</span><span class="o">&lt;</span><span class="k">class</span><span class="p">...</span> <span class="n">Args</span><span class="o">&gt;</span>
 <span class="k">auto</span> <span class="n">foo</span><span class="p">(</span><span class="n">Args</span><span class="p">...</span> <span class="n">args</span><span class="p">)</span> <span class="p">{</span> 
     <span class="k">return</span> <span class="p">[...</span><span class="n">args</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">args</span><span class="p">)]()</span> <span class="p">{</span> 
         <span class="c1">// Do whatever you want with args...</span>
     <span class="p">};</span> 
 <span class="p">}</span>
 </code></pre></div>
-
 
 <p>std::mindblowing()! Sprinkling a bit of <code>...</code> where it should... works as expected!</p>
 <p>Lambdas become, in C++20, allowed in a <strong>unevaluated contexts</strong>. What are unevaluated contexts? Whenever you have an expression within a <code>sizeof(...)</code> or <code>decltype</code>.
@@ -355,33 +365,31 @@ Is that something you would frequently do? Actually yes. Whenever you want a cus
 <span class="n">std</span><span class="o">::</span><span class="n">unique_ptr</span><span class="o">&lt;</span><span class="n">handle</span><span class="p">,</span> <span class="k">decltype</span><span class="p">([](</span><span class="n">handle</span><span class="o">*</span> <span class="n">h</span><span class="p">){</span> <span class="cm">/* Do something with h. */</span> <span class="n">release</span><span class="p">(</span><span class="n">h</span><span class="p">);</span> <span class="p">})</span><span class="o">&gt;</span> <span class="n">p</span><span class="p">;</span>
 </code></pre></div>
 
-
 <p><strong>Timur</strong> came up with other examples like having a custom comparison template parameter for <code>std::set</code>.</p>
 <h4>Extended Non-Type Template Parameter (NTTP)</h4>
 <p>If you are a <strong>template meta-programming</strong> (TMP) enthusiast like me, this will be a game changer!
 Right now, the standard only allow integer-like (integer, enumeration, pointers...) and types as template parameter. This is highly restrictive and frustrating at times.
 When pushing template meta-programming to its limit, you will often want to manipulate strings. Right now you will need to decompose your string into <code>char</code> that you pass as template arguments.</p>
 <p>For instance, these bits of code would never work in <strong>C++17</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="n">vec2</span> 
+<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="nc">vec2</span> 
 <span class="p">{</span>
     <span class="kt">int</span> <span class="n">x</span><span class="p">;</span>
     <span class="kt">int</span> <span class="n">y</span><span class="p">;</span>
 <span class="p">};</span>
 
 <span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="p">,</span> <span class="n">vec2</span> <span class="n">V</span><span class="o">&gt;</span> <span class="c1">// error: vec2 - illegal type for non-type template parameter  </span>
-<span class="k">struct</span> <span class="n">my_struct</span> 
+<span class="k">struct</span> <span class="nc">my_struct</span> 
 <span class="p">{</span>
     <span class="n">std</span><span class="o">::</span><span class="n">array</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">array</span><span class="o">&lt;</span><span class="n">T</span><span class="p">,</span> <span class="n">V</span><span class="p">.</span><span class="n">y</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">V</span><span class="p">.</span><span class="n">x</span><span class="o">&gt;</span> <span class="n">bla</span><span class="p">;</span>
 <span class="p">};</span>
 
 
 <span class="k">template</span> <span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">InitValue</span><span class="o">&gt;</span> <span class="c1">// error: std::string - illegal type for non-type template parameter  </span>
-<span class="k">struct</span> <span class="n">my_struct2</span>
+<span class="k">struct</span> <span class="nc">my_struct2</span>
 <span class="p">{</span>
     <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">s</span> <span class="o">=</span> <span class="n">InitValue</span><span class="p">;</span>  
 <span class="p">};</span>
 </code></pre></div>
-
 
 <p>Good news! These restrictions have been lifted as long as your <strong>non-type template parameter</strong>'s type (I know the usage of "type" twice here is confusing):</p>
 <ul>
@@ -439,17 +447,17 @@ I guess that I will have to check that by going to another C++ event next year ;
     })();
 </script>
 <noscript>
-        Please enable JavaScript to view comments.
-
+    Please enable JavaScript to view comments.
 </noscript>
 <!-- End Disqus -->
 </article>
 
     <footer>
 <p>
-  &copy;  2015 - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>
+  &copy; 2015  - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/deed.en_US" target="_blank">Creative Commons Attribution-ShareAlike</a>
 </p>
-<p>    Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
+<p>
+Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
 </p><p>
   <a rel="license"
      href="http://creativecommons.org/licenses/by-sa/4.0/"
@@ -477,7 +485,6 @@ I guess that I will have to check that by going to another C++ event next year ;
   "description": ""
 }
 </script>
-
 
 </body>
 </html>

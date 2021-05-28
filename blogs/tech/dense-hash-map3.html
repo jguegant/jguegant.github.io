@@ -8,12 +8,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="index, follow" />
 
-  <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro|Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,400;0,700;1,400&family=Source+Sans+Pro:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/stylesheet/style.min.css">
 
 
-  <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/pygments/monokai.min.css">
+    <link id="pygments-light-theme" rel="stylesheet" type="text/css"
+          href="https://jguegant.github.io/blogs/tech/theme/pygments/monokai.min.css">
+
+
   <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/font-awesome/css/fontawesome.css">
   <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/font-awesome/css/brands.css">
   <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/font-awesome/css/solid.css">
@@ -33,7 +36,8 @@
   ga('create', 'UA-68827527-1', 'auto');
   ga('send', 'pageview');
 </script>
-<!-- End Google Analytics -->
+<!-- End Google Analytics -->  
+
 
 <meta name="author" content="Jean Guegant" />
 <meta name="description" content="This post is part of a series of posts: Part 1 - Beating std::unordered_map Part 2 - Growth Policies &amp; The Schrodinger std::pair Part 3 - The wonderful world of iterators and allocators (Current) Part 4 - ... (Coming Soon) In the previous post, we prepared our data-structure to be able to store our …" />
@@ -61,19 +65,35 @@
   <title>Jean Guegant's Blog &ndash; Making a STL-compatible hash map from scratch - Part 3 - The wonderful world of iterators and allocators</title>
 
 </head>
-<body>
+<body class="light-theme">
   <aside>
     <div>
       <a href="https://jguegant.github.io/blogs/tech">
         <img src="https://jguegant.github.io/blogs/tech/images/myself.png" alt="Jean Guegant" title="Jean Guegant">
       </a>
-      <h1><a href="https://jguegant.github.io/blogs/tech">Jean Guegant</a></h1>
 
-<p>Software Engineer - C++, security, game development and random thoughts.</p>      <nav>
+      <h1>
+        <a href="https://jguegant.github.io/blogs/tech">Jean Guegant</a>
+      </h1>
+
+<p>Software Engineer - C++, security, game development and random thoughts.</p>
+
+      <nav>
         <ul class="list">
 
-            <li><a target="_blank" href="https://jguegant.github.io/blogs/tech/pages/about.html#about">About</a></li>
-            <li><a target="_blank" href="https://jguegant.github.io/blogs/tech/pages/contact.html#contact">Contact</a></li>
+
+              <li>
+                <a target="_self"
+                   href="https://jguegant.github.io/blogs/tech/pages/about.html#about">
+                  About
+                </a>
+              </li>
+              <li>
+                <a target="_self"
+                   href="https://jguegant.github.io/blogs/tech/pages/contact.html#contact">
+                  Contact
+                </a>
+              </li>
 
         </ul>
       </nav>
@@ -81,31 +101,28 @@
       <ul class="social">
           <li>
             <a  class="sc-linkedin" href="https://se.linkedin.com/in/jguegant" target="_blank">
-            <i class="fab fa-linkedin">
-            </i>
-          </a></li>
+              <i class="fab fa-linkedin"></i>
+            </a>
+          </li>
           <li>
             <a  class="sc-github" href="https://github.com/Jiwan" target="_blank">
-            <i class="fab fa-github">
-            </i>
-          </a></li>
+              <i class="fab fa-github"></i>
+            </a>
+          </li>
       </ul>
     </div>
-
 
   </aside>
   <main>
 
     <nav>
-      <a href="https://jguegant.github.io/blogs/tech">    Home
-</a>
+      <a href="https://jguegant.github.io/blogs/tech">Home</a>
 
       <a href="https://jguegant.github.io/blogs/tech/archives.html">Archives</a>
       <a href="https://jguegant.github.io/blogs/tech/categories.html">Categories</a>
       <a href="https://jguegant.github.io/blogs/tech/tags.html">Tags</a>
 
-      <a href="https://jguegant.github.io/blogs/tech/feeds/all.atom.xml">    Atom
-</a>
+      <a href="https://jguegant.github.io/blogs/tech/feeds/all.atom.xml">Atom</a>
 
     </nav>
 
@@ -114,8 +131,7 @@
       
     <h1 id="dense-hash-map3">Making a STL-compatible hash map from scratch - Part 3 - The wonderful world of iterators and allocators</h1>
     <p>
-          Posted on Fri 01 May 2020 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
-
+      Posted on Fri 01 May 2020 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
 
     </p>
   </header>
@@ -172,9 +188,8 @@ More precisely, <code>iterator</code> is the type returned by <a href="https://e
 <span class="p">}</span>
 </code></pre></div>
 
-
 <p>The modern picasso in me decided to show you what this range-loop would do internally:</p>
-<p><center><img width=50% height=50% src="https://jguegant.github.io/blogs/tech/images/dense-hash-map-iterator.webp" alt=""/></center></p>
+<p><center><img width=50% height=50% src="https://jguegant.github.io/blogs/tech/images/dense-hash-map-iterator.webp" alt="Iterator"/></center></p>
 <p>Yes, it should be as simple as iterating in our <code>nodes_</code> container. No, it won't be as easy as you may think.</p>
 <p>To iterate over the <code>nodes_</code> container, we can simply use its own... iterators. Conveniently, <code>nodes_</code>'s iterator type is also following the concept
 <a href="https://en.cppreference.com/w/cpp/named_req/ForwardIterator">LegacyForwardIterator</a> which is also needed for our <code>dense_hash_map::iterator</code> type.
@@ -202,7 +217,6 @@ What we need is a projection onto the member <code>pair</code> of <code>node&lt;
 <span class="p">};</span>
 </code></pre></div>
 
-
 <p>The ranges library has its quirks and limitations as some fervent members of the lost C++ society will point out.
 But for this kind of scenario, it is of great help. It is vastly superior to the C++17 solution as we will see.
 You can easily implement <code>cbegin</code> and <code>cend</code> in a similar way: just make your <code>projected_range</code> function const.
@@ -211,16 +225,14 @@ You can easily implement <code>cbegin</code> and <code>cend</code> in a similar 
 <div class="highlight"><pre><span></span><code><span class="k">static_assert</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">random_access_iterator</span><span class="o">&lt;</span><span class="n">dense_hash_map_iterator</span><span class="o">&lt;</span><span class="p">...</span><span class="o">&gt;</span><span class="p">);</span>
 </code></pre></div>
 
-
 <p>Let's assume that <code>std::random_access_iterator</code> had a <strong>compound requirement</strong> that ensure your iterator has a prefix increment operator as follow:</p>
 <div class="highlight"><pre><span></span><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">It</span><span class="o">&gt;</span>
-<span class="n">concept</span> <span class="n">random_access_iterator</span> <span class="o">=</span> <span class="n">requires</span><span class="p">(</span><span class="n">It</span> <span class="n">it</span><span class="p">)</span> <span class="p">{</span>
+<span class="k">concept</span> <span class="nc">random_access_iterator</span> <span class="o">=</span> <span class="k">requires</span><span class="p">(</span><span class="n">It</span> <span class="n">it</span><span class="p">)</span> <span class="p">{</span>
     <span class="c1">// ...</span>
     <span class="p">{</span> <span class="o">++</span><span class="n">it</span> <span class="p">}</span> <span class="o">-&gt;</span> <span class="n">std</span><span class="o">::</span><span class="n">same_as</span><span class="o">&lt;</span><span class="n">It</span><span class="o">&amp;&gt;</span><span class="p">;</span> <span class="c1">// Ensure that we can apply `++` to it and that it would return a reference.</span>
     <span class="c1">// ...</span>
 <span class="p">};</span>
 </code></pre></div>
-
 
 <p>If, in a moment of inadvertence, you were to remove that operator, your compiler would gently remind you about it. Here is how <strong>GCC</strong> puts you in the right track:</p>
 <div class="highlight"><pre><span></span><code><span class="n">note</span><span class="o">:</span> <span class="n">constraints</span> <span class="n">not</span> <span class="n">satisfied</span>
@@ -229,7 +241,6 @@ You can easily implement <code>cbegin</code> and <code>cend</code> in a similar 
 <span class="n">note</span><span class="o">:</span> <span class="n">the</span> <span class="n">required</span> <span class="n">expression</span> <span class="s1">&#39;++ it&#39;</span> <span class="k">is</span> <span class="n">invalid</span>
     <span class="o">{</span> <span class="o">++</span><span class="n">it</span> <span class="o">}</span> <span class="o">-&gt;</span> <span class="n">std</span><span class="o">::</span><span class="n">same_as</span><span class="o">&lt;</span><span class="n">It</span><span class="o">&amp;&gt;;</span>
 </code></pre></div>
-
 
 <p>C++ concepts are not just for <strong>meta-programming</strong>. It is also an elegant way to test your code with the help of your compiler.
 One could also hope that IDEs will in the future provide a convenient way to generate stubs from a concept.
@@ -257,7 +268,6 @@ Which in turn, means implementing... okkkk...ay... you get it. It's a list of co
 <span class="p">};</span>
 </code></pre></div>
 
-
 <p>The three first template parameters are rather obvious, it handles which <code>Key</code> / <code>T</code> pairs we will deal with and which <code>Container</code> type stores them.
 The last two template parameters are here to kill multiple birds with one stone. Our iterator class will both represent <code>iterator</code> and <code>const_iterator</code> by setting the first parameter <code>isConst</code>. It also gives you the choice on which version of <a href="https://jguegant.github.io/blogs/tech/dense-hash-map2.html">the Schrodinger std::pair</a> we want to project onto with the <code>projectToConstKey</code> parameter.</p>
 <p>Afterwards, we can start to define some important <strong>usings</strong> we can re-use within our class: </p>
@@ -274,8 +284,8 @@ The last two template parameters are here to kill multiple birds with one stone.
 
     <span class="k">using</span> <span class="n">sub_iterator_type</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">conditional_t</span><span class="o">&lt;</span>    <span class="c1">// Choose the underlying iterator type we want to work on: const or non-const.</span>
         <span class="n">isConst</span><span class="p">,</span> 
-        <span class="k">typename</span> <span class="n">Container</span><span class="o">::</span><span class="n">const_iterator</span><span class="p">,</span> 
-        <span class="k">typename</span> <span class="n">Container</span><span class="o">::</span><span class="n">iterator</span>
+        <span class="k">typename</span> <span class="nc">Container</span><span class="o">::</span><span class="n">const_iterator</span><span class="p">,</span> 
+        <span class="k">typename</span> <span class="nc">Container</span><span class="o">::</span><span class="n">iterator</span>
     <span class="o">&gt;</span><span class="p">;</span>
 
     <span class="k">using</span> <span class="n">value_type</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">conditional_t</span><span class="o">&lt;</span>      <span class="c1">// The value type our iterator will return depends on:</span>
@@ -289,7 +299,6 @@ The last two template parameters are here to kill multiple birds with one stone.
     <span class="c1">// ...</span>
 <span class="p">};</span>
 </code></pre></div>
-
 
 <p>Our usings form, in some way, a matrix of all iterator types we can get from the class template <code>dense_hash_map_iterator</code>. As the output of the matrix is the <code>value_type</code> type we will return and sub-iterator type <code>sub_iterator_type</code> we will work on. Writing the rest of the <code>dense_hash_map_iterator</code> becomes a rather boring task where almost every single call gets forwarded to a <code>sub_iterator_</code> member. Here is a very mundane implementation of the prefix increment operator:</p>
 <div class="highlight"><pre><span></span><code><span class="k">class</span> <span class="nc">dense_hash_map_iterator</span> <span class="p">{</span>
@@ -308,7 +317,6 @@ The last two template parameters are here to kill multiple birds with one stone.
 <span class="p">};</span>
 </code></pre></div>
 
-
 <p>I can predict that you are already virtually yawning at the idea of implementing the rest of this class. So instead of doing a long and monotonous listing of all these member functions, here are the "highlights" you should look for.</p>
 <p><strong> <a href="https://github.com/Jiwan/dense_hash_map/blob/d80d3da01d9981154e78ea85b3135b4a66a150a3/include/jg/details/dense_hash_map_iterator.hpp#L52">Some conditional operators</a> </strong></p>
 <p>Given that <code>value_type</code>, <code>reference</code> and <code>pointer</code> depend on <code>projectToConstKey</code>, all the members functions (operator*, operator[], operator-&gt;) returning one of these types need to adapt their body to <code>projectToConstKey</code>. Our beloved <code>if constexpr</code> is back at it:</p>
@@ -322,7 +330,6 @@ The last two template parameters are here to kill multiple birds with one stone.
 <span class="p">}</span>
 </code></pre></div>
 
-
 <p>This will correctly dispatch to the correct version of <a href="https://jguegant.github.io/blogs/tech/dense-hash-map2.html">the Schrodinger std::pair</a> at compile time.
 I am really glad that we do not rely on <a href="https://jguegant.github.io/blogs/tech/sfinae-introduction.html">SFINAE</a> for these constructions.</p>
 <p><strong> <a href="https://github.com/Jiwan/dense_hash_map/blob/d80d3da01d9981154e78ea85b3135b4a66a150a3/include/jg/details/dense_hash_map_iterator.hpp#L47">A conversion constructor</a> </strong></p>
@@ -333,7 +340,6 @@ I am really glad that we do not rely on <a href="https://jguegant.github.io/blog
     <span class="o">:</span> <span class="n">sub_iterator_</span><span class="p">(</span><span class="n">other</span><span class="p">.</span><span class="n">sub_iterator_</span><span class="p">)</span>                                <span class="c1">// ^^ ... we have a constructor that take non-const iterator.</span>
 <span class="p">{}</span>
 </code></pre></div>
-
 
 <p>Once again, the absence of <strong>C++20</strong> can be felt here. We want this constructor to be available only when <code>isConst</code> is <code>true</code>: in other words only a <code>const_iterator</code> has this extra constructor. In <strong>C++20</strong>, a well-placed <a href="https://en.cppreference.com/w/cpp/language/constraints#Requires_clauses">requires clause</a> would conditionally enable that constructor. But in <strong>C++17</strong> we have to resort to an disgusting <strong>SFINAE</strong> trick using <a href="https://en.cppreference.com/w/cpp/types/enable_if">std::enable_if_t</a>. To make the matter uglier, <a href="https://stackoverflow.com/questions/14603163/how-to-use-sfinae-for-selecting-constructors">the complicated rules of template substitution</a> forces us to have the somewhat useless default argument <code>DepIsConst</code> instead of using <code>isConst</code> directly.</p>
 <p><strong> <a href="https://github.com/Jiwan/dense_hash_map/blob/d80d3da01d9981154e78ea85b3135b4a66a150a3/include/jg/details/dense_hash_map_iterator.hpp#L133">Some external operators</a> </strong></p>
@@ -346,7 +352,7 @@ I am really glad that we do not rely on <a href="https://jguegant.github.io/blog
 It cannot be easily expressed using range views due to its access pattern. And to finish, it is a mere <a href="https://en.cppreference.com/w/cpp/named_req/ForwardIterator">LegacyForwardIterator</a> and can hardly be more than that.</p>
 <p>What this ill-named iterator gives you is an access to a specific bucket, i.e jumping through all the pairs that have keys whose hash collide.
 Here is what an iteration in a bucket of size two would look like:</p>
-<p><center><img width=50% height=50% src="https://jguegant.github.io/blogs/tech/images/dense-hash-map-local-iterator.webp" alt=""/></center></p>
+<p><center><img width=50% height=50% src="https://jguegant.github.io/blogs/tech/images/dense-hash-map-local-iterator.webp" alt="Local iterator"/></center></p>
 <p>Here <strong>Key1</strong> and <strong>Key2</strong> hashes collide, so our iterator started on bucket <strong>1</strong> yields both of these pairs.</p>
 <p>To reflect the true purpose of this iterator, I named it <code>bucket_iterator</code>.
 Internally, our <code>bucket_iterator</code> can be used in conjunction with some of the standard <a href="https://en.cppreference.com/w/cpp/algorithm">algorithms</a>.
@@ -379,7 +385,6 @@ Whether this was worth a standardisation or not, I am not exactly sure. You shou
 <span class="p">};</span>
 </code></pre></div>
 
-
 <p>As you can see, this is nothing more than a classic iteration over a list. But instead of using a "next pointer", we have a <strong>next index</strong>.
 We cannot produce a bidirectional iterator as we would need a <strong>previous index</strong>, neither we can have random access due to the dereference step.</p>
 <p>The last part of the puzzle for our iterators is a conversion function. After doing a <code>std::find_if</code> on a <code>bucket_iterator</code> it can be really convenient to send as a result a more useful <code>iterator</code> to our users. In a simplified form of this function looks like this:</p>
@@ -397,7 +402,6 @@ We cannot produce a bidirectional iterator as we would need a <strong>previous i
     <span class="p">}</span>
 </code></pre></div>
 
-
 <p>There are two cases:</p>
 <ul>
 <li>If our <code>bucket_iterator</code> is at the end of the linked-list, it means that it points to nowhere. Therefore, we return a <code>dense_hash_map_iterator</code> also pointing at the end.</li>
@@ -411,7 +415,7 @@ But C++ being C++, it becomes a bit more tricky when you have <strong>containers
 <p><center><img width=40% height=40% src="https://jguegant.github.io/blogs/tech/images/gladiator.jpg" alt="Gladiator"/></center></p>
 <h3>Nested containers and their allocator:</h3>
 <p>Let's try to play around with a container that would be very similar to our <code>dense_hash_map::nodes_</code> (a vector of pairs), and see how it reacts to custom allocators:</p>
-<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="nl">debug_pmr_resource</span> <span class="p">:</span> <span class="n">std</span><span class="o">::</span><span class="n">pmr</span><span class="o">::</span><span class="n">memory_resource</span> <span class="c1">// pmr memory resource == allocator on steroids.</span>
+<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="nc">debug_pmr_resource</span> <span class="o">:</span> <span class="n">std</span><span class="o">::</span><span class="n">pmr</span><span class="o">::</span><span class="n">memory_resource</span> <span class="c1">// pmr memory resource == allocator on steroids.</span>
 <span class="p">{</span>
     <span class="k">auto</span> <span class="n">do_allocate</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">bytes</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">alignment</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kt">void</span><span class="o">*</span> <span class="k">override</span>
     <span class="p">{</span>
@@ -440,7 +444,6 @@ But C++ being C++, it becomes a bit more tricky when you have <strong>containers
 <span class="c1">// Allocated: 64</span>
 </code></pre></div>
 
-
 <p>Before we dive a bit more into this code snippet, all standard containers with a prefix <code>pmr</code> are just the same usual containers with a predefined <a href="https://en.cppreference.com/w/cpp/memory/polymorphic_allocator">polymorphic allocator</a>. This new allocator saves you from the hassle of writing an allocator the old fashion way. All you need to do is to write a resource with three member functions as shown here. Polymorphic allocators are worth a longer post that I will never write. In the meantime, I suggest you to use your google-fu to find some nice <a href="https://blog.feabhas.com/2019/03/thanks-for-the-memory-allocator/">articles</a> or videos about it.</p>
 <p>Back to our snippet... Right here we have an external container <code>std::pmr::vector</code> which takes our resource/allocator and then we construct two strings (some internal containers) in it. How many allocations are we going to see from <code>debug_pmr_resource</code>'s point of view? The answer is <a href="https://godbolt.org/z/zPboQb">one and only one</a>. The vector's buffer will be allocated through <code>debug_pmr_resource</code> but not the buffers of our strings. It is unfortunate to be in such a situation. As a user of some custom allocators, you really want all related objects to be stored in the same pool of memory, even more when this objects are nested structures.</p>
 <p>Does this means that you need to make both of these strings "pmr" too and feed them with the <code>debug_pmr_resource</code> at construction? Well, yes and no. 
@@ -457,7 +460,6 @@ Changing <code>std::string</code> to <code>std::pmr::string</code> is necessary.
 <span class="c1">// Allocated: 27</span>
 </code></pre></div>
 
-
 <p>Hurray, we see two more allocations going through the resource! With a size of <code>27</code>, it must really be some buffers storing <code>UnPangolinVautMieuxQueRien</code> plus <code>\0</code>. The allocator forwarding is happening!</p>
 <p>The next step for us is to be sure that we can achieve the same success not only with <code>std::pair&lt;std::pmr::string, std::pmr::string&gt;</code> but also with our <code>node</code> type we defined in the previous post: the type that store both a Schrodinger <code>std::pair</code> and a <code>next</code> index.</p>
 <div class="highlight"><pre><span></span><code><span class="n">debug_pmr_resource</span> <span class="n">my_resource</span><span class="p">;</span>
@@ -470,7 +472,6 @@ Changing <code>std::string</code> to <code>std::pmr::string</code> is necessary.
 <span class="c1">// Would print: </span>
 <span class="c1">// Allocated: xx</span>
 </code></pre></div>
-
 
 <p>Bjarne damn it! We have lost the allocator forwarding again! That's unnacceptable for our <code>dense_hash_map</code> internals.
 Given that only difference is <code>std::pair</code> and <code>node</code>, should we start to investigate what makes <code>std::pair</code> so special? </p>
@@ -491,28 +492,27 @@ Given that only difference is <code>std::pair</code> and <code>node</code>, shou
 <h3>Harnessing std::uses_allocator's power:</h3>
 <p>Unlike the troll, we cannot change the standard to fit our <code>node</code> type. So we need to use <code>std::uses_allocator</code> the proper way.
 We will start by adding a specialisation to signal that our type wants to forward allocators:</p>
-<div class="highlight"><pre><span></span><code><span class="k">namespace</span> <span class="n">std</span>
+<div class="highlight"><pre><span></span><code><span class="k">namespace</span> <span class="nn">std</span>
 <span class="p">{</span>
 <span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Key</span><span class="p">,</span> <span class="k">class</span> <span class="nc">T</span><span class="p">,</span> <span class="k">class</span> <span class="nc">Allocator</span><span class="o">&gt;</span>
-<span class="k">struct</span> <span class="n">uses_allocator</span><span class="o">&lt;</span><span class="n">node</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span> <span class="n">T</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">Allocator</span><span class="o">&gt;</span> <span class="o">:</span> <span class="n">true_type</span>
+<span class="k">struct</span> <span class="nc">uses_allocator</span><span class="o">&lt;</span><span class="n">node</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span> <span class="n">T</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">Allocator</span><span class="o">&gt;</span> <span class="o">:</span> <span class="n">true_type</span>
 <span class="p">{</span>
 <span class="p">};</span>
 <span class="p">}</span>
 </code></pre></div>
-
 
 <p>All these constructors must take a std::allocator_arg_t tag parameter to differentiate them from the others, the non-allocator-forwarding ones. The second parameter is always the instance of the allocator itself alloc and the rest are the parameters you would find in their non-allocator-forwarding equivalents. As I just implied, you must have exactly the same amount of allocator-forwarding constructors as you have normal ones! You must be able to do all operations with or without involving allocators.</p>
 <p>As soon as we have an alloc we can send it deep down to the Schrodinger pair. The Schrodinger pair must then construct its mutable std::pair variant taking that allocator in consideration:
 This expresses that for any <code>node</code> and any <code>Allocator</code>, an instance of <code>node</code> can receive an instance of <code>allocator</code> to forward it deep down.
 By which mean the instance of <code>node</code> will receive that instance <code>allocator</code>? With some special constructors:</p>
 <div class="highlight"><pre><span></span><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Key</span><span class="p">,</span> <span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span>
-<span class="k">struct</span> <span class="n">node</span> 
+<span class="k">struct</span> <span class="nc">node</span> 
 <span class="p">{</span>
     <span class="c1">// ...</span>
     <span class="c1">// ...</span>
 
     <span class="c1">// Constructor that takes arguments to make an index and a pair.</span>
-    <span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Allocator</span><span class="p">,</span> <span class="n">class</span><span class="p">...</span> <span class="n">Args</span><span class="o">&gt;</span>
+    <span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Allocator</span><span class="p">,</span> <span class="k">class</span><span class="p">...</span> <span class="n">Args</span><span class="o">&gt;</span>
     <span class="n">node</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">allocator_arg_t</span><span class="p">,</span> <span class="k">const</span> <span class="n">Allocator</span><span class="o">&amp;</span> <span class="n">alloc</span><span class="p">,</span> <span class="n">node_index_t</span><span class="o">&lt;</span><span class="n">Key</span><span class="p">,</span> <span class="n">T</span><span class="o">&gt;</span> <span class="n">next</span><span class="p">,</span> <span class="n">Args</span><span class="o">&amp;&amp;</span><span class="p">...</span> <span class="n">args</span><span class="p">)</span> 
         <span class="o">:</span> <span class="n">next</span><span class="p">(</span><span class="n">next</span><span class="p">),</span> <span class="n">pair</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">allocator_arg</span><span class="p">,</span> <span class="n">alloc</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">forward</span><span class="o">&lt;</span><span class="n">Args</span><span class="o">&gt;</span><span class="p">(</span><span class="n">args</span><span class="p">)...)</span>
     <span class="p">{}</span>
@@ -535,16 +535,15 @@ By which mean the instance of <code>node</code> will receive that instance <code
 <span class="p">};</span>
 </code></pre></div>
 
-
 <p>All these constructors must take a <code>std::allocator_arg_t</code> tag parameter to differentiate them from the others, the non-allocator-forwarding ones.
 The second parameter is always the instance of the allocator itself <code>alloc</code> and the rest are the parameters you would find in their non-allocator-forwarding equivalents. As I just implied, you must have exactly the same amount of allocator-forwarding constructors as you have normal ones! You must be able to do all operations with or without involving allocators.</p>
 <p>As soon as we have an <code>alloc</code> we can pass-it deep down to the Schrodinger pair. The Schrodinger pair must then construct its mutable <code>std::pair</code> variant taking that allocator in consideration:</p>
 <div class="highlight"><pre><span></span><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Key</span><span class="p">,</span> <span class="k">class</span> <span class="nc">T</span><span class="o">&gt;</span>
-<span class="k">union</span> <span class="n">union_key_value_pair</span>
+<span class="k">union</span> <span class="nc">union_key_value_pair</span>
 <span class="p">{</span>
     <span class="c1">//...</span>
 
-    <span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Allocator</span><span class="p">,</span> <span class="n">class</span><span class="p">...</span> <span class="n">Args</span><span class="o">&gt;</span>
+    <span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Allocator</span><span class="p">,</span> <span class="k">class</span><span class="p">...</span> <span class="n">Args</span><span class="o">&gt;</span>
     <span class="n">union_key_value_pair</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">allocator_arg_t</span><span class="p">,</span> <span class="k">const</span> <span class="n">Allocator</span><span class="o">&amp;</span> <span class="n">alloc</span><span class="p">,</span> <span class="n">Args</span><span class="o">&amp;&amp;</span><span class="p">...</span> <span class="n">args</span><span class="p">)</span>
     <span class="p">{</span>
         <span class="k">auto</span> <span class="n">alloc_copy</span> <span class="o">=</span> <span class="n">alloc</span><span class="p">;</span>
@@ -554,7 +553,6 @@ The second parameter is always the instance of the allocator itself <code>alloc<
     <span class="c1">//...</span>
 <span class="p">};</span>
 </code></pre></div>
-
 
 <p>Once again, <code>union_key_value_pair</code> uses the tag type <code>std::allocator_arg_t</code> to be sure not to collide with other constructors. 
 We will then construct the <code>pair_</code> in place ; meaning that we will skip the memory allocation part of it since we already have the storage for it. Constructing an object in <strong>C++17</strong> with an allocator requires you a PhD in C++ arcaneries: you need a non-const instance of that allocator coupled to the <a href="https://en.cppreference.com/w/cpp/memory/allocator_traits">allocator_traits</a>. <strong>C++20</strong> can once again save you some time here with <a href="https://en.cppreference.com/w/cpp/memory/make_obj_using_allocator">std::make_obj_using_allocator</a>.</p>
@@ -589,17 +587,17 @@ We will then construct the <code>pair_</code> in place ; meaning that we will sk
     })();
 </script>
 <noscript>
-        Please enable JavaScript to view comments.
-
+    Please enable JavaScript to view comments.
 </noscript>
 <!-- End Disqus -->
 </article>
 
     <footer>
 <p>
-  &copy;  2015 - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>
+  &copy; 2015  - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/deed.en_US" target="_blank">Creative Commons Attribution-ShareAlike</a>
 </p>
-<p>    Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
+<p>
+Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
 </p><p>
   <a rel="license"
      href="http://creativecommons.org/licenses/by-sa/4.0/"
@@ -627,7 +625,6 @@ We will then construct the <code>pair_</code> in place ; meaning that we will sk
   "description": ""
 }
 </script>
-
 
 </body>
 </html>

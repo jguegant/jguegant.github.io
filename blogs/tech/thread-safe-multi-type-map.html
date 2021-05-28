@@ -8,12 +8,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="index, follow" />
 
-  <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro|Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,400;0,700;1,400&family=Source+Sans+Pro:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/stylesheet/style.min.css">
 
 
-  <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/pygments/monokai.min.css">
+    <link id="pygments-light-theme" rel="stylesheet" type="text/css"
+          href="https://jguegant.github.io/blogs/tech/theme/pygments/monokai.min.css">
+
+
   <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/font-awesome/css/fontawesome.css">
   <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/font-awesome/css/brands.css">
   <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/font-awesome/css/solid.css">
@@ -33,7 +36,8 @@
   ga('create', 'UA-68827527-1', 'auto');
   ga('send', 'pageview');
 </script>
-<!-- End Google Analytics -->
+<!-- End Google Analytics -->  
+
 
 <meta name="author" content="Jean Guegant" />
 <meta name="description" content="Trivia: One of our favorite motto in our C++ team at work is: you shall use dependency injections instead of singletons! It actually comes with our unit-testing strategy. If the various components of your architecture are too tightly coupled, it becomes a tremendous effort to deeply test small critical chunks …" />
@@ -59,19 +63,35 @@
   <title>Jean Guegant's Blog &ndash; An introduction to C++&#39;s variadic templates: a thread-safe multi-type map</title>
 
 </head>
-<body>
+<body class="light-theme">
   <aside>
     <div>
       <a href="https://jguegant.github.io/blogs/tech">
         <img src="https://jguegant.github.io/blogs/tech/images/myself.png" alt="Jean Guegant" title="Jean Guegant">
       </a>
-      <h1><a href="https://jguegant.github.io/blogs/tech">Jean Guegant</a></h1>
 
-<p>Software Engineer - C++, security, game development and random thoughts.</p>      <nav>
+      <h1>
+        <a href="https://jguegant.github.io/blogs/tech">Jean Guegant</a>
+      </h1>
+
+<p>Software Engineer - C++, security, game development and random thoughts.</p>
+
+      <nav>
         <ul class="list">
 
-            <li><a target="_blank" href="https://jguegant.github.io/blogs/tech/pages/about.html#about">About</a></li>
-            <li><a target="_blank" href="https://jguegant.github.io/blogs/tech/pages/contact.html#contact">Contact</a></li>
+
+              <li>
+                <a target="_self"
+                   href="https://jguegant.github.io/blogs/tech/pages/about.html#about">
+                  About
+                </a>
+              </li>
+              <li>
+                <a target="_self"
+                   href="https://jguegant.github.io/blogs/tech/pages/contact.html#contact">
+                  Contact
+                </a>
+              </li>
 
         </ul>
       </nav>
@@ -79,31 +99,28 @@
       <ul class="social">
           <li>
             <a  class="sc-linkedin" href="https://se.linkedin.com/in/jguegant" target="_blank">
-            <i class="fab fa-linkedin">
-            </i>
-          </a></li>
+              <i class="fab fa-linkedin"></i>
+            </a>
+          </li>
           <li>
             <a  class="sc-github" href="https://github.com/Jiwan" target="_blank">
-            <i class="fab fa-github">
-            </i>
-          </a></li>
+              <i class="fab fa-github"></i>
+            </a>
+          </li>
       </ul>
     </div>
-
 
   </aside>
   <main>
 
     <nav>
-      <a href="https://jguegant.github.io/blogs/tech">    Home
-</a>
+      <a href="https://jguegant.github.io/blogs/tech">Home</a>
 
       <a href="https://jguegant.github.io/blogs/tech/archives.html">Archives</a>
       <a href="https://jguegant.github.io/blogs/tech/categories.html">Categories</a>
       <a href="https://jguegant.github.io/blogs/tech/tags.html">Tags</a>
 
-      <a href="https://jguegant.github.io/blogs/tech/feeds/all.atom.xml">    Atom
-</a>
+      <a href="https://jguegant.github.io/blogs/tech/feeds/all.atom.xml">Atom</a>
 
     </nav>
 
@@ -112,8 +129,7 @@
       
     <h1 id="thread-safe-multi-type-map">An introduction to C++'s variadic templates: a thread-safe multi-type map</h1>
     <p>
-          Posted on Mon 01 February 2016 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
-
+      Posted on Mon 01 February 2016 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
 
     </p>
   </header>
@@ -141,7 +157,6 @@
 <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="n">myTuple</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
 </code></pre></div>
 
-
 <p><strong>Tuples</strong> are that kind of <strong>C++11</strong> jewelry that should decide your old-fashioned boss to upgrade your team's compiler (and his ugly tie). Not only I could store a <strong>const char* </strong> and two <strong>ints</strong> without any compiling error, but I could also access them using compile-time mechanisms. In some way, you can see tuples as a compile-time map using indexes or types as keys to reach its elements. You cannot use an index out of bands, it will be catched at compile-time anyway! Sadly, using a type as a key to retrieve an element is only possible if the type is unique in the <strong>tuple</strong>. At my work, we do have few config objects sharing the same class. Anyway, tuples weren't fitting our needs regarding thread safety and update events. Let's see what we could create using tasty <strong>tuples</strong> as an inspiration.</p>
 <p>Note that some <strong>tuples</strong> implementations were already available before <strong>C++11</strong>, notably in <a href="http://www.boost.org/doc/libs/1_60_0/libs/tuple/doc/tuple_users_guide.html">boost</a>. <strong>C++11</strong> variadic templates are just very handy, as you will see, to construct such a class.</p>
 <h3>A teaser for my repository class:</h3>
@@ -153,8 +168,8 @@
 <span class="cp">#include</span> <span class="cpf">&quot;repository.hpp&quot;</span><span class="cp"></span>
 
 <span class="c1">// Incomplete types used as compile-time keys.</span>
-<span class="k">struct</span> <span class="n">Key1</span><span class="p">;</span>
-<span class="k">struct</span> <span class="n">Key2</span><span class="p">;</span>
+<span class="k">struct</span> <span class="nc">Key1</span><span class="p">;</span>
+<span class="k">struct</span> <span class="nc">Key2</span><span class="p">;</span>
 
 <span class="c1">// Create a type for our repository.</span>
 <span class="k">using</span> <span class="n">MyRepository</span> <span class="o">=</span> <span class="n">Repository</span>
@@ -193,7 +208,6 @@
 <span class="p">}</span>
 </code></pre></div>
 
-
 <p>First and foremost, its name <strong>repository</strong> might not be well-suited for its responsibility. If your native language is the same as shakespeare and come-up with a better term, please feel free to submit it. In our internal usage, <strong>config repository</strong> sounded great!</p>
 <p>I start by describing the slots necessary for my application by creating a new type <strong>MyRepository</strong> using a <a href="http://en.cppreference.com/w/cpp/language/type_alias">type alias</a>. As you can see, I use the type of the slots as a key for accessing elements. But in case of contention, I must use a second key: an "empty type" ; like <strong>Key1</strong> and <strong>Key2</strong> in this example.
 If using types as keys seems odd for you, fear not! Here is the most rational explanation I can share with you: we are trying to benefit from our "know-it-all compiler". Your compiler is mainly manipulating types, one can change its flow using these types during the compilation process. Note that these structs are not even complete (no definition), it has <strong>no impact</strong> for the <strong>runtime memory</strong> or <strong>runtime execution</strong> and that's the amazing part of <strong>meta-programming</strong>. The dispatch of an expression such as <strong>"myRepository.get&lt; int, Key1&gt;()"</strong> is done during your build-time.</p>
@@ -204,8 +218,8 @@ If using types as keys seems odd for you, fear not! Here is the most rational ex
 <span class="cp">#include</span> <span class="cpf">&quot;repository.hpp&quot;</span><span class="cp"></span>
 
 <span class="c1">// Incomplete types used as compile-time keys.</span>
-<span class="k">struct</span> <span class="n">Key1</span><span class="p">;</span>
-<span class="k">struct</span> <span class="n">Key2</span><span class="p">;</span>
+<span class="k">struct</span> <span class="nc">Key1</span><span class="p">;</span>
+<span class="k">struct</span> <span class="nc">Key2</span><span class="p">;</span>
 
 <span class="k">class</span> <span class="nc">ConfigType1</span><span class="p">;</span> <span class="c1">// Defined in another file.</span>
 <span class="k">class</span> <span class="nc">ConfigType2</span><span class="p">;</span> <span class="c1">// Defined in another file.</span>
@@ -218,7 +232,7 @@ If using types as keys seems odd for you, fear not! Here is the most rational ex
         <span class="n">Slot</span><span class="o">&lt;</span><span class="n">ConfigType2</span><span class="p">,</span> <span class="n">Key2</span><span class="o">&gt;</span>
     <span class="o">&gt;</span><span class="p">;</span>
 
-<span class="k">struct</span> <span class="n">RuntimeContext</span>
+<span class="k">struct</span> <span class="nc">RuntimeContext</span>
 <span class="p">{</span>
     <span class="n">ILogger</span><span class="o">*</span> <span class="n">logger</span><span class="p">;</span>
     <span class="c1">// ...</span>
@@ -246,46 +260,41 @@ If using types as keys seems odd for you, fear not! Here is the most rational ex
 <span class="p">}</span>
 </code></pre></div>
 
-
 <h3>Time for a C++11 implementation:</h3>
 <p>We can decompose the solution in 3 steps: at first we need to implement a map that accepts <strong>multiple types</strong>, we then need to work on the <strong>thread safety</strong> and finish by the <strong>watcher mechanism</strong>. Let's first fulfill the mission of this post: introducing you to <strong>variadic templates</strong> to solve the multiple-type problem.</p>
 <h4>Variadic templates:</h4>
 <p>You may not have heard of <strong>variadic templates</strong> in <strong>C++11</strong> but I bet that you already used <strong>variadic functions</strong> like <strong>printf</strong> in <strong>C</strong> (maybe in a previous unsafe life). As <a href="https://en.wikipedia.org/wiki/Variadic_function">wikipedia</a> kindly explains "a variadic function is a function of indefinite which accepts a variable number of arguments". In other words, a <strong>variadic function</strong> has potentially an infinite number of <strong>parameters</strong>. Likewise, a <strong>variadic template</strong> has potentially an infinite number of <strong>parameters</strong>. Let's see how to use them!</p>
 <h5>Usage for variadic function templates:</h5>
 <p>Let's say that you wish to create a template that accept an infinite number of class as arguments. You will use the following notation:</p>
-<div class="highlight"><pre><span></span><code><span class="k">template</span> <span class="o">&lt;</span><span class="n">class</span><span class="p">...</span> <span class="n">T</span><span class="o">&gt;</span>
+<div class="highlight"><pre><span></span><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span><span class="p">...</span> <span class="n">T</span><span class="o">&gt;</span>
 </code></pre></div>
 
-
 <p>You specify a group of template parameters using the ellipsis notation named <strong>T</strong>. Note that this <strong>ellipsis</strong> notation is consistent with <strong>C</strong>'s variadic function notation. This group of parameters, called a <strong>parameter-pack</strong>, can then be used in your function template or your class template by <strong>expanding</strong> them. One must use the <strong>ellipsis</strong> notation again (this time after T) to <strong>expand</strong> the parameter pack <strong>T</strong>:</p>
-<div class="highlight"><pre><span></span><code><span class="k">template</span> <span class="o">&lt;</span><span class="n">class</span><span class="p">...</span> <span class="n">T</span><span class="o">&gt;</span> <span class="kt">void</span> <span class="n">f</span><span class="p">(</span><span class="n">T</span><span class="p">...)</span>
+<div class="highlight"><pre><span></span><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span><span class="p">...</span> <span class="n">T</span><span class="o">&gt;</span> <span class="kt">void</span> <span class="n">f</span><span class="p">(</span><span class="n">T</span><span class="p">...)</span>
 <span class="c1">//              ^ pack T       ^expansion</span>
 <span class="p">{</span>
     <span class="c1">// Your function content.</span>
 <span class="p">}</span>
 </code></pre></div>
 
-
 <p>Now that we have expanded <strong>T</strong>, what can we do Sir? Well, first you give to your expanded parameter <strong>types</strong>, a fancy <strong>name</strong> like <strong>t</strong>.</p>
-<div class="highlight"><pre><span></span><code><span class="k">template</span> <span class="o">&lt;</span><span class="n">class</span><span class="p">...</span> <span class="n">T</span><span class="o">&gt;</span> <span class="kt">void</span> <span class="n">f</span><span class="p">(</span><span class="n">T</span><span class="p">...</span> <span class="n">t</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span><span class="p">...</span> <span class="n">T</span><span class="o">&gt;</span> <span class="kt">void</span> <span class="n">f</span><span class="p">(</span><span class="n">T</span><span class="p">...</span> <span class="n">t</span><span class="p">)</span>
 <span class="c1">//                                ^ your fancy t.</span>
 <span class="p">{</span>
     <span class="c1">// Your function content.</span>
 <span class="p">}</span>
 </code></pre></div>
 
-
 <p>If <strong>T = T1, T2</strong>, then <strong>T... t = T1 t1, T2 t2</strong> and <strong>t = t1, t2</strong>. Brilliant, but is that all? Sure no! You can then <strong>expand</strong> again <strong>t</strong> using an "suffix-ellipsis" again:</p>
-<div class="highlight"><pre><span></span><code><span class="k">template</span> <span class="o">&lt;</span><span class="n">class</span><span class="p">...</span> <span class="n">T</span><span class="o">&gt;</span> <span class="kt">void</span> <span class="n">f</span><span class="p">(</span><span class="n">T</span><span class="p">...</span> <span class="n">t</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span><span class="p">...</span> <span class="n">T</span><span class="o">&gt;</span> <span class="kt">void</span> <span class="n">f</span><span class="p">(</span><span class="n">T</span><span class="p">...</span> <span class="n">t</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="n">anotherFunction</span><span class="p">(</span><span class="n">t</span><span class="p">...);</span>
     <span class="c1">//                ^ t is expanded here! </span>
 <span class="p">}</span>
 </code></pre></div>
 
-
 <p>Finally, you can call this function <strong>f</strong> as you would with a normal function template:</p>
-<div class="highlight"><pre><span></span><code><span class="k">template</span> <span class="o">&lt;</span><span class="n">class</span><span class="p">...</span> <span class="n">T</span><span class="o">&gt;</span> <span class="kt">void</span> <span class="n">f</span><span class="p">(</span><span class="n">T</span><span class="p">...</span> <span class="n">t</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span><span class="p">...</span> <span class="n">T</span><span class="o">&gt;</span> <span class="kt">void</span> <span class="n">f</span><span class="p">(</span><span class="n">T</span><span class="p">...</span> <span class="n">t</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="n">anotherFunction</span><span class="p">(</span><span class="n">t</span><span class="p">...);</span>
 <span class="p">}</span>
@@ -296,14 +305,13 @@ If using types as keys seems odd for you, fear not! Here is the most rational ex
 <span class="c1">// that itself calls anotherFunction(t1, t2, t3) equivalent to call anotherFunction(1, &quot;foo&quot;, &quot;bar&quot;);</span>
 </code></pre></div>
 
-
 <p>Actually, the <strong>expansion mechanism</strong> is creating <strong>comma-separated</strong> replication of the <strong>pattern</strong> you apply the <strong>ellipsis</strong> onto. If you think I am tripping out with template-related wording, here is a much more concret example:</p>
-<div class="highlight"><pre><span></span><code><span class="k">template</span> <span class="o">&lt;</span><span class="n">class</span><span class="p">...</span> <span class="n">T</span><span class="o">&gt;</span> <span class="kt">void</span> <span class="n">g</span><span class="p">(</span><span class="n">T</span><span class="p">...</span> <span class="n">t</span><span class="p">)</span>
+<div class="highlight"><pre><span></span><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span><span class="p">...</span> <span class="n">T</span><span class="o">&gt;</span> <span class="kt">void</span> <span class="n">g</span><span class="p">(</span><span class="n">T</span><span class="p">...</span> <span class="n">t</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="n">anotherFunction</span><span class="p">(</span><span class="n">t</span><span class="p">...);</span>
 <span class="p">}</span>
 
-<span class="k">template</span> <span class="o">&lt;</span><span class="n">class</span><span class="p">...</span> <span class="n">T</span><span class="o">&gt;</span> <span class="kt">void</span> <span class="n">f</span><span class="p">(</span><span class="n">T</span><span class="o">*</span><span class="p">...</span> <span class="n">t</span><span class="p">)</span>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span><span class="p">...</span> <span class="n">T</span><span class="o">&gt;</span> <span class="kt">void</span> <span class="n">f</span><span class="p">(</span><span class="n">T</span><span class="o">*</span><span class="p">...</span> <span class="n">t</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="n">g</span><span class="p">(</span><span class="k">static_cast</span><span class="o">&lt;</span><span class="kt">double</span><span class="o">&gt;</span><span class="p">(</span><span class="o">*</span><span class="n">t</span><span class="p">)...);</span>
 <span class="p">}</span>
@@ -320,7 +328,6 @@ If using types as keys seems odd for you, fear not! Here is the most rational ex
 <span class="p">}</span>
 </code></pre></div>
 
-
 <p>I could use the pattern <strong>'*'</strong> for <strong>f</strong> parameters and therefore take them as a pointer! In the same manner, I applied the pattern <strong>'static_cast&lt; double&gt;(*)</strong> to get the value of each arguments and cast them as doubles before forwarding them to <strong>g</strong>.</p>
 <p>One last example before moving to <strong>variadic class templates</strong>. One can combine "normal" template parameters with parameter packs and initiate a compile recursion on function templates. Let's take a look at this printing function:</p>
 <div class="highlight"><pre><span></span><code><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
@@ -330,7 +337,7 @@ If using types as keys seems odd for you, fear not! Here is the most rational ex
     <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Stop: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">head</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
 <span class="p">}</span>
 
-<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">HEAD</span><span class="p">,</span> <span class="n">class</span><span class="p">...</span> <span class="n">TAIL</span><span class="o">&gt;</span> <span class="kt">void</span> <span class="n">print</span><span class="p">(</span><span class="n">HEAD</span> <span class="n">head</span><span class="p">,</span> <span class="n">TAIL</span><span class="p">...</span> <span class="n">tail</span><span class="p">)</span>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">HEAD</span><span class="p">,</span> <span class="k">class</span><span class="p">...</span> <span class="n">TAIL</span><span class="o">&gt;</span> <span class="kt">void</span> <span class="n">print</span><span class="p">(</span><span class="n">HEAD</span> <span class="n">head</span><span class="p">,</span> <span class="n">TAIL</span><span class="p">...</span> <span class="n">tail</span><span class="p">)</span>
 <span class="p">{</span>
     <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;Recurse: &quot;</span> <span class="o">&lt;&lt;</span> <span class="n">head</span> <span class="o">&lt;&lt;</span> <span class="n">std</span><span class="o">::</span><span class="n">endl</span><span class="p">;</span>
     <span class="n">print</span><span class="p">(</span><span class="n">tail</span><span class="p">...);</span>
@@ -354,16 +361,15 @@ If using types as keys seems odd for you, fear not! Here is the most rational ex
 <span class="p">}</span>
 </code></pre></div>
 
-
 <p><strong>Variadic templates</strong> are very interesting and I wouldn't be able to cover all their features within this post. It roughly feels like functional programming using your compiler, and even some <strong>Haskellers</strong> might listen to you if you bring that topic during a dinner. For those interested, I would challenge them to write a type-safe version of <strong>printf</strong> using variadic templates with the help of this <a href="http://en.cppreference.com/w/cpp/language/parameter_pack">reference</a>. After that, you will run and scream of fear at the precense of <strong>C</strong>'s <strong>vargs</strong>.</p>
 <h5>"Variadic" inheritance:</h5>
 <p>Sometimes during my programming sessions, I have a very awkward sensation that my crazy code will never compile and, yet, I finally see "build finished" in my terminal. I am talking about that kind of Frankenstein constructions:</p>
-<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="n">A</span> <span class="p">{</span> <span class="p">};</span>
+<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="nc">A</span> <span class="p">{</span> <span class="p">};</span>
 
-<span class="k">struct</span> <span class="n">B</span> <span class="p">{</span> <span class="p">};</span>
+<span class="k">struct</span> <span class="nc">B</span> <span class="p">{</span> <span class="p">};</span>
 
-<span class="k">template</span> <span class="o">&lt;</span><span class="n">class</span><span class="p">...</span> <span class="n">T</span><span class="o">&gt;</span>
-<span class="k">struct</span> <span class="nl">C</span><span class="p">:</span> <span class="k">public</span> <span class="n">T</span><span class="p">...</span> <span class="c1">// Variadic inheritance</span>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span><span class="p">...</span> <span class="n">T</span><span class="o">&gt;</span>
+<span class="k">struct</span> <span class="nc">C</span><span class="o">:</span> <span class="k">public</span> <span class="n">T</span><span class="p">...</span> <span class="c1">// Variadic inheritance</span>
 <span class="p">{</span>
 
 <span class="p">};</span>
@@ -371,43 +377,42 @@ If using types as keys seems odd for you, fear not! Here is the most rational ex
 <span class="n">C</span><span class="o">&lt;</span><span class="n">A</span><span class="p">,</span> <span class="n">B</span><span class="o">&gt;</span> <span class="n">c</span><span class="p">;</span>
 </code></pre></div>
 
-
 <p>Yes, we can now create a class inheriting of an infinite number of bases. If you remember my explanation about pattern replications separated by commas, you can imaginge that <strong>struct C: public T...</strong> will be "transformed" in <strong>struct C: public A, public B</strong>, <strong>public T</strong> being the pattern. We start to be able to combine multiple types, each exposing a small amount of methods, to create a flexible concret type. That's one step closer to our multi-type map, and if you are interested in this concept, take a look at <a href="https://en.wikipedia.org/wiki/Mixin">mixins</a>.</p>
 <p>Instead of inheriting directly from multiple types, couldn't we inherit from some types that encapsulate our types? Absolutely! A traditional map has some <strong>slots</strong> accessible using keys and these slots contain a value. If you give me base-class you are looking for, I can give you access to the value it contains:</p>
 <div class="highlight"><pre><span></span><code><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
 
-<span class="k">struct</span> <span class="n">SlotA</span>
+<span class="k">struct</span> <span class="nc">SlotA</span>
 <span class="p">{</span>
     <span class="kt">int</span> <span class="n">value</span><span class="p">;</span>
 <span class="p">};</span>
 
-<span class="k">struct</span> <span class="n">SlotB</span>
+<span class="k">struct</span> <span class="nc">SlotB</span>
 <span class="p">{</span>
     <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">value</span><span class="p">;</span>
 <span class="p">};</span>
 
 <span class="c1">// Note: private inheritance, no one can access directly to the slots other than C itself.</span>
-<span class="k">struct</span> <span class="nl">Repository</span><span class="p">:</span> <span class="k">private</span> <span class="n">SlotA</span><span class="p">,</span> <span class="k">private</span> <span class="n">SlotB</span>
+<span class="k">struct</span> <span class="nc">Repository</span><span class="o">:</span> <span class="k">private</span> <span class="n">SlotA</span><span class="p">,</span> <span class="k">private</span> <span class="n">SlotB</span>
 <span class="p">{</span>
 
-    <span class="kt">void</span> <span class="n">setSlotA</span><span class="p">(</span><span class="k">const</span> <span class="kt">int</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span>
+    <span class="kt">void</span> <span class="nf">setSlotA</span><span class="p">(</span><span class="k">const</span> <span class="kt">int</span><span class="o">&amp;</span> <span class="n">value</span><span class="p">)</span>
     <span class="p">{</span>
         <span class="c1">// I access the base-class&#39;s value</span>
         <span class="c1">// Since we have multiple base with a value field, we need to &quot;force&quot; the access to SlotA.</span>
         <span class="n">SlotA</span><span class="o">::</span><span class="n">value</span> <span class="o">=</span> <span class="n">value</span><span class="p">;</span>
     <span class="p">}</span>
 
-    <span class="kt">int</span> <span class="n">getSlotA</span><span class="p">()</span>
+    <span class="kt">int</span> <span class="nf">getSlotA</span><span class="p">()</span>
     <span class="p">{</span>
         <span class="k">return</span> <span class="n">SlotA</span><span class="o">::</span><span class="n">value</span><span class="p">;</span>
     <span class="p">}</span>
 
-    <span class="kt">void</span> <span class="n">setSlotB</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">b</span><span class="p">)</span>
+    <span class="kt">void</span> <span class="nf">setSlotB</span><span class="p">(</span><span class="k">const</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">b</span><span class="p">)</span>
     <span class="p">{</span>
         <span class="n">SlotB</span><span class="o">::</span><span class="n">value</span> <span class="o">=</span> <span class="n">b</span><span class="p">;</span>
     <span class="p">}</span>
 
-    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">getSlotB</span><span class="p">()</span>
+    <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="nf">getSlotB</span><span class="p">()</span>
     <span class="p">{</span>
         <span class="k">return</span> <span class="n">SlotB</span><span class="o">::</span><span class="n">value</span><span class="p">;</span>
     <span class="p">}</span>
@@ -427,7 +432,6 @@ If using types as keys seems odd for you, fear not! Here is the most rational ex
     <span class="k">return</span> <span class="n">EXIT_SUCCESS</span><span class="p">;</span>
 <span class="p">}</span>
 </code></pre></div>
-
 
 <p>This code is not generic at all! We know how to create a generic <strong>Slot</strong> using a simple template, and we acquired the magic "create varidiac inheritance" skill. If my <strong>Repository</strong> class inherit from <strong>Slot&lt; TypeA&gt;</strong> and you call a method template with <strong>TypeA</strong> as a template argument, I can call the <strong>doGet</strong> method of the <strong>Slot&lt; TypeA&gt;</strong> base-class and give you back the <strong>value</strong> of <strong>TypeA</strong> in that repository. Let's fix the previous ugly copy-paste code:</p>
 <div class="highlight"><pre><span></span><code><span class="cp">#include</span> <span class="cpf">&lt;iostream&gt;</span><span class="cp"></span>
@@ -450,7 +454,7 @@ If using types as keys seems odd for you, fear not! Here is the most rational ex
     <span class="n">Type</span> <span class="n">value_</span><span class="p">;</span>
 <span class="p">};</span>
 
-<span class="k">template</span> <span class="o">&lt;</span><span class="n">class</span><span class="p">...</span> <span class="n">Slots</span><span class="o">&gt;</span>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span><span class="p">...</span> <span class="n">Slots</span><span class="o">&gt;</span>
 <span class="k">class</span> <span class="nc">Repository</span> <span class="o">:</span> <span class="k">private</span> <span class="n">Slots</span><span class="p">...</span> <span class="c1">// inherit from our slots...</span>
 <span class="p">{</span>
 <span class="k">public</span><span class="o">:</span>
@@ -468,8 +472,8 @@ If using types as keys seems odd for you, fear not! Here is the most rational ex
 <span class="p">};</span>
 
 <span class="c1">// Incomplete types used as compile-time keys.</span>
-<span class="k">struct</span> <span class="n">Key1</span><span class="p">;</span>
-<span class="k">struct</span> <span class="n">Key2</span><span class="p">;</span>
+<span class="k">struct</span> <span class="nc">Key1</span><span class="p">;</span>
+<span class="k">struct</span> <span class="nc">Key2</span><span class="p">;</span>
 
 <span class="c1">// Create a type for our repository.</span>
 <span class="k">using</span> <span class="n">MyRepository</span> <span class="o">=</span> <span class="n">Repository</span>
@@ -492,9 +496,8 @@ If using types as keys seems odd for you, fear not! Here is the most rational ex
 <span class="p">}</span>
 </code></pre></div>
 
-
 <p>This repository starts to take shape, but we are not yet done! If you try to have two int slots, you will raise a compilation error: "base class 'Slot<int>' specified more than once as a direct base class". We need to add another key-type to our slot class with a default value and we need to modify our repository methods to handle it:</p>
-<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="n">DefaultSlotKey</span><span class="p">;</span> <span class="c1">// No needs for a definition</span>
+<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="nc">DefaultSlotKey</span><span class="p">;</span> <span class="c1">// No needs for a definition</span>
 
 <span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">T</span><span class="p">,</span> <span class="k">class</span> <span class="nc">Key</span> <span class="o">=</span> <span class="n">DefaultSlotKey</span><span class="o">&gt;</span> <span class="c1">// The Key type will never be trully used. </span>
 <span class="k">class</span> <span class="nc">Slot</span>
@@ -502,7 +505,7 @@ If using types as keys seems odd for you, fear not! Here is the most rational ex
     <span class="c1">// ...</span>
 <span class="p">};</span>
 
-<span class="k">template</span> <span class="o">&lt;</span><span class="n">class</span><span class="p">...</span> <span class="n">Slots</span><span class="o">&gt;</span>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span><span class="p">...</span> <span class="n">Slots</span><span class="o">&gt;</span>
 <span class="k">class</span> <span class="nc">Repository</span> <span class="o">:</span> <span class="k">private</span> <span class="n">Slots</span><span class="p">...</span>
 <span class="p">{</span>
 <span class="k">public</span><span class="o">:</span>
@@ -519,8 +522,8 @@ If using types as keys seems odd for you, fear not! Here is the most rational ex
     <span class="p">}</span>
 <span class="p">};</span>
 
-<span class="k">struct</span> <span class="n">Key1</span><span class="p">;</span> <span class="c1">// No need for definition.</span>
-<span class="k">struct</span> <span class="n">Key2</span><span class="p">;</span>
+<span class="k">struct</span> <span class="nc">Key1</span><span class="p">;</span> <span class="c1">// No need for definition.</span>
+<span class="k">struct</span> <span class="nc">Key2</span><span class="p">;</span>
 
 <span class="c1">// Now you can do:</span>
 <span class="k">using</span> <span class="n">MyRepository</span> <span class="o">=</span> <span class="n">Repository</span>
@@ -531,20 +534,19 @@ If using types as keys seems odd for you, fear not! Here is the most rational ex
     <span class="o">&gt;</span><span class="p">;</span>
 </code></pre></div>
 
-
 <p>Here is a UML representation of this Repository using distinct <strong>Keys</strong> for the type <strong>std::string</strong>:
 <img alt="A nice UML diagram of my classes" src="https://jguegant.github.io/blogs/tech/images/repository_uml.png"></p>
 <p>Our repository class is missing an <strong>emplace</strong> method, right? <strong>emplace</strong> is taking a variable number of arguments with different types and <strong>forward</strong> them to create an object within one of our slots. A variable number of arguments and types must remind you something... <strong>variadic templates</strong>! Let's create this variadic <strong>emplace</strong> method as well as its equivalent in the Slot class:</p>
 <div class="highlight"><pre><span></span><code><span class="c1">// In class Slot:</span>
 
-<span class="k">template</span> <span class="o">&lt;</span><span class="n">class</span><span class="p">...</span> <span class="n">Args</span><span class="o">&gt;</span>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span><span class="p">...</span> <span class="n">Args</span><span class="o">&gt;</span>
 <span class="kt">void</span> <span class="n">doEmplace</span><span class="p">(</span><span class="k">const</span> <span class="n">Args</span><span class="o">&amp;</span><span class="p">...</span> <span class="n">args</span><span class="p">)</span> <span class="c1">// Here the pattern is const  &amp;.</span>
 <span class="p">{</span>
     <span class="n">value_</span> <span class="o">=</span> <span class="n">Type</span><span class="p">(</span><span class="n">args</span><span class="p">...);</span> <span class="c1">// copy-operator (might use move semantics).</span>
 <span class="p">}</span>
 
 <span class="c1">// In class Repository:</span>
-<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Type</span><span class="p">,</span> <span class="k">class</span> <span class="nc">Key</span> <span class="o">=</span> <span class="n">DefaultSlotKey</span><span class="p">,</span> <span class="n">class</span><span class="p">...</span> <span class="n">Args</span><span class="o">&gt;</span>
+<span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Type</span><span class="p">,</span> <span class="k">class</span> <span class="nc">Key</span> <span class="o">=</span> <span class="n">DefaultSlotKey</span><span class="p">,</span> <span class="k">class</span><span class="p">...</span> <span class="n">Args</span><span class="o">&gt;</span>
 <span class="kt">void</span> <span class="n">emplace</span><span class="p">(</span><span class="k">const</span> <span class="n">Args</span><span class="o">&amp;</span><span class="p">...</span> <span class="n">args</span><span class="p">)</span> <span class="c1">// Here the pattern is const  &amp;.</span>
 <span class="p">{</span>
     <span class="n">Slot</span><span class="o">&lt;</span><span class="n">Type</span><span class="p">,</span> <span class="n">Key</span><span class="o">&gt;::</span><span class="n">doEmplace</span><span class="p">(</span><span class="n">args</span><span class="p">...);</span>
@@ -553,7 +555,6 @@ If using types as keys seems odd for you, fear not! Here is the most rational ex
 <span class="c1">// Usage:</span>
 <span class="n">myRepository</span><span class="p">.</span><span class="n">emplace</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&gt;</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="sc">&#39;a&#39;</span><span class="p">);</span> <span class="c1">// Create a std::string &quot;aaaa&quot;.</span>
 </code></pre></div>
-
 
 <p>One last improvement for the future users of your repositories! If one morning, badly awake, a coworker of yours is trying to get a type or key that doesn't exist (like myRepository.get&lt; double&gt;();), he might be welcomed by such a message:</p>
 <div class="highlight"><pre><span></span><code><span class="o">/</span><span class="n">home</span><span class="o">/</span><span class="n">jguegant</span><span class="o">/</span><span class="n">Coding</span><span class="o">/</span><span class="n">ConfigsRepo</span><span class="o">/</span><span class="n">main</span><span class="p">.</span><span class="nl">cpp</span><span class="p">:</span><span class="mi">36</span><span class="o">:</span><span class="mi">33</span><span class="o">:</span> <span class="nl">error</span><span class="p">:</span> <span class="n">call</span> <span class="n">to</span> <span class="n">non</span><span class="o">-</span><span class="k">static</span> <span class="n">member</span> <span class="n">function</span> <span class="n">without</span> <span class="n">an</span> <span class="n">object</span> <span class="n">argument</span>
@@ -571,12 +572,10 @@ If using types as keys seems odd for you, fear not! Here is the most rational ex
 <span class="mi">2</span> <span class="n">errors</span> <span class="n">generated</span><span class="p">.</span>
 </code></pre></div>
 
-
 <p>This message is very confusing, our class does not inherit from <strong>Slot&lt; double, DefaultSlotKey&gt;</strong>! And we are talking about a <strong>clang</strong> output, I wonder what <strong>gcc</strong> or <strong>MSVC</strong> could produce... If you do not want to be assinated from your moody colleague with a spoon, here is a nice solution using <strong>C++11</strong>'s <a href="http://en.cppreference.com/w/cpp/language/static_assert">static_asserts</a>. <strong>Static asserts</strong> give you the possibility to generate your own compiler error messages in the same fashion as normal asserts but at compile-time. Using a the trait like <strong>std::is_base_of</strong>, you can suggest the user of your repository to check twice his type. Let's put this <strong>static_assert</strong> at the beggining of all the methods of <strong>Repository</strong>:</p>
 <div class="highlight"><pre><span></span><code><span class="k">static_assert</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">is_base_of</span><span class="o">&lt;</span><span class="n">Slot</span><span class="o">&lt;</span><span class="n">Type</span><span class="p">,</span> <span class="n">Key</span><span class="o">&gt;</span><span class="p">,</span> <span class="n">Repository</span><span class="o">&lt;</span><span class="n">Slots</span><span class="p">...</span><span class="o">&gt;&gt;::</span><span class="n">value</span><span class="p">,</span> 
           <span class="s">&quot;Please ensure that this type or this key exists in this repository&quot;</span><span class="p">);</span>
 </code></pre></div>
-
 
 <p>We are done for this part (finally...), time to think about multi-threading! If you want to know more about the magic behind <strong>std::is_base_of</strong>, I would suggest you to read my previous post on <a href="https://jguegant.github.io/blogs/tech/sfinae-introduction.html">SFINAE</a>, it might give you few hints. Here is a <a href="https://gist.github.com/Jiwan/c1daf7a80ebeb166dc61">gist</a> of what we achieved so far. Did you notice the change on <strong>emplace</strong>? If you do not understand it, have a look at <a href="http://thbecker.net/articles/rvalue_references/section_07.html">this explanation on perfect forwarding</a>. Sadly, it would be a way too long topic for this post (trust me on that point!) and has a minor impact on our repository right now.</p>
 <h4>Let's play safe:</h4>
@@ -594,7 +593,6 @@ If using types as keys seems odd for you, fear not! Here is the most rational ex
     <span class="n">value_</span> <span class="o">=</span> <span class="n">value</span><span class="p">;</span>
 <span class="p">}</span>
 </code></pre></div>
-
 
 <p>As specified: "If multiple threads of execution access the <strong>same</strong> std::shared_ptr object without synchronization and any of those accesses uses a non-const member function of shared_ptr then a data race will occur". Note that we are talking about the <strong>same</strong> shared pointer. Multiple shared pointer <strong>copies</strong> pointing to the same object are fine, as long as these copies originated from the same shared pointer in first place. Copies are sharing the same <strong>control block</strong>, where the <strong>reference counters</strong> (one for shared_ptr and one for weak_ptr) are located, and the specification says "the control block of a shared_ptr is thread-safe: different std::shared_ptr objects can be accessed using mutable operations, such as operator= or reset, simultaneously by multiple threads, even when these instances are copies, and share the same control block internally.".</p>
 <p>Depending on the age of your compiler and its standard library, I suggest two solutions:</p>
@@ -620,7 +618,6 @@ If using types as keys seems odd for you, fear not! Here is the most rational ex
 <span class="p">...</span>
 </code></pre></div>
 
-
 <p>This solution is ideal if you have a <strong>Linux</strong> distribution that only ships <strong>gcc 4.8.x</strong> like mine. While not particularly elegant, it doesn't have a great impact on performances compared to the next solution. </p>
 <h5>2) Atomic access functions:</h5>
 <p>Starting from <strong>gcc 4.9</strong>, one can use <a href="http://en.cppreference.com/w/cpp/memory/shared_ptr/atomic">atomic access functions</a> to manipulate shared pointers. I dream of a day where a specialisation for <strong>std::atomic&lt; std::shared_ptr<T>&gt;</strong> exists, but from now, we will resort to use <strong>std::atomic_load</strong> and <strong>std::atomic_exchange</strong>:</p>
@@ -639,7 +636,6 @@ If using types as keys seems odd for you, fear not! Here is the most rational ex
     <span class="n">std</span><span class="o">::</span><span class="n">shared_ptr</span><span class="o">&lt;</span><span class="n">Type</span><span class="o">&gt;</span> <span class="n">value_</span><span class="p">;</span>
 <span class="p">...</span>
 </code></pre></div>
-
 
 <p><strong>Atomics</strong> are elegants and can often bring a great increase of performances if using lock-free instructions internally. Sadly, in the case of <strong>shared_ptrs</strong>, <strong>atomic_is_lock_free</strong> will return you <strong>false</strong>. By digging in <strong>libstdc++</strong> and <strong>libc++</strong>, you will find some mutexes. <strong>gcc</strong> seems to use a fixed size "pool" of mutexes attributed to a shared_ptr according to a hash of its pointee address, when dealing with atomic operations. In other words, no rocket-science for atomic shared pointers until now.</p>
 <h4>Our own watchers:</h4>
@@ -670,7 +666,7 @@ If using types as keys seems odd for you, fear not! Here is the most rational ex
         <span class="n">hasBeenChanged_</span> <span class="o">=</span> <span class="nb">true</span><span class="p">;</span>
     <span class="p">}</span>
 
-    <span class="k">auto</span> <span class="nf">get</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="k">decltype</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">declval</span><span class="o">&lt;</span><span class="n">Slot</span><span class="o">&lt;</span><span class="n">Type</span><span class="p">,</span> <span class="n">Key</span><span class="o">&gt;&gt;</span><span class="p">().</span><span class="n">doGet</span><span class="p">())</span>
+    <span class="k">auto</span> <span class="n">get</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="k">decltype</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">declval</span><span class="o">&lt;</span><span class="n">Slot</span><span class="o">&lt;</span><span class="n">Type</span><span class="p">,</span> <span class="n">Key</span><span class="o">&gt;&gt;</span><span class="p">().</span><span class="n">doGet</span><span class="p">())</span>
     <span class="p">{</span>
         <span class="n">hasBeenChanged_</span> <span class="o">=</span> <span class="nb">false</span><span class="p">;</span> <span class="c1">// Note: even if there is an update of the value between this line and the getValue one,</span>
         <span class="c1">// we will still have the latest version.</span>
@@ -680,10 +676,9 @@ If using types as keys seems odd for you, fear not! Here is the most rational ex
 
 <span class="k">private</span><span class="o">:</span>
     <span class="n">Slot</span><span class="o">&lt;</span><span class="n">Type</span><span class="p">,</span> <span class="n">Key</span><span class="o">&gt;&amp;</span> <span class="n">slot_</span><span class="p">;</span>
-    <span class="n">std</span><span class="o">::</span><span class="n">atomic_bool</span> <span class="n">hasBeenChanged_</span><span class="p">;</span>
+    <span class="n">std</span><span class="o">::</span><span class="kt">atomic_bool</span> <span class="n">hasBeenChanged_</span><span class="p">;</span>
 <span class="p">};</span>
 </code></pre></div>
-
 
 <p>As for the automatic registration, we will add two private methods <strong>registerWatcher</strong> and <strong>unregisterWatcher</strong> to our <strong>Slot</strong> class that add or remove a watcher from an internal list. The list is always protected, when accessed, with a <strong>std::mutex</strong> and tracks all the current watchers that must be signaled when <strong>set</strong> is called on that slot. </p>
 <div class="highlight"><pre><span></span><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Type</span><span class="p">,</span> <span class="k">class</span> <span class="nc">Key</span><span class="o">&gt;</span>
@@ -724,7 +719,6 @@ If using types as keys seems odd for you, fear not! Here is the most rational ex
 <span class="p">};</span>
 </code></pre></div>
 
-
 <p>You may have notice that we are passing a bare <strong>WatcherType</strong> pointers. The ownership is actually given to whoever is using that watcher encapsulated within a <strong>std::unique_ptr</strong>. <strong>C++11</strong>'s unique pointers are designed such as you can pass a <strong>custom deleter</strong>, or a <strong>delete callback</strong> so to speak. Hence, we can create a method that get a <strong>Watcher</strong> for a <strong>Slot</strong>, and register as the deleter of that <strong>Watcher</strong> a <strong>lambda function</strong> designed to call <strong>unregisterWatcher</strong>. Note that the slot MUST always lives longer than the unique pointer and its associated watcher (it should not be a problem in most cases). Let's finish that <strong>Slot</strong> class forever and ever:</p>
 <div class="highlight"><pre><span></span><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Type</span><span class="p">,</span> <span class="k">class</span> <span class="nc">Key</span><span class="o">&gt;</span>
 <span class="k">class</span> <span class="nc">Slot</span>
@@ -744,7 +738,7 @@ If using types as keys seems odd for you, fear not! Here is the most rational ex
     <span class="p">{</span>
         <span class="c1">// Create a unique_ptr and pass a lambda as a deleter.</span>
         <span class="c1">// The lambda capture &quot;this&quot; and will call unregisterWatcher.</span>
-        <span class="n">WatcherTypePtr</span> <span class="n">watcher</span><span class="p">(</span><span class="k">new</span> <span class="n">WatcherType</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">),</span> <span class="p">[</span><span class="k">this</span><span class="p">](</span><span class="n">WatcherType</span><span class="o">*</span> <span class="n">toBeDelete</span><span class="p">)</span> <span class="p">{</span>
+        <span class="n">WatcherTypePtr</span> <span class="nf">watcher</span><span class="p">(</span><span class="k">new</span> <span class="n">WatcherType</span><span class="p">(</span><span class="o">*</span><span class="k">this</span><span class="p">),</span> <span class="p">[</span><span class="k">this</span><span class="p">](</span><span class="n">WatcherType</span><span class="o">*</span> <span class="n">toBeDelete</span><span class="p">)</span> <span class="p">{</span>
             <span class="k">this</span><span class="o">-&gt;</span><span class="n">unregisterWatcher</span><span class="p">(</span><span class="n">toBeDelete</span><span class="p">);});</span>
 
         <span class="n">registerWatcher</span><span class="p">(</span><span class="n">watcher</span><span class="p">.</span><span class="n">get</span><span class="p">());</span>
@@ -755,15 +749,13 @@ If using types as keys seems odd for you, fear not! Here is the most rational ex
 <span class="p">};</span>
 </code></pre></div>
 
-
 <p>Are we done? Hell no, but we will be really soon. All we need is to expose the possibility to acquire a watcher from the repository itself. In the same manner as <strong>set</strong> and <strong>get</strong>, we simply dispatch using the type and the key on one of our slot:</p>
 <div class="highlight"><pre><span></span><code><span class="k">template</span> <span class="o">&lt;</span><span class="k">class</span> <span class="nc">Type</span><span class="p">,</span> <span class="k">class</span> <span class="nc">Key</span> <span class="o">=</span> <span class="n">DefaultSlotKey</span><span class="o">&gt;</span>
-<span class="k">typename</span> <span class="n">Slot</span><span class="o">&lt;</span><span class="n">Type</span><span class="p">,</span> <span class="n">Key</span><span class="o">&gt;::</span><span class="n">WatcherTypePtr</span> <span class="n">getWatcher</span><span class="p">()</span> <span class="c1">// typename is used for disambiguate</span>
+<span class="k">typename</span> <span class="nc">Slot</span><span class="o">&lt;</span><span class="n">Type</span><span class="p">,</span> <span class="n">Key</span><span class="o">&gt;::</span><span class="n">WatcherTypePtr</span> <span class="n">getWatcher</span><span class="p">()</span> <span class="c1">// typename is used for disambiguate</span>
 <span class="p">{</span>
     <span class="k">return</span> <span class="n">Slot</span><span class="o">&lt;</span><span class="n">Type</span><span class="p">,</span> <span class="n">Key</span><span class="o">&gt;::</span><span class="n">doGetWatcher</span><span class="p">();</span>
 <span class="p">}</span>
 </code></pre></div>
-
 
 <p><strong>WAIT</strong>, don't close that page too fast. If you want to be able to snub everyone, you can replace this ugly <strong>typename Slot<Type, Key>::WatcherTypePtr</strong> with <strong>auto</strong> and claim that your repository class is <strong>C++14</strong> only! Grab the full code of what we build together on <a href="https://gist.github.com/Jiwan/31f8f837e4f4b90fed13">gist</a> and enjoy!</p>
 <h3>Conclusion:</h3>
@@ -794,17 +786,17 @@ If using types as keys seems odd for you, fear not! Here is the most rational ex
     })();
 </script>
 <noscript>
-        Please enable JavaScript to view comments.
-
+    Please enable JavaScript to view comments.
 </noscript>
 <!-- End Disqus -->
 </article>
 
     <footer>
 <p>
-  &copy;  2015 - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>
+  &copy; 2015  - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/deed.en_US" target="_blank">Creative Commons Attribution-ShareAlike</a>
 </p>
-<p>    Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
+<p>
+Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
 </p><p>
   <a rel="license"
      href="http://creativecommons.org/licenses/by-sa/4.0/"
@@ -832,7 +824,6 @@ If using types as keys seems odd for you, fear not! Here is the most rational ex
   "description": ""
 }
 </script>
-
 
 </body>
 </html>

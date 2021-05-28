@@ -8,12 +8,15 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="robots" content="index, follow" />
 
-  <link href="https://fonts.googleapis.com/css?family=Source+Code+Pro|Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Code+Pro:ital,wght@0,400;0,700;1,400&family=Source+Sans+Pro:ital,wght@0,300;0,400;0,700;1,400&display=swap" rel="stylesheet">
 
     <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/stylesheet/style.min.css">
 
 
-  <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/pygments/monokai.min.css">
+    <link id="pygments-light-theme" rel="stylesheet" type="text/css"
+          href="https://jguegant.github.io/blogs/tech/theme/pygments/monokai.min.css">
+
+
   <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/font-awesome/css/fontawesome.css">
   <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/font-awesome/css/brands.css">
   <link rel="stylesheet" type="text/css" href="https://jguegant.github.io/blogs/tech/theme/font-awesome/css/solid.css">
@@ -33,7 +36,8 @@
   ga('create', 'UA-68827527-1', 'auto');
   ga('send', 'pageview');
 </script>
-<!-- End Google Analytics -->
+<!-- End Google Analytics -->  
+
 
 <meta name="author" content="Jean Guegant" />
 <meta name="description" content="Trivia: I had a good intuition on how structured bindings worked when C++17 came out. The feature is quite intuitive to use and provides great help. But it is not until recently that I actually read the part of the standard that describes how this truly works under the …" />
@@ -57,19 +61,35 @@
   <title>Jean Guegant's Blog &ndash; Let&#39;s unravel the secrets behind C++17&#39;s structured bindings</title>
 
 </head>
-<body>
+<body class="light-theme">
   <aside>
     <div>
       <a href="https://jguegant.github.io/blogs/tech">
         <img src="https://jguegant.github.io/blogs/tech/images/myself.png" alt="Jean Guegant" title="Jean Guegant">
       </a>
-      <h1><a href="https://jguegant.github.io/blogs/tech">Jean Guegant</a></h1>
 
-<p>Software Engineer - C++, security, game development and random thoughts.</p>      <nav>
+      <h1>
+        <a href="https://jguegant.github.io/blogs/tech">Jean Guegant</a>
+      </h1>
+
+<p>Software Engineer - C++, security, game development and random thoughts.</p>
+
+      <nav>
         <ul class="list">
 
-            <li><a target="_blank" href="https://jguegant.github.io/blogs/tech/pages/about.html#about">About</a></li>
-            <li><a target="_blank" href="https://jguegant.github.io/blogs/tech/pages/contact.html#contact">Contact</a></li>
+
+              <li>
+                <a target="_self"
+                   href="https://jguegant.github.io/blogs/tech/pages/about.html#about">
+                  About
+                </a>
+              </li>
+              <li>
+                <a target="_self"
+                   href="https://jguegant.github.io/blogs/tech/pages/contact.html#contact">
+                  Contact
+                </a>
+              </li>
 
         </ul>
       </nav>
@@ -77,31 +97,28 @@
       <ul class="social">
           <li>
             <a  class="sc-linkedin" href="https://se.linkedin.com/in/jguegant" target="_blank">
-            <i class="fab fa-linkedin">
-            </i>
-          </a></li>
+              <i class="fab fa-linkedin"></i>
+            </a>
+          </li>
           <li>
             <a  class="sc-github" href="https://github.com/Jiwan" target="_blank">
-            <i class="fab fa-github">
-            </i>
-          </a></li>
+              <i class="fab fa-github"></i>
+            </a>
+          </li>
       </ul>
     </div>
-
 
   </aside>
   <main>
 
     <nav>
-      <a href="https://jguegant.github.io/blogs/tech">    Home
-</a>
+      <a href="https://jguegant.github.io/blogs/tech">Home</a>
 
       <a href="https://jguegant.github.io/blogs/tech/archives.html">Archives</a>
       <a href="https://jguegant.github.io/blogs/tech/categories.html">Categories</a>
       <a href="https://jguegant.github.io/blogs/tech/tags.html">Tags</a>
 
-      <a href="https://jguegant.github.io/blogs/tech/feeds/all.atom.xml">    Atom
-</a>
+      <a href="https://jguegant.github.io/blogs/tech/feeds/all.atom.xml">Atom</a>
 
     </nav>
 
@@ -110,8 +127,7 @@
       
     <h1 id="structured-bindings">Let's unravel the secrets behind C++17's structured bindings</h1>
     <p>
-          Posted on Sun 17 May 2020 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
-
+      Posted on Sun 17 May 2020 in <a href="https://jguegant.github.io/blogs/tech/category/c.html">C++</a>
 
     </p>
   </header>
@@ -129,7 +145,6 @@ But it is not until recently that I actually read <a href="http://eel.is/c++draf
 <div class="highlight"><pre><span></span><code><span class="k">auto</span> <span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="n">foo</span><span class="p">();</span>
 </code></pre></div>
 
-
 <p>The way you should interpret this code is the following:</p>
 <ul>
 <li>I am declaring a new <strong>anonymous</strong> variable that encompass <code>[x, y]</code>.</li>
@@ -138,7 +153,6 @@ But it is not until recently that I actually read <a href="http://eel.is/c++draf
 <p>In other words, your compiler starts by producing a code very similar to this:</p>
 <div class="highlight"><pre><span></span><code><span class="k">auto</span> <span class="n">a_secret_variable</span> <span class="o">=</span> <span class="n">foo</span><span class="p">();</span>
 </code></pre></div>
-
 
 <p>What this implies is the <code>auto</code> keyword is <strong>applied to the anonymous variable</strong> and <strong>NOT</strong> the identifier <code>x</code> and <code>y</code> as some may think.
 The anonymous variable itself is not visible to anyone except the compiler, it is not possible to actually check its type, but you have to trust me here! </p>
@@ -159,7 +173,6 @@ The two first ones are pretty straightforward, while the later one requires a bi
 <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">an_array</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;,&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">an_array</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span> <span class="c1">// What happen here?</span>
 </code></pre></div>
 
-
 <p>After substitution of <code>[x, y]</code> with our anonymous variable we obtain:</p>
 <div class="highlight"><pre><span></span><code><span class="kt">int</span> <span class="n">an_array</span><span class="p">[]</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1337</span><span class="p">,</span> <span class="mi">1337</span><span class="p">};</span>
 <span class="k">auto</span><span class="o">&amp;</span> <span class="n">a_secret_variable</span> <span class="o">=</span> <span class="n">an_array</span><span class="p">;</span>
@@ -170,7 +183,6 @@ The two first ones are pretty straightforward, while the later one requires a bi
 <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">an_array</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;,&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">an_array</span><span class="p">[</span><span class="mi">1</span><span class="p">];</span>
 </code></pre></div>
 
-
 <p>As you can see, <code>x</code> and <code>y</code> do not really exist as variables. They don't even have their own storage! Rather, they should be seen as special identifiers ; what the standard call "the names of lvalues that refer to some elements". In this scenario, <code>x</code> is a special identifier that refers to <code>a_secret_variable[0]</code>. And <code>y</code> is a special identifier that refers to <code>a_secret_variable[1]</code>.
 Since <code>a_secret_variable</code> is a l-value reference to <code>an_array</code>, mutating <code>a_secret_variable</code> is equivalent to mutating <code>an_array</code>. Therefore, this snippet will print <code>42,42</code>.</p>
 <p>Note that the number of special identifiers must match the size of your array! Your compiler will yield an error otherwise.</p>
@@ -179,7 +191,7 @@ Since <code>a_secret_variable</code> is a l-value reference to <code>an_array</c
 In the standard, this case happens only if the type is not already in the category "arrays" or "tuple-like types".</p>
 <p>If your type falls into that "simple types" category, the end-result will be very similar to arrays. The difference is that the special identifiers will refer to the non-static members of your type. The special identifiers are referring each members of your type from up to down.</p>
 <p>So if we have such code:</p>
-<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="n">A</span> <span class="p">{</span>
+<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="nc">A</span> <span class="p">{</span>
     <span class="kt">int</span> <span class="n">a</span><span class="p">;</span>
     <span class="kt">int</span> <span class="n">b</span><span class="p">;</span>
 <span class="p">};</span>
@@ -193,9 +205,8 @@ In the standard, this case happens only if the type is not already in the catego
 <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">x</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;,&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">y</span><span class="p">;</span> <span class="c1">// Prints 1337, 1337</span>
 </code></pre></div>
 
-
 <p>Let's observe what such a simple example becomes:</p>
-<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="n">A</span> <span class="p">{</span>
+<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="nc">A</span> <span class="p">{</span>
     <span class="kt">int</span> <span class="n">a</span><span class="p">;</span>
     <span class="kt">int</span> <span class="n">b</span><span class="p">;</span>
 <span class="p">};</span>
@@ -208,7 +219,6 @@ In the standard, this case happens only if the type is not already in the catego
 
 <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">a_secret_variable</span><span class="p">.</span><span class="n">a</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;,&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">a_secret_variable</span><span class="p">.</span><span class="n">b</span><span class="p">;</span>
 </code></pre></div>
-
 
 <p>As you can see, <code>a</code> is the first member of <code>A</code>. <code>x</code> being also first in the identifier list will refer to <code>a</code>.
 Note that the number of special identifiers must also match the number of members available in your type!</p>
@@ -226,7 +236,7 @@ If you do so, you have multiple issues, like:</p>
 <p>The last kind of types you can bind are tuple-like types. In layman's terms, these types are similar to <a href="https://en.cppreference.com/w/cpp/utility/tuple">std::tuple</a> in the sense that you can access their members/values using <code>std::get</code> or a member function <code>get</code> on them. These types do not give a direct access to their members/values but still want to be part of the cool club of structured bindings. Ultimately, this led the standard to use type traits to describe how to access these members. </p>
 <h4>Example with std::tuple:</h4>
 <p>Let's start with a simple case that we will decompose in few steps:</p>
-<div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="n">tuple</span> <span class="n">my_fancy_tuple</span><span class="p">(</span><span class="mi">43</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="s">&quot;fiction&quot;</span><span class="p">));</span>
+<div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="n">tuple</span> <span class="nf">my_fancy_tuple</span><span class="p">(</span><span class="mi">43</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="s">&quot;fiction&quot;</span><span class="p">));</span>
 <span class="k">auto</span><span class="o">&amp;</span> <span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="n">my_fancy_tuple</span><span class="p">;</span>
 
 <span class="n">y</span> <span class="o">=</span> <span class="s">&quot;factory&quot;</span><span class="p">;</span>
@@ -234,12 +244,10 @@ If you do so, you have multiple issues, like:</p>
 <span class="n">std</span><span class="o">::</span><span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">x</span> <span class="o">&lt;&lt;</span> <span class="s">&quot;,&quot;</span> <span class="o">&lt;&lt;</span> <span class="n">y</span><span class="p">;</span> <span class="c1">// Prints 43,factory.</span>
 </code></pre></div>
 
-
 <p>As always, your compiler will first introduce an anonymous variable:</p>
-<div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="n">tuple</span> <span class="n">my_fancy_tuple</span><span class="p">(</span><span class="mi">43</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="s">&quot;fiction&quot;</span><span class="p">));</span>
+<div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="n">tuple</span> <span class="nf">my_fancy_tuple</span><span class="p">(</span><span class="mi">43</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="s">&quot;fiction&quot;</span><span class="p">));</span>
 <span class="k">auto</span><span class="o">&amp;</span> <span class="n">a_secret_variable</span> <span class="o">=</span> <span class="n">my_fancy_tuple</span><span class="p">;</span>
 </code></pre></div>
-
 
 <p>As a sanity check, your compiler will check that your special identifiers like <code>x</code> or <code>y</code> are enough to cover all the values that your tuple-like type holds.
 To do so, it will do a "compile-time call" equivalent to <code>std​::​tuple_­size_v&lt;std::remove_reference_t&lt;decltype(a_secret_variable)&gt;&gt;​</code>. <a href="https://en.cppreference.com/w/cpp/utility/tuple/tuple_size">std::tuple_size</a> is already defined for <code>std::tuple</code> and will return <code>2</code> in our example. Since we have two special identifiers and the size of the tuple is two, no members/values are left behind and the compiler allows us to move to the next step.</p>
@@ -247,26 +255,24 @@ To do so, it will do a "compile-time call" equivalent to <code>std​::​tuple_
 The standard also provides a second customisation point by letting the creator of the tuple-like class decided which type these variables will have.
 This customisation point is called <a href="https://en.cppreference.com/w/cpp/utility/tuple/tuple_element">std::tuple_element</a>.
 Here is what this will look like in code:</p>
-<div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="n">tuple</span> <span class="n">my_fancy_tuple</span><span class="p">(</span><span class="mi">43</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="s">&quot;fiction&quot;</span><span class="p">));</span>
+<div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="n">tuple</span> <span class="nf">my_fancy_tuple</span><span class="p">(</span><span class="mi">43</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="s">&quot;fiction&quot;</span><span class="p">));</span>
 <span class="k">auto</span><span class="o">&amp;</span> <span class="n">a_secret_variable</span> <span class="o">=</span> <span class="n">my_fancy_tuple</span><span class="p">;</span>
 <span class="n">std</span><span class="o">::</span><span class="n">tuple_element_t</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">remove_reference_t</span><span class="o">&lt;</span><span class="k">decltype</span><span class="p">(</span><span class="n">a_secret_variable</span><span class="p">)</span><span class="o">&gt;&gt;&amp;</span> <span class="n">secret_x</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="p">(</span><span class="n">my_fancy_tuple</span><span class="p">);</span>
 <span class="c1">//                   ^ The type of the member with index 0                     ^ anonymous         ^ Gets the value of member 0.</span>
 <span class="n">std</span><span class="o">::</span><span class="n">tuple_element_t</span><span class="o">&lt;</span><span class="mi">1</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">remove_reference_t</span><span class="o">&lt;</span><span class="k">decltype</span><span class="p">(</span><span class="n">a_secret_variable</span><span class="p">)</span><span class="o">&gt;&gt;&amp;</span> <span class="n">secret_y</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">(</span><span class="n">my_fancy_tuple</span><span class="p">);</span>
 </code></pre></div>
 
-
 <p>Given <a href="https://en.cppreference.com/w/cpp/utility/tuple/tuple_element">std::tuple_element</a> specialisation for <code>std::tuple</code>, this results in:</p>
-<div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="n">tuple</span> <span class="n">my_fancy_tuple</span><span class="p">(</span><span class="mi">43</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="s">&quot;fiction&quot;</span><span class="p">));</span>
+<div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="n">tuple</span> <span class="nf">my_fancy_tuple</span><span class="p">(</span><span class="mi">43</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="s">&quot;fiction&quot;</span><span class="p">));</span>
 <span class="k">auto</span><span class="o">&amp;</span> <span class="n">a_secret_variable</span> <span class="o">=</span> <span class="n">my_fancy_tuple</span><span class="p">;</span>
 <span class="kt">int</span><span class="o">&amp;</span> <span class="n">secret_x</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="p">(</span><span class="n">my_fancy_tuple</span><span class="p">);</span>
 <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">secret_y</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">(</span><span class="n">my_fancy_tuple</span><span class="p">);</span>
 </code></pre></div>
 
-
 <p>Note that the variables are defacto references ; more precisely l-value references in this case. This is to avoid any unnecessary copies of your data.
 So what if <code>get</code> had returned anything else than l-value reference? The compiler would adapt itself and generate variables which are r-value references "<code>&amp;&amp;</code>" with the all the benefit you have from those: it extends the lifetime of temporaries and permits mutability of those.</p>
 <p>Afterwards, the compiler proceeds by associating to these new variables our special identifiers <code>x</code> and <code>y</code>. Once again, these special identifiers simply refer to <code>secret_x</code> and <code>secret_y</code> but are not proper variables. This leads us to this weird code as an output where <code>y</code> would spawn out of nowhere but pretends to be <code>secret_y</code>:</p>
-<div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="n">tuple</span> <span class="n">my_fancy_tuple</span><span class="p">(</span><span class="mi">43</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="s">&quot;fiction&quot;</span><span class="p">));</span>
+<div class="highlight"><pre><span></span><code><span class="n">std</span><span class="o">::</span><span class="n">tuple</span> <span class="nf">my_fancy_tuple</span><span class="p">(</span><span class="mi">43</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">(</span><span class="s">&quot;fiction&quot;</span><span class="p">));</span>
 <span class="k">auto</span><span class="o">&amp;</span> <span class="n">a_secret_variable</span> <span class="o">=</span> <span class="n">my_fancy_tuple</span><span class="p">;</span>
 <span class="kt">int</span><span class="o">&amp;</span> <span class="n">secret_x</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="p">(</span><span class="n">my_fancy_tuple</span><span class="p">);</span>
 <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;</span> <span class="n">secret_y</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">get</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">(</span><span class="n">my_fancy_tuple</span><span class="p">);</span>
@@ -274,14 +280,13 @@ So what if <code>get</code> had returned anything else than l-value reference? T
 <span class="n">y</span> <span class="o">=</span> <span class="s">&quot;factory&quot;</span><span class="p">;</span> <span class="c1">// y refers to secret_y and therefore mutate the variable that secret_y is bound to.</span>
 </code></pre></div>
 
-
 <p>To further add to this complicated situation, the reference type of <code>y</code> (the result of <code>decltype(y)</code>) is also receiving its own treatment. 
 You would expect it to be same as <code>secret_y</code> which is <code>std::string&amp;</code>, but the compiler is assigning the type resulting of <code>std::tuple_element</code> instead.
 In our case, <code>std::tuple_element</code> gave for the member at index 1 the type <code>std::string</code>, so <code>decltype(y)</code> will return <code>std::string</code>.
 While slightly awkward, this gave us some types for <code>x</code> and <code>y</code> that would be similar to if we were accessing to the real members of the tuple directly!  </p>
 <h4>Playing with a custom type:</h4>
 <p>As you observed, if a type has a specialisation for <code>std::tuple_element</code> and <code>std::tuple_size</code> and has a <code>std::get</code> overload or a <code>get</code> member function, then it can be morphed into some structured bindings. So let's write a very dumb type with two members we want to expose this way:</p>
-<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="n">A</span> <span class="p">{</span>
+<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="nc">A</span> <span class="p">{</span>
     <span class="n">A</span><span class="p">(</span><span class="kt">int</span> <span class="n">x</span><span class="p">,</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">y</span><span class="p">)</span> <span class="o">:</span> <span class="n">x_</span><span class="p">(</span><span class="n">x</span><span class="p">),</span> <span class="n">y_</span><span class="p">(</span><span class="n">std</span><span class="o">::</span><span class="n">move</span><span class="p">(</span><span class="n">y</span><span class="p">))</span> <span class="p">{}</span>
 
     <span class="k">template</span> <span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">I</span><span class="o">&gt;</span>
@@ -310,25 +315,24 @@ While slightly awkward, this gave us some types for <code>x</code> and <code>y</
     <span class="n">std</span><span class="o">::</span><span class="n">string</span> <span class="n">y_</span><span class="p">;</span>
 <span class="p">};</span>
 
-<span class="k">namespace</span> <span class="n">std</span> <span class="p">{</span>
+<span class="k">namespace</span> <span class="nn">std</span> <span class="p">{</span>
     <span class="k">template</span><span class="o">&lt;&gt;</span>
-    <span class="k">struct</span> <span class="n">tuple_size</span><span class="o">&lt;</span><span class="n">A</span><span class="o">&gt;</span> <span class="o">:</span> <span class="n">std</span><span class="o">::</span><span class="n">integral_constant</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="p">,</span> <span class="mi">2</span><span class="o">&gt;</span> <span class="p">{};</span>
+    <span class="k">struct</span> <span class="nc">tuple_size</span><span class="o">&lt;</span><span class="n">A</span><span class="o">&gt;</span> <span class="o">:</span> <span class="n">std</span><span class="o">::</span><span class="n">integral_constant</span><span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span><span class="p">,</span> <span class="mi">2</span><span class="o">&gt;</span> <span class="p">{};</span>
     <span class="c1">//                ^          A always has 2 members        ^</span>
 
     <span class="k">template</span><span class="o">&lt;&gt;</span>
-    <span class="k">struct</span> <span class="n">tuple_element</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">,</span> <span class="n">A</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">struct</span> <span class="nc">tuple_element</span><span class="o">&lt;</span><span class="mi">0</span><span class="p">,</span> <span class="n">A</span><span class="o">&gt;</span> <span class="p">{</span>
     <span class="c1">//                   ^ The member at index 0 has type int.</span>
         <span class="k">using</span> <span class="n">type</span> <span class="o">=</span> <span class="kt">int</span><span class="p">;</span>
     <span class="p">};</span>
 
     <span class="k">template</span><span class="o">&lt;&gt;</span>
-    <span class="k">struct</span> <span class="n">tuple_element</span><span class="o">&lt;</span><span class="mi">1</span><span class="p">,</span> <span class="n">A</span><span class="o">&gt;</span> <span class="p">{</span>
+    <span class="k">struct</span> <span class="nc">tuple_element</span><span class="o">&lt;</span><span class="mi">1</span><span class="p">,</span> <span class="n">A</span><span class="o">&gt;</span> <span class="p">{</span>
     <span class="c1">// The other one has type std::string.</span>
         <span class="k">using</span> <span class="n">type</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="p">;</span>
     <span class="p">};</span>
 <span class="p">}</span>
 </code></pre></div>
-
 
 <p>As you can see, you don't need a diploma in rocket-science to have your types support structured bindings.
 A couple of lines gives enough clues to your compiler to be able to generate the needed boilerplate behind the scene.
@@ -340,7 +344,6 @@ In that respect, the standard was quite well designed!</p>
 <span class="k">const</span> <span class="k">auto</span><span class="o">&amp;</span> <span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="p">;</span>
 </code></pre></div>
 
-
 <p>If you followed carefully the steps on <code>std::tuple</code>, you would notice that this will call <code>std::tuple_element</code> and <code>std::tuple_size</code> with <code>const A</code> as a parameter.
 As you can see in my code, I did not specialise those two type-traits for <code>const A</code>. Yet, this will work as it should!
 It turns out that the committee was friendly enough to supply a partial specialisation for any <code>const T</code> out there.
@@ -348,7 +351,7 @@ By default, these standard provided specialisations will recursively call your o
 That's neat!</p>
 <h5>A very odd get:</h5>
 <p>The last interesting tidbit is the following: what if we decided that our <code>get</code> return <code>x_</code> and <code>y_</code> by value? How would that work?</p>
-<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="n">A</span> <span class="p">{</span>
+<div class="highlight"><pre><span></span><code><span class="k">struct</span> <span class="nc">A</span> <span class="p">{</span>
     <span class="c1">// ...</span>
 
     <span class="k">template</span> <span class="o">&lt;</span><span class="n">std</span><span class="o">::</span><span class="kt">size_t</span> <span class="n">I</span><span class="o">&gt;</span> 
@@ -368,13 +371,11 @@ That's neat!</p>
 <span class="k">const</span> <span class="k">auto</span><span class="o">&amp;</span> <span class="p">[</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">]</span> <span class="o">=</span> <span class="n">a</span><span class="p">;</span>
 </code></pre></div>
 
-
 <p>As I explained earlier, the standard is actually ready for that extremely hairy situation.
 Here the results from <code>get</code> would be captured by some r-value references such as:</p>
 <div class="highlight"><pre><span></span><code><span class="kt">int</span><span class="o">&amp;&amp;</span> <span class="n">secret_x</span> <span class="o">=</span> <span class="n">secret_a</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="mi">0</span><span class="o">&gt;</span><span class="p">();</span> 
 <span class="n">std</span><span class="o">::</span><span class="n">string</span><span class="o">&amp;&amp;</span> <span class="n">secret_y</span> <span class="o">=</span> <span class="n">secret_a</span><span class="p">.</span><span class="n">get</span><span class="o">&lt;</span><span class="mi">1</span><span class="o">&gt;</span><span class="p">();</span>
 </code></pre></div>
-
 
 <p>The temporaries resulting from those hidden calls to <code>get</code> would live until the end of their scope.
 I am not quite sure if this a genius move from the committee or if this came as by-product of C++'s complexity as I see no point in allowing such weird construction...
@@ -410,17 +411,17 @@ If you have to remember anything from this post, here are the key-points you sho
     })();
 </script>
 <noscript>
-        Please enable JavaScript to view comments.
-
+    Please enable JavaScript to view comments.
 </noscript>
 <!-- End Disqus -->
 </article>
 
     <footer>
 <p>
-  &copy;  2015 - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>
+  &copy; 2015  - This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/deed.en_US" target="_blank">Creative Commons Attribution-ShareAlike</a>
 </p>
-<p>    Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
+<p>
+Built with <a href="http://getpelican.com" target="_blank">Pelican</a> using <a href="http://bit.ly/flex-pelican" target="_blank">Flex</a> theme
 </p><p>
   <a rel="license"
      href="http://creativecommons.org/licenses/by-sa/4.0/"
@@ -448,7 +449,6 @@ If you have to remember anything from this post, here are the key-points you sho
   "description": ""
 }
 </script>
-
 
 </body>
 </html>
